@@ -251,6 +251,7 @@ def get_env():
 def _pk_start(autostart=False):
     env = get_env()
     conf_data = env.get('VPN_CONF')
+    username = env.get('VPN_USERNAME')
     passwd = env.get('VPN_PASSWORD')
 
     if autostart:
@@ -283,7 +284,7 @@ def _pk_start(autostart=False):
         if passwd:
             with open(pass_path, 'w') as passwd_file:
                 os.chmod(pass_path, 0600)
-                passwd_file.write('pritunl_client\n')
+                passwd_file.write('%s\n' % username)
                 passwd_file.write('%s\n' % passwd)
 
         process = subprocess.Popen(args)
