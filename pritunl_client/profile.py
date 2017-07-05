@@ -321,12 +321,12 @@ class Profile(object):
 
         return self.auth_token
 
-    def start(self, status_callback, connect_callback=None, passwd=None):
+    def start(self, status_callback, connect_callback=None, username_passwd=None):
         if self.status in ACTIVE_STATES:
             self._set_status(self.status)
             return False
         auth_token = self._get_auth_token()
-        self._start(status_callback, connect_callback, auth_token, passwd)
+        self._start(status_callback, connect_callback, auth_token, username_passwd)
         return True
 
     def start_autostart(self, status_callback, connect_callback=None):

@@ -1,0 +1,1032 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ACTIVE_STATES	../pritunl_client/constants.py	/^ACTIVE_STATES = {CONNECTING, RECONNECTING, CONNECTED}$/;"	kind:variable	line:70
+AFTER_BAR	../pritunl_client/click/_termui_impl.py	/^    AFTER_BAR = '\\033[?25h\\n'$/;"	kind:variable	line:27
+AFTER_BAR	../pritunl_client/click/_termui_impl.py	/^    AFTER_BAR = '\\n'$/;"	kind:variable	line:24
+APP_NAME	../pritunl_client/constants.py	/^APP_NAME = 'pritunl_client'$/;"	kind:variable	line:5
+APP_NAME_FORMATED	../pritunl_client/constants.py	/^APP_NAME_FORMATED = 'Pritunl Client'$/;"	kind:variable	line:6
+AUTH_ERROR	../pritunl_client/constants.py	/^AUTH_ERROR = 'auth_error'$/;"	kind:variable	line:68
+AUTOSTART	../pritunl_client/constants.py	/^AUTOSTART = 'autostart'$/;"	kind:variable	line:75
+Abort	../pritunl_client/click/exceptions.py	/^class Abort(RuntimeError):$/;"	kind:class	line:140
+App	../pritunl_client/app.py	/^class App(object):$/;"	kind:class	line:12
+Argument	../pritunl_client/click/core.py	/^class Argument(Parameter):$/;"	kind:class	line:1578
+Argument	../pritunl_client/click/parser.py	/^class Argument(object):$/;"	kind:class	line:111
+BEFORE_BAR	../pritunl_client/click/_termui_impl.py	/^    BEFORE_BAR = '\\r'$/;"	kind:variable	line:23
+BEFORE_BAR	../pritunl_client/click/_termui_impl.py	/^    BEFORE_BAR = '\\r\\033[?25l'$/;"	kind:variable	line:26
+BOOL	../pritunl_client/click/types.py	/^BOOL = BoolParamType()$/;"	kind:variable	line:472
+BUILD_KEYS_PATH	../tools/builder.py	/^BUILD_KEYS_PATH = 'tools\/build_keys.json'$/;"	kind:variable	line:23
+BUILD_TARGETS	../tools/builder.py	/^BUILD_TARGETS = ('pritunl-client', 'pritunl-client-gtk')$/;"	kind:variable	line:26
+BUTTONS_CANCEL	../pritunl_client/constants.py	/^BUTTONS_CANCEL = 'buttons_cancel'$/;"	kind:variable	line:78
+BUTTONS_OK	../pritunl_client/constants.py	/^BUTTONS_OK = 'buttons_ok'$/;"	kind:variable	line:77
+BUTTONS_OK_CANCEL	../pritunl_client/constants.py	/^BUTTONS_OK_CANCEL = 'buttons_ok_cancel'$/;"	kind:variable	line:79
+BadOptionUsage	../pritunl_client/click/exceptions.py	/^class BadOptionUsage(UsageError):$/;"	kind:class	line:113
+BadParameter	../pritunl_client/click/exceptions.py	/^class BadParameter(UsageError):$/;"	kind:class	line:51
+BaseCommand	../pritunl_client/click/core.py	/^class BaseCommand(object):$/;"	kind:class	line:495
+BoolParamType	../pritunl_client/click/types.py	/^class BoolParamType(ParamType):$/;"	kind:class	line:207
+CHANGES_PATH	../tools/builder.py	/^CHANGES_PATH = 'CHANGES'$/;"	kind:variable	line:22
+CONF_DIR	../pritunl_client/constants.py	/^CONF_DIR = os.path.expanduser(os.path.join('~', '.config', APP_NAME))$/;"	kind:variable	line:18
+CONNECTED	../pritunl_client/constants.py	/^CONNECTED = 'connected'$/;"	kind:variable	line:65
+CONNECTED_LOGO_DEFAULT_PATH	../pritunl_client/constants.py	/^        CONNECTED_LOGO_DEFAULT_PATH = img_path$/;"	kind:variable	line:58
+CONNECTED_LOGO_DEFAULT_PATH	../pritunl_client/constants.py	/^CONNECTED_LOGO_DEFAULT_PATH = None$/;"	kind:variable	line:35
+CONNECTING	../pritunl_client/constants.py	/^CONNECTING = 'connecting'$/;"	kind:variable	line:63
+CONNECT_TIMEOUT	../pritunl_client/constants.py	/^CONNECT_TIMEOUT = 60$/;"	kind:variable	line:26
+CheckMenuItem	../pritunl_client/interface_gtk.py	/^class CheckMenuItem:$/;"	kind:class	line:331
+CheckMenuItem	../pritunl_client/interface_wx.py	/^class CheckMenuItem:$/;"	kind:class	line:269
+Choice	../pritunl_client/click/types.py	/^class Choice(ParamType):$/;"	kind:class	line:118
+CliRunner	../pritunl_client/click/testing.py	/^class CliRunner(object):$/;"	kind:class	line:100
+ClickException	../pritunl_client/click/exceptions.py	/^class ClickException(Exception):$/;"	kind:class	line:5
+Command	../pritunl_client/click/core.py	/^class Command(BaseCommand):$/;"	kind:class	line:666
+CommandCollection	../pritunl_client/click/core.py	/^class CommandCollection(MultiCommand):$/;"	kind:class	line:1110
+Context	../pritunl_client/click/core.py	/^class Context(object):$/;"	kind:class	line:90
+CreatePopupMenu	../pritunl_client/interface_wx.py	/^    def CreatePopupMenu(self):$/;"	kind:member	line:37
+DAEMON_SOCKET_TIMEOUT	../pritunl_client/constants.py	/^DAEMON_SOCKET_TIMEOUT = 10$/;"	kind:variable	line:31
+DEFAULT_COLUMNS	../pritunl_client/click/_compat.py	/^    DEFAULT_COLUMNS = 79$/;"	kind:variable	line:476
+DEFAULT_COLUMNS	../pritunl_client/click/_compat.py	/^DEFAULT_COLUMNS = 80$/;"	kind:variable	line:11
+DISCONNECTED_LOGO_DEFAULT_PATH	../pritunl_client/constants.py	/^        DISCONNECTED_LOGO_DEFAULT_PATH = img_path$/;"	kind:variable	line:61
+DISCONNECTED_LOGO_DEFAULT_PATH	../pritunl_client/constants.py	/^DISCONNECTED_LOGO_DEFAULT_PATH = None$/;"	kind:variable	line:36
+ENDED	../pritunl_client/constants.py	/^ENDED = 'ended'$/;"	kind:variable	line:66
+ERROR	../pritunl_client/constants.py	/^ERROR = 'error'$/;"	kind:variable	line:67
+ERROR_STATES	../pritunl_client/constants.py	/^ERROR_STATES = {ERROR, AUTH_ERROR, TIMEOUT_ERROR}$/;"	kind:variable	line:72
+EchoingStdin	../pritunl_client/click/testing.py	/^class EchoingStdin(object):$/;"	kind:class	line:24
+Editor	../pritunl_client/click/_termui_impl.py	/^class Editor(object):$/;"	kind:class	line:333
+FLOAT	../pritunl_client/click/types.py	/^FLOAT = FloatParamType()$/;"	kind:variable	line:468
+File	../pritunl_client/click/types.py	/^class File(ParamType):$/;"	kind:class	line:252
+FileChooserDialog	../pritunl_client/interface_gtk.py	/^class FileChooserDialog:$/;"	kind:class	line:249
+FileChooserDialog	../pritunl_client/interface_wx.py	/^class FileChooserDialog:$/;"	kind:class	line:175
+FileError	../pritunl_client/click/exceptions.py	/^class FileError(ClickException):$/;"	kind:class	line:125
+FloatParamType	../pritunl_client/click/types.py	/^class FloatParamType(ParamType):$/;"	kind:class	line:224
+FuncParamType	../pritunl_client/click/types.py	/^class FuncParamType(ParamType):$/;"	kind:class	line:70
+Group	../pritunl_client/click/core.py	/^class Group(MultiCommand):$/;"	kind:class	line:1058
+HAS_APPINDICATOR	../pritunl_client/interface_gtk.py	/^    HAS_APPINDICATOR = True$/;"	kind:variable	line:16
+HAS_APPINDICATOR	../pritunl_client/interface_gtk.py	/^HAS_APPINDICATOR = False$/;"	kind:variable	line:13
+HelpFormatter	../pritunl_client/click/formatting.py	/^class HelpFormatter(object):$/;"	kind:class	line:85
+IMG_ROOTS	../pritunl_client/constants.py	/^IMG_ROOTS = [$/;"	kind:variable	line:37
+IMPORT_TIMEOUT	../pritunl_client/constants.py	/^IMPORT_TIMEOUT = 10$/;"	kind:variable	line:30
+INACTIVE_STATES	../pritunl_client/constants.py	/^INACTIVE_STATES = {ENDED, ERROR, AUTH_ERROR, TIMEOUT_ERROR}$/;"	kind:variable	line:71
+INIT_PATH	../tools/builder.py	/^INIT_PATH = 'pritunl_client\/__init__.py'$/;"	kind:variable	line:20
+INT	../pritunl_client/click/types.py	/^INT = IntParamType()$/;"	kind:variable	line:464
+InputDialog	../pritunl_client/interface_gtk.py	/^class InputDialog:$/;"	kind:class	line:144
+InputDialog	../pritunl_client/interface_wx.py	/^class InputDialog:$/;"	kind:class	line:125
+IntParamType	../pritunl_client/click/types.py	/^class IntParamType(ParamType):$/;"	kind:class	line:155
+IntRange	../pritunl_client/click/types.py	/^class IntRange(IntParamType):$/;"	kind:class	line:168
+KeepOpenFile	../pritunl_client/click/utils.py	/^class KeepOpenFile(object):$/;"	kind:class	line:195
+LINUX	../pritunl_client/constants.py	/^LINUX = 'linux'$/;"	kind:variable	line:8
+LINUX	../setup.py	/^LINUX = 'linux'$/;"	kind:variable	line:16
+LINUX_ETC_DIR	../pritunl_client/constants.py	/^LINUX_ETC_DIR = os.path.join(os.path.abspath(os.sep), 'etc', APP_NAME)$/;"	kind:variable	line:22
+LOGO_DEFAULT_PATH	../pritunl_client/constants.py	/^        LOGO_DEFAULT_PATH = img_path$/;"	kind:variable	line:55
+LOGO_DEFAULT_PATH	../pritunl_client/constants.py	/^LOGO_DEFAULT_PATH = None$/;"	kind:variable	line:34
+LOG_DEBUG_TYPES	../pritunl_client/constants.py	/^LOG_DEBUG_TYPES = set()$/;"	kind:variable	line:32
+LOG_PATH	../pritunl_client/constants.py	/^LOG_PATH = os.path.join(CONF_DIR, '%s.log' % APP_NAME)$/;"	kind:variable	line:19
+LazyFile	../pritunl_client/click/utils.py	/^class LazyFile(object):$/;"	kind:class	line:123
+LogFilter	../pritunl_client/logger.py	/^class LogFilter(logging.Filter):$/;"	kind:class	line:13
+LogFormatter	../pritunl_client/logger.py	/^class LogFormatter(logging.Formatter):$/;"	kind:class	line:23
+LogHandler	../pritunl_client/logger.py	/^class LogHandler(logging.handlers.RotatingFileHandler):$/;"	kind:class	line:8
+MESSAGE_ERROR	../pritunl_client/constants.py	/^MESSAGE_ERROR = 'message_error'$/;"	kind:variable	line:83
+MESSAGE_INFO	../pritunl_client/constants.py	/^MESSAGE_INFO = 'message_info'$/;"	kind:variable	line:81
+MESSAGE_LOADING	../pritunl_client/constants.py	/^MESSAGE_LOADING = 'message_loading'$/;"	kind:variable	line:84
+MESSAGE_QUESTION	../pritunl_client/constants.py	/^MESSAGE_QUESTION = 'message_question'$/;"	kind:variable	line:82
+MainLoop	../pritunl_client/interface_wx.py	/^    def MainLoop(self):$/;"	kind:member	line:22
+Menu	../pritunl_client/interface_gtk.py	/^class Menu:$/;"	kind:class	line:288
+Menu	../pritunl_client/interface_wx.py	/^class Menu:$/;"	kind:class	line:212
+MenuItem	../pritunl_client/interface_gtk.py	/^class MenuItem:$/;"	kind:class	line:307
+MenuItem	../pritunl_client/interface_wx.py	/^class MenuItem:$/;"	kind:class	line:234
+MessageDialog	../pritunl_client/interface_gtk.py	/^class MessageDialog:$/;"	kind:class	line:39
+MessageDialog	../pritunl_client/interface_wx.py	/^class MessageDialog:$/;"	kind:class	line:50
+MultiCommand	../pritunl_client/click/core.py	/^class MultiCommand(Command):$/;"	kind:class	line:839
+NoSuchOption	../pritunl_client/click/exceptions.py	/^class NoSuchOption(UsageError):$/;"	kind:class	line:87
+OSX	../pritunl_client/constants.py	/^OSX = 'osx'$/;"	kind:variable	line:11
+OVPN_START_TIMEOUT	../pritunl_client/constants.py	/^OVPN_START_TIMEOUT = 5$/;"	kind:variable	line:27
+OVPN_STOP_TIMEOUT	../pritunl_client/constants.py	/^OVPN_STOP_TIMEOUT = 5$/;"	kind:variable	line:28
+OnInit	../pritunl_client/interface_wx.py	/^    def OnInit(self):$/;"	kind:member	line:32
+Option	../pritunl_client/click/core.py	/^class Option(Parameter):$/;"	kind:class	line:1322
+Option	../pritunl_client/click/parser.py	/^class Option(object):$/;"	kind:class	line:63
+OptionParser	../pritunl_client/click/parser.py	/^class OptionParser(object):$/;"	kind:class	line:132
+PATCH_DIR	../setup.py	/^PATCH_DIR = 'build'$/;"	kind:variable	line:10
+PLATFORM	../pritunl_client/constants.py	/^    PLATFORM = LINUX$/;"	kind:variable	line:14
+PLATFORM	../setup.py	/^    PLATFORM = LINUX$/;"	kind:variable	line:20
+PROFILES_DIR	../pritunl_client/constants.py	/^PROFILES_DIR = os.path.join(CONF_DIR, 'profiles')$/;"	kind:variable	line:20
+ParamType	../pritunl_client/click/types.py	/^class ParamType(object):$/;"	kind:class	line:10
+Parameter	../pritunl_client/click/core.py	/^class Parameter(object):$/;"	kind:class	line:1139
+ParsingState	../pritunl_client/click/parser.py	/^class ParsingState(object):$/;"	kind:class	line:123
+Path	../pritunl_client/click/types.py	/^class Path(ParamType):$/;"	kind:class	line:330
+ProcessCallError	../pritunl_client/exceptions.py	/^class ProcessCallError(Exception):$/;"	kind:class	line:3
+Profile	../pritunl_client/profile.py	/^class Profile(object):$/;"	kind:class	line:28
+ProfileLinux	../pritunl_client/profile_linux.py	/^class ProfileLinux(profile.Profile):$/;"	kind:class	line:11
+ProfileShell	../pritunl_client/profile_shell.py	/^class ProfileShell(profile.Profile):$/;"	kind:class	line:12
+ProgressBar	../pritunl_client/click/_termui_impl.py	/^class ProgressBar(object):$/;"	kind:class	line:50
+RECONNECTING	../pritunl_client/constants.py	/^RECONNECTING = 'reconnecting'$/;"	kind:variable	line:64
+Request	../pritunl_client/shell_app.py	/^class Request(BaseHTTPServer.BaseHTTPRequestHandler):$/;"	kind:class	line:19
+Result	../pritunl_client/click/testing.py	/^class Result(object):$/;"	kind:class	line:72
+SETUP_PATH	../tools/builder.py	/^SETUP_PATH = 'setup.py'$/;"	kind:variable	line:21
+SHARE_DIR	../pritunl_client/constants.py	/^SHARE_DIR = os.path.join(os.path.abspath(os.sep), 'usr', 'share', APP_NAME)$/;"	kind:variable	line:21
+SHELL	../pritunl_client/constants.py	/^SHELL = 'shell'$/;"	kind:variable	line:9
+SHELL	../setup.py	/^SHELL = 'shell'$/;"	kind:variable	line:17
+SOCK_PATH	../pritunl_client/constants.py	/^SOCK_PATH = os.path.join(TMP_DIR, 'pritunl_%s.sock' % uuid.uuid4().hex)$/;"	kind:variable	line:24
+STABLE_PACUR_PATH	../tools/builder.py	/^STABLE_PACUR_PATH = '..\/pritunl-pacur'$/;"	kind:variable	line:24
+START	../pritunl_client/constants.py	/^START = 'start'$/;"	kind:variable	line:74
+STRING	../pritunl_client/click/types.py	/^STRING = StringParamType()$/;"	kind:variable	line:460
+SUBCOMMANDS_METAVAR	../pritunl_client/click/core.py	/^SUBCOMMANDS_METAVAR = 'COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...'$/;"	kind:variable	line:21
+SUBCOMMAND_METAVAR	../pritunl_client/click/core.py	/^SUBCOMMAND_METAVAR = 'COMMAND [ARGS]...'$/;"	kind:variable	line:20
+SYNC_CONF_TIMEOUT	../pritunl_client/constants.py	/^SYNC_CONF_TIMEOUT = 5$/;"	kind:variable	line:29
+SelectDialog	../pritunl_client/interface_gtk.py	/^class SelectDialog:$/;"	kind:class	line:197
+SeparatorMenuItem	../pritunl_client/interface_gtk.py	/^class SeparatorMenuItem:$/;"	kind:class	line:358
+SeparatorMenuItem	../pritunl_client/interface_wx.py	/^class SeparatorMenuItem:$/;"	kind:class	line:317
+ShellApp	../pritunl_client/shell_app.py	/^class ShellApp(object):$/;"	kind:class	line:223
+StatusIconApp	../pritunl_client/interface_gtk.py	/^class StatusIconApp:$/;"	kind:class	line:362
+StatusIconApp	../pritunl_client/interface_wx.py	/^class StatusIconApp:$/;"	kind:class	line:324
+StringParamType	../pritunl_client/click/types.py	/^class StringParamType(ParamType):$/;"	kind:class	line:97
+TEST_PACUR_PATH	../tools/builder.py	/^TEST_PACUR_PATH = '..\/pritunl-pacur-test'$/;"	kind:variable	line:25
+TIMEOUT_ERROR	../pritunl_client/constants.py	/^TIMEOUT_ERROR = 'timeout_error'$/;"	kind:variable	line:69
+TMP_DIR	../pritunl_client/constants.py	/^TMP_DIR = os.path.join(os.path.abspath(os.sep), 'tmp')$/;"	kind:variable	line:23
+TextWrapper	../pritunl_client/click/_textwrap.py	/^class TextWrapper(textwrap.TextWrapper):$/;"	kind:class	line:5
+ThreadingHTTPServer	../pritunl_client/shell_app.py	/^        BaseHTTPServer.HTTPServer):$/;"	kind:class	line:16
+UNPROCESSED	../pritunl_client/click/types.py	/^UNPROCESSED = UnprocessedParamType()$/;"	kind:variable	line:456
+USB_DISK_PATH	../pritunl_client/constants.py	/^USB_DISK_PATH = '\/dev\/disk\/by-label\/PRITUNL'$/;"	kind:variable	line:25
+UUID	../pritunl_client/click/types.py	/^UUID = UUIDParameterType()$/;"	kind:variable	line:475
+UUIDParameterType	../pritunl_client/click/types.py	/^class UUIDParameterType(ParamType):$/;"	kind:class	line:238
+UnprocessedParamType	../pritunl_client/click/types.py	/^class UnprocessedParamType(ParamType):$/;"	kind:class	line:87
+UsageError	../pritunl_client/click/exceptions.py	/^class UsageError(ClickException):$/;"	kind:class	line:27
+VERSION	../setup.py	/^VERSION = '1.0.1361.39'$/;"	kind:variable	line:9
+WIN	../pritunl_client/click/_compat.py	/^WIN = sys.platform.startswith('win')$/;"	kind:variable	line:10
+WIN	../pritunl_client/constants.py	/^WIN = 'win'$/;"	kind:variable	line:10
+_App	../pritunl_client/interface_wx.py	/^class _App(wx.App):$/;"	kind:class	line:21
+_AtomicFile	../pritunl_client/click/_compat.py	/^class _AtomicFile(object):$/;"	kind:class	line:422
+_CONNECTED_LOGO_NAME	../pritunl_client/constants.py	/^    _CONNECTED_LOGO_NAME = 'logo_connected_light.svg'$/;"	kind:variable	line:44
+_CONNECTED_LOGO_NAME	../pritunl_client/constants.py	/^    _CONNECTED_LOGO_NAME = None$/;"	kind:variable	line:47
+_DISCONNECTED_LOGO_NAME	../pritunl_client/constants.py	/^    _DISCONNECTED_LOGO_NAME = 'logo_disconnected_light.svg'$/;"	kind:variable	line:45
+_DISCONNECTED_LOGO_NAME	../pritunl_client/constants.py	/^    _DISCONNECTED_LOGO_NAME = None$/;"	kind:variable	line:48
+_FixupStream	../pritunl_client/click/_compat.py	/^class _FixupStream(object):$/;"	kind:class	line:76
+_LOGO_NAME	../pritunl_client/constants.py	/^_LOGO_NAME = 'logo.png'$/;"	kind:variable	line:42
+_NonClosingTextIOWrapper	../pritunl_client/click/_compat.py	/^class _NonClosingTextIOWrapper(io.TextIOWrapper):$/;"	kind:class	line:42
+_TaskBarIcon	../pritunl_client/interface_wx.py	/^class _TaskBarIcon(wx.TaskBarIcon):$/;"	kind:class	line:36
+__all__	../pritunl_client/click/__init__.py	/^__all__ = [$/;"	kind:variable	line:50
+__author__	../pritunl_client/__init__.py	/^__author__ = 'Pritunl'$/;"	kind:variable	line:5
+__call__	../pritunl_client/click/core.py	/^    def __call__(self, *args, **kwargs):$/;"	kind:member	line:661
+__call__	../pritunl_client/click/types.py	/^    def __call__(self, value, param=None, ctx=None):$/;"	kind:member	line:35
+__copyright__	../pritunl_client/__init__.py	/^__copyright__ = 'Copyright 2013-2015 Pritunl <contact@pritunl.com>'$/;"	kind:variable	line:8
+__del__	../pritunl_client/click/_compat.py	/^    def __del__(self):$/;"	kind:member	line:65
+__email__	../pritunl_client/__init__.py	/^__email__ = 'contact@pritunl.com'$/;"	kind:variable	line:6
+__enter__	../pritunl_client/click/_compat.py	/^    def __enter__(self):$/;"	kind:member	line:444
+__enter__	../pritunl_client/click/_termui_impl.py	/^    def __enter__(self):$/;"	kind:member	line:91
+__enter__	../pritunl_client/click/core.py	/^    def __enter__(self):$/;"	kind:member	line:291
+__enter__	../pritunl_client/click/utils.py	/^    def __enter__(self):$/;"	kind:member	line:188
+__enter__	../pritunl_client/click/utils.py	/^    def __enter__(self):$/;"	kind:member	line:203
+__exit__	../pritunl_client/click/_compat.py	/^    def __exit__(self, exc_type, exc_value, tb):$/;"	kind:member	line:447
+__exit__	../pritunl_client/click/_termui_impl.py	/^    def __exit__(self, exc_type, exc_value, tb):$/;"	kind:member	line:96
+__exit__	../pritunl_client/click/core.py	/^    def __exit__(self, exc_type, exc_value, tb):$/;"	kind:member	line:295
+__exit__	../pritunl_client/click/utils.py	/^    def __exit__(self, exc_type, exc_value, tb):$/;"	kind:member	line:191
+__exit__	../pritunl_client/click/utils.py	/^    def __exit__(self, exc_type, exc_value, tb):$/;"	kind:member	line:206
+__getattr__	../pritunl_client/click/_compat.py	/^    def __getattr__(self, name):$/;"	kind:member	line:441
+__getattr__	../pritunl_client/click/_compat.py	/^    def __getattr__(self, name):$/;"	kind:member	line:85
+__getattr__	../pritunl_client/click/testing.py	/^    def __getattr__(self, x):$/;"	kind:member	line:30
+__getattr__	../pritunl_client/click/utils.py	/^    def __getattr__(self, name):$/;"	kind:member	line:150
+__getattr__	../pritunl_client/click/utils.py	/^    def __getattr__(self, name):$/;"	kind:member	line:200
+__getattr__	../pritunl_client/profile.py	/^    def __getattr__(self, name):$/;"	kind:member	line:99
+__init__	../pritunl_client/app.py	/^    def __init__(self):$/;"	kind:member	line:13
+__init__	../pritunl_client/click/_compat.py	/^    def __init__(self, f, tmp_filename, real_filename):$/;"	kind:member	line:424
+__init__	../pritunl_client/click/_compat.py	/^    def __init__(self, stream):$/;"	kind:member	line:82
+__init__	../pritunl_client/click/_compat.py	/^    def __init__(self, stream, encoding, errors, **extra):$/;"	kind:member	line:44
+__init__	../pritunl_client/click/_termui_impl.py	/^    def __init__(self, editor=None, env=None, require_save=True,$/;"	kind:member	line:335
+__init__	../pritunl_client/click/_termui_impl.py	/^    def __init__(self, iterable, length=None, fill_char='#', empty_char=' ',$/;"	kind:member	line:52
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, command, parent=None, info_name=None, obj=None,$/;"	kind:member	line:169
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, name, context_settings=None):$/;"	kind:member	line:523
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, name, context_settings=None, callback=None,$/;"	kind:member	line:689
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, name=None, commands=None, **attrs):$/;"	kind:member	line:1065
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, name=None, invoke_without_command=False,$/;"	kind:member	line:865
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, name=None, sources=None, **attrs):$/;"	kind:member	line:1117
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, param_decls, required=None, **attrs):$/;"	kind:member	line:1587
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, param_decls=None, show_default=False,$/;"	kind:member	line:1356
+__init__	../pritunl_client/click/core.py	/^    def __init__(self, param_decls=None, type=None, required=False,$/;"	kind:member	line:1181
+__init__	../pritunl_client/click/exceptions.py	/^    def __init__(self, filename, hint=None):$/;"	kind:member	line:128
+__init__	../pritunl_client/click/exceptions.py	/^    def __init__(self, message):$/;"	kind:member	line:11
+__init__	../pritunl_client/click/exceptions.py	/^    def __init__(self, message, ctx=None):$/;"	kind:member	line:37
+__init__	../pritunl_client/click/exceptions.py	/^    def __init__(self, message, ctx=None, param=None,$/;"	kind:member	line:69
+__init__	../pritunl_client/click/exceptions.py	/^    def __init__(self, option_name, message, ctx=None):$/;"	kind:member	line:121
+__init__	../pritunl_client/click/exceptions.py	/^    def __init__(self, option_name, message=None, possibilities=None,$/;"	kind:member	line:94
+__init__	../pritunl_client/click/formatting.py	/^    def __init__(self, indent_increment=2, width=None, max_width=None):$/;"	kind:member	line:97
+__init__	../pritunl_client/click/parser.py	/^    def __init__(self, ctx=None):$/;"	kind:member	line:146
+__init__	../pritunl_client/click/parser.py	/^    def __init__(self, dest, nargs=1, obj=None):$/;"	kind:member	line:113
+__init__	../pritunl_client/click/parser.py	/^    def __init__(self, opts, dest, action=None, nargs=1, const=None, obj=None):$/;"	kind:member	line:65
+__init__	../pritunl_client/click/parser.py	/^    def __init__(self, rargs):$/;"	kind:member	line:125
+__init__	../pritunl_client/click/testing.py	/^    def __init__(self, charset=None, env=None, echo_stdin=False):$/;"	kind:member	line:116
+__init__	../pritunl_client/click/testing.py	/^    def __init__(self, input, output):$/;"	kind:member	line:26
+__init__	../pritunl_client/click/testing.py	/^    def __init__(self, runner, output_bytes, exit_code, exception,$/;"	kind:member	line:75
+__init__	../pritunl_client/click/types.py	/^    def __init__(self, choices):$/;"	kind:member	line:126
+__init__	../pritunl_client/click/types.py	/^    def __init__(self, exists=False, file_okay=True, dir_okay=True,$/;"	kind:member	line:350
+__init__	../pritunl_client/click/types.py	/^    def __init__(self, func):$/;"	kind:member	line:72
+__init__	../pritunl_client/click/types.py	/^    def __init__(self, min=None, max=None, clamp=False):$/;"	kind:member	line:178
+__init__	../pritunl_client/click/types.py	/^    def __init__(self, mode='r', encoding=None, errors='strict', lazy=None,$/;"	kind:member	line:278
+__init__	../pritunl_client/click/utils.py	/^    def __init__(self, file):$/;"	kind:member	line:197
+__init__	../pritunl_client/click/utils.py	/^    def __init__(self, filename, mode='r', encoding=None, errors='strict',$/;"	kind:member	line:130
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:145
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:198
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:250
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:289
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:308
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:332
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:359
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:363
+__init__	../pritunl_client/interface_gtk.py	/^    def __init__(self):$/;"	kind:member	line:40
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:126
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:176
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:213
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:235
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:270
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:318
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:325
+__init__	../pritunl_client/interface_wx.py	/^    def __init__(self):$/;"	kind:member	line:51
+__init__	../pritunl_client/profile.py	/^    def __init__(self, id=None):$/;"	kind:member	line:29
+__init__	../pritunl_client/shell_app.py	/^    def __init__(self):$/;"	kind:member	line:224
+__init__.py	../pritunl_client/__init__.py	1;"	kind:file	line:1
+__init__.py	../pritunl_client/click/__init__.py	1;"	kind:file	line:1
+__iter__	../pritunl_client/click/_termui_impl.py	/^    def __iter__(self):$/;"	kind:member	line:99
+__iter__	../pritunl_client/click/testing.py	/^    def __iter__(self):$/;"	kind:member	line:46
+__license__	../pritunl_client/__init__.py	/^__license__ = 'Custom'$/;"	kind:variable	line:7
+__main__.py	../pritunl_client/__main__.py	1;"	kind:file	line:1
+__repr__	../pritunl_client/click/_compat.py	/^    def __repr__(self):$/;"	kind:member	line:450
+__repr__	../pritunl_client/click/testing.py	/^    def __repr__(self):$/;"	kind:member	line:49
+__repr__	../pritunl_client/click/testing.py	/^    def __repr__(self):$/;"	kind:member	line:94
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:114
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:151
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:164
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:203
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:220
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:234
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:248
+__repr__	../pritunl_client/click/types.py	/^    def __repr__(self):$/;"	kind:member	line:93
+__repr__	../pritunl_client/click/utils.py	/^    def __repr__(self):$/;"	kind:member	line:153
+__repr__	../pritunl_client/click/utils.py	/^    def __repr__(self):$/;"	kind:member	line:209
+__title__	../pritunl_client/__init__.py	/^__title__ = 'pritunl_client'$/;"	kind:variable	line:3
+__version__	../pritunl_client/__init__.py	/^__version__ = '1.0.1361.39'$/;"	kind:variable	line:4
+__version__	../pritunl_client/click/__init__.py	/^__version__ = '4.0-dev'$/;"	kind:variable	line:85
+_ansi_colors	../pritunl_client/click/termui.py	/^_ansi_colors = ('black', 'red', 'green', 'yellow', 'blue', 'magenta',$/;"	kind:variable	line:17
+_ansi_re	../pritunl_client/click/_compat.py	/^_ansi_re = re.compile('\\033\\[((?:\\d|;)*)([a-zA-Z])')$/;"	kind:variable	line:14
+_ansi_reset_all	../pritunl_client/click/termui.py	/^_ansi_reset_all = '\\033[0m'$/;"	kind:variable	line:19
+_ansi_stream_wrappers	../pritunl_client/click/_compat.py	/^        _ansi_stream_wrappers = WeakKeyDictionary()$/;"	kind:variable	line:483
+_bashcomplete	../pritunl_client/click/core.py	/^def _bashcomplete(cmd, prog_name, complete_var=None):$/;"	kind:function	line:24
+_bashcomplete.py	../pritunl_client/click/_bashcomplete.py	1;"	kind:file	line:1
+_build	../pritunl_client/interface_wx.py	/^    def _build(self, menu, root_menu):$/;"	kind:member	line:241
+_build	../pritunl_client/interface_wx.py	/^    def _build(self, menu, root_menu):$/;"	kind:member	line:277
+_build	../pritunl_client/interface_wx.py	/^    def _build(self, menu, root_menu):$/;"	kind:member	line:321
+_build	../pritunl_client/interface_wx.py	/^    def _build(self, root_menu=None):$/;"	kind:member	line:217
+_build_dialog	../pritunl_client/interface_gtk.py	/^    def _build_dialog(self):$/;"	kind:member	line:50
+_build_prompt	../pritunl_client/click/termui.py	/^def _build_prompt(text, suffix, show_default=False, default=None):$/;"	kind:function	line:27
+_clear_profile_autostart	../pritunl_client/profile_linux.py	/^    def _clear_profile_autostart(self):$/;"	kind:member	line:116
+_compat.py	../pritunl_client/click/_compat.py	1;"	kind:file	line:1
+_connections	../pritunl_client/profile.py	/^_connections = {}$/;"	kind:variable	line:25
+_convert	../pritunl_client/click/core.py	/^        def _convert(value, level):$/;"	kind:function	line:1231
+_default_text_stderr	../pritunl_client/click/_compat.py	/^_default_text_stderr = _make_cached_stream_func($/;"	kind:variable	line:554
+_default_text_stdout	../pritunl_client/click/_compat.py	/^_default_text_stdout = _make_cached_stream_func($/;"	kind:variable	line:552
+_disk_device_match	../pritunl_client/utils.py	/^_disk_device_match = re.compile(r'(\\\/dev\\\/[a-z0-9]*)')$/;"	kind:variable	line:17
+_disk_size_match	../pritunl_client/utils.py	/^_disk_size_match = re.compile(r'([0-9]*) bytes')$/;"	kind:variable	line:18
+_echo	../pritunl_client/click/testing.py	/^    def _echo(self, rv):$/;"	kind:member	line:33
+_error_args	../pritunl_client/click/parser.py	/^def _error_args(nargs, opt):$/;"	kind:function	line:23
+_fetch	../pritunl_client/click/utils.py	/^    def _fetch(c):$/;"	kind:function	line:47
+_find_binary_reader	../pritunl_client/click/_compat.py	/^    def _find_binary_reader(stream):$/;"	kind:member	line:226
+_find_binary_writer	../pritunl_client/click/_compat.py	/^    def _find_binary_writer(stream):$/;"	kind:member	line:241
+_flush_par	../pritunl_client/click/formatting.py	/^    def _flush_par():$/;"	kind:function	line:53
+_force_correct_text_reader	../pritunl_client/click/_compat.py	/^    def _force_correct_text_reader(text_reader, encoding, errors):$/;"	kind:member	line:275
+_force_correct_text_writer	../pritunl_client/click/_compat.py	/^    def _force_correct_text_writer(text_writer, encoding, errors):$/;"	kind:member	line:303
+_get_auth_token	../pritunl_client/profile.py	/^    def _get_auth_token(self):$/;"	kind:member	line:310
+_get_invoked_subcommands	../pritunl_client/click/core.py	/^    def _get_invoked_subcommands(self):$/;"	kind:member	line:300
+_get_profile_hash	../pritunl_client/profile_linux.py	/^    def _get_profile_hash(self):$/;"	kind:member	line:12
+_get_profile_hash_path	../pritunl_client/profile_linux.py	/^    def _get_profile_hash_path(self):$/;"	kind:member	line:19
+_getchar	../pritunl_client/click/termui.py	/^_getchar = None$/;"	kind:variable	line:467
+_getchar	../pritunl_client/click/testing.py	/^        def _getchar(echo):$/;"	kind:function	line:184
+_handle_long_word	../pritunl_client/click/_textwrap.py	/^    def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):$/;"	kind:member	line:7
+_identifier_re	../pritunl_client/click/_compat.py	/^    _identifier_re = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')$/;"	kind:variable	line:144
+_ip_regex	../pritunl_client/profile.py	/^_ip_regex = re.compile(r'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}')$/;"	kind:variable	line:26
+_is_binary_reader	../pritunl_client/click/_compat.py	/^    def _is_binary_reader(stream, default=False):$/;"	kind:member	line:206
+_is_binary_writer	../pritunl_client/click/_compat.py	/^    def _is_binary_writer(stream, default=False):$/;"	kind:member	line:214
+_is_compatible_text_stream	../pritunl_client/click/_compat.py	/^    def _is_compatible_text_stream(stream, encoding, errors):$/;"	kind:member	line:260
+_kill_pid	../pritunl_client/profile.py	/^    def _kill_pid(self, pid):$/;"	kind:member	line:344
+_kill_pid	../pritunl_client/profile_linux.py	/^    def _kill_pid(self, pid):$/;"	kind:member	line:138
+_kill_pid	../pritunl_client/profile_shell.py	/^    def _kill_pid(self, pid):$/;"	kind:member	line:64
+_length_hint	../pritunl_client/click/_termui_impl.py	/^def _length_hint(obj):$/;"	kind:function	line:30
+_log	../pritunl_client/logger.py	/^def _log(log_level, log_msg, log_type, exc_info=None, **kwargs):$/;"	kind:function	line:75
+_make_cached_stream_func	../pritunl_client/click/_compat.py	/^def _make_cached_stream_func(src_func, wrapper_func):$/;"	kind:function	line:533
+_make_command	../pritunl_client/click/decorators.py	/^def _make_command(f, name, attrs, cls):$/;"	kind:function	line:69
+_make_text_stream	../pritunl_client/click/_compat.py	/^def _make_text_stream(stream, encoding, errors):$/;"	kind:function	line:17
+_mappings	../pritunl_client/interface_gtk.py	/^_mappings = {$/;"	kind:variable	line:20
+_mappings	../pritunl_client/interface_wx.py	/^_mappings = {$/;"	kind:variable	line:11
+_match_long_opt	../pritunl_client/click/parser.py	/^    def _match_long_opt(self, opt, explicit_value, state):$/;"	kind:member	line:261
+_match_short_opt	../pritunl_client/click/parser.py	/^    def _match_short_opt(self, arg, state):$/;"	kind:member	line:293
+_missing	../pritunl_client/click/core.py	/^_missing = object()$/;"	kind:variable	line:17
+_nullpager	../pritunl_client/click/_termui_impl.py	/^def _nullpager(stream, text, color):$/;"	kind:function	line:326
+_on_activate	../pritunl_client/interface_gtk.py	/^    def _on_activate(self, widget):$/;"	kind:member	line:314
+_on_activate	../pritunl_client/interface_gtk.py	/^    def _on_activate(self, widget):$/;"	kind:member	line:338
+_on_activate	../pritunl_client/interface_gtk.py	/^    def _on_activate(self, widget):$/;"	kind:member	line:379
+_on_activate	../pritunl_client/interface_wx.py	/^    def _on_activate(self, event):$/;"	kind:member	line:249
+_on_activate	../pritunl_client/interface_wx.py	/^    def _on_activate(self, event):$/;"	kind:member	line:287
+_on_activate	../pritunl_client/interface_wx.py	/^    def _on_activate(self, event):$/;"	kind:member	line:294
+_on_activate	../pritunl_client/interface_wx.py	/^    def _on_activate(self, event):$/;"	kind:member	line:333
+_on_popup_menu	../pritunl_client/interface_gtk.py	/^    def _on_popup_menu(self, widget, button, activate_time):$/;"	kind:member	line:382
+_on_theme_change	../pritunl_client/interface_gtk.py	/^    def _on_theme_change(self, widget):$/;"	kind:member	line:385
+_param_memo	../pritunl_client/click/decorators.py	/^def _param_memo(f, param):$/;"	kind:function	line:127
+_parse_decls	../pritunl_client/click/core.py	/^    def _parse_decls(self, decls, expose_value):$/;"	kind:member	line:1424
+_parse_decls	../pritunl_client/click/core.py	/^    def _parse_decls(self, decls, expose_value):$/;"	kind:member	line:1605
+_parse_profile	../pritunl_client/profile.py	/^    def _parse_profile(self, data):$/;"	kind:member	line:177
+_pipepager	../pritunl_client/click/_termui_impl.py	/^def _pipepager(text, cmd, color):$/;"	kind:function	line:279
+_pk_start	../pritunl_client/__main__.py	/^def _pk_start(autostart=False):$/;"	kind:function	line:251
+_posixify	../pritunl_client/click/utils.py	/^def _posixify(name):$/;"	kind:function	line:17
+_process_args_for_args	../pritunl_client/click/parser.py	/^    def _process_args_for_args(self, state):$/;"	kind:member	line:215
+_process_args_for_options	../pritunl_client/click/parser.py	/^    def _process_args_for_options(self, state):$/;"	kind:member	line:225
+_process_opts	../pritunl_client/click/parser.py	/^    def _process_opts(self, arg, state):$/;"	kind:member	line:340
+_process_result	../pritunl_client/click/core.py	/^        def _process_result(value):$/;"	kind:function	line:955
+_rename	../pritunl_client/click/_compat.py	/^_rename = os.rename$/;"	kind:variable	line:419
+_run_ovpn	../pritunl_client/profile.py	/^    def _run_ovpn(self, status_callback, connect_callback,$/;"	kind:member	line:492
+_safe_write	../pritunl_client/click/_compat.py	/^            def _safe_write(s):$/;"	kind:function	line:502
+_set_invoked_subcommands	../pritunl_client/click/core.py	/^    def _set_invoked_subcommands(self, value):$/;"	kind:member	line:312
+_set_profile_autostart	../pritunl_client/profile_linux.py	/^    def _set_profile_autostart(self):$/;"	kind:member	line:92
+_set_status	../pritunl_client/profile.py	/^    def _set_status(self, status, connect_event=True):$/;"	kind:member	line:288
+_show_menu	../pritunl_client/interface_gtk.py	/^    def _show_menu(self, event_button, activate_time):$/;"	kind:member	line:389
+_start	../pritunl_client/profile.py	/^    def _start(self, status_callback, connect_callback, auth_token, passwd):$/;"	kind:member	line:338
+_start	../pritunl_client/profile_linux.py	/^    def _start(self, status_callback, connect_callback, auth_token,$/;"	kind:member	line:25
+_start	../pritunl_client/profile_shell.py	/^    def _start(self, status_callback, connect_callback, auth_token, passwd):$/;"	kind:member	line:13
+_start_autostart	../pritunl_client/profile.py	/^    def _start_autostart(self, status_callback, connect_callback, auth_token):$/;"	kind:member	line:341
+_start_autostart	../pritunl_client/profile_linux.py	/^    def _start_autostart(self, status_callback, connect_callback, auth_token):$/;"	kind:member	line:59
+_start_autostart	../pritunl_client/profile_shell.py	/^    def _start_autostart(self, status_callback, connect_callback, auth_token):$/;"	kind:member	line:38
+_stop	../pritunl_client/profile.py	/^    def _stop(self, silent):$/;"	kind:member	line:592
+_stop	../pritunl_client/profile_linux.py	/^    def _stop(self, silent):$/;"	kind:member	line:63
+_stop	../pritunl_client/profile_shell.py	/^    def _stop(self, silent):$/;"	kind:member	line:41
+_stream_is_misconfigured	../pritunl_client/click/_compat.py	/^    def _stream_is_misconfigured(stream):$/;"	kind:member	line:256
+_tempfilepager	../pritunl_client/click/_termui_impl.py	/^def _tempfilepager(text, cmd, color):$/;"	kind:function	line:311
+_termui_impl.py	../pritunl_client/click/_termui_impl.py	1;"	kind:file	line:1
+_textwrap.py	../pritunl_client/click/_textwrap.py	1;"	kind:file	line:1
+_translate_ch_to_exc	../pritunl_client/click/_termui_impl.py	/^def _translate_ch_to_exc(ch):$/;"	kind:function	line:461
+_unquote_file	../pritunl_client/click/_termui_impl.py	/^    def _unquote_file(url):$/;"	kind:function	line:413
+_write_opts	../pritunl_client/click/core.py	/^        def _write_opts(opts):$/;"	kind:function	line:1497
+abort	../pritunl_client/click/core.py	/^    def abort(self):$/;"	kind:member	line:397
+add_argument	../pritunl_client/click/parser.py	/^    def add_argument(self, dest, nargs=1, obj=None):$/;"	kind:member	line:189
+add_command	../pritunl_client/click/core.py	/^    def add_command(self, cmd, name=None):$/;"	kind:member	line:1070
+add_filter	../pritunl_client/interface_gtk.py	/^    def add_filter(self, name, pattern):$/;"	kind:member	line:264
+add_filter	../pritunl_client/interface_wx.py	/^    def add_filter(self, name, pattern):$/;"	kind:member	line:187
+add_idle_call	../pritunl_client/interface_gtk.py	/^def add_idle_call(call, *args):$/;"	kind:function	line:36
+add_idle_call	../pritunl_client/interface_wx.py	/^def add_idle_call(call):$/;"	kind:function	line:40
+add_item	../pritunl_client/interface_gtk.py	/^    def add_item(self, item):$/;"	kind:member	line:297
+add_item	../pritunl_client/interface_wx.py	/^    def add_item(self, item):$/;"	kind:member	line:231
+add_option	../pritunl_client/click/parser.py	/^    def add_option(self, opts, dest, action=None, nargs=1, const=None,$/;"	kind:member	line:168
+add_select_item	../pritunl_client/interface_gtk.py	/^    def add_select_item(self, text):$/;"	kind:member	line:224
+add_source	../pritunl_client/click/core.py	/^    def add_source(self, multi_cmd):$/;"	kind:member	line:1122
+add_to_parser	../pritunl_client/click/core.py	/^    def add_to_parser(self, parser, ctx):$/;"	kind:member	line:1216
+add_to_parser	../pritunl_client/click/core.py	/^    def add_to_parser(self, parser, ctx):$/;"	kind:member	line:1465
+add_to_parser	../pritunl_client/click/core.py	/^    def add_to_parser(self, parser, ctx):$/;"	kind:member	line:1623
+allow_extra_args	../pritunl_client/click/core.py	/^    allow_extra_args = False$/;"	kind:variable	line:517
+allow_extra_args	../pritunl_client/click/core.py	/^    allow_extra_args = True$/;"	kind:variable	line:862
+allow_interspersed_args	../pritunl_client/click/core.py	/^    allow_interspersed_args = False$/;"	kind:variable	line:863
+allow_interspersed_args	../pritunl_client/click/core.py	/^    allow_interspersed_args = True$/;"	kind:variable	line:519
+app.py	../pritunl_client/app.py	1;"	kind:file	line:1
+app_name	../tools/builder.py	/^            app_name = line.split('=')[1].replace("'", '').strip()$/;"	kind:variable	line:120
+archive_name	../tools/builder.py	/^    archive_name = '%s.tar.gz' % cur_version$/;"	kind:variable	line:366
+archive_path	../tools/builder.py	/^    archive_path = os.path.join(os.path.sep, 'tmp', archive_name)$/;"	kind:variable	line:367
+archive_sha256_sum	../tools/builder.py	/^    archive_sha256_sum = subprocess.check_output($/;"	kind:variable	line:375
+argument	../pritunl_client/click/decorators.py	/^def argument(*param_decls, **attrs):$/;"	kind:function	line:136
+augment_usage_errors	../pritunl_client/click/core.py	/^def augment_usage_errors(ctx, param=None):$/;"	kind:function	line:57
+auth_request	../pritunl_client/utils.py	/^def auth_request(method, host, path, token, secret,$/;"	kind:function	line:48
+auth_token	../pritunl_client/shell_app.py	/^auth_token = utils.generate_secret()$/;"	kind:variable	line:13
+auth_type	../pritunl_client/profile.py	/^    def auth_type(self):$/;"	kind:member	line:105
+author	../setup.py	/^    author='Pritunl',$/;"	kind:variable	line:138
+author_email	../setup.py	/^    author_email='contact@pritunl.com',$/;"	kind:variable	line:139
+auto_wrap_for_ansi	../pritunl_client/click/_compat.py	/^        def auto_wrap_for_ansi(stream, color=None):$/;"	kind:function	line:485
+auto_wrap_for_ansi	../pritunl_client/click/_compat.py	/^auto_wrap_for_ansi = None$/;"	kind:variable	line:454
+autostart	../pritunl_client/app.py	/^    def autostart(self):$/;"	kind:member	line:549
+autostart	../pritunl_client/shell_app.py	/^    def autostart(self):$/;"	kind:member	line:227
+bashcomplete	../pritunl_client/click/_bashcomplete.py	/^def bashcomplete(cli, prog_name, complete_var, complete_instr):$/;"	kind:function	line:68
+batch	../pritunl_client/click/core.py	/^def batch(iterable, batch_size):$/;"	kind:function	line:37
+binary_streams	../pritunl_client/click/_compat.py	/^binary_streams = {$/;"	kind:variable	line:558
+build_keys	../tools/builder.py	/^    build_keys = json.loads(build_keys_file.read().strip())$/;"	kind:variable	line:106
+build_num	../tools/builder.py	/^build_num = 0$/;"	kind:variable	line:143
+builder.py	../tools/builder.py	1;"	kind:file	line:1
+bytes	../pritunl_client/click/_compat.py	/^    bytes = str$/;"	kind:variable	line:135
+call_on_close	../pritunl_client/click/core.py	/^    def call_on_close(self, f):$/;"	kind:member	line:324
+callback	../pritunl_client/click/decorators.py	/^        def callback(ctx, param, value):$/;"	kind:function	line:182
+callback	../pritunl_client/click/decorators.py	/^        def callback(ctx, param, value):$/;"	kind:function	line:232
+callback	../pritunl_client/click/decorators.py	/^        def callback(ctx, param, value):$/;"	kind:function	line:279
+changes_data	../tools/builder.py	/^            changes_data = changes_file.read()$/;"	kind:variable	line:210
+check_call_silent	../pritunl_client/utils.py	/^def check_call_silent(*args, **kwargs):$/;"	kind:function	line:36
+check_output	../pritunl_client/utils.py	/^def check_output(*args, **kwargs):$/;"	kind:function	line:20
+classifiers	../setup.py	/^    classifiers=[$/;"	kind:variable	line:157
+clear	../pritunl_client/click/termui.py	/^def clear():$/;"	kind:function	line:288
+cli	../pritunl_client/__main__.py	/^    def cli():$/;"	kind:function	line:42
+clickpkg	../pritunl_client/click/testing.py	/^clickpkg = sys.modules[__name__.rsplit('.', 1)[0]]$/;"	kind:variable	line:14
+client.py	../client.py	1;"	kind:file	line:1
+client_gtk.py	../client_gtk.py	1;"	kind:file	line:1
+client_gui	../pritunl_client/__main__.py	/^def client_gui():$/;"	kind:function	line:14
+client_shell	../pritunl_client/__main__.py	/^def client_shell():$/;"	kind:function	line:27
+close	../pritunl_client/click/_compat.py	/^    def close(self, delete=False):$/;"	kind:member	line:434
+close	../pritunl_client/click/core.py	/^    def close(self):$/;"	kind:member	line:336
+close	../pritunl_client/click/utils.py	/^    def close(self):$/;"	kind:member	line:176
+close	../pritunl_client/interface_gtk.py	/^    def close(self):$/;"	kind:member	line:141
+close	../pritunl_client/interface_gtk.py	/^    def close(self):$/;"	kind:member	line:194
+close	../pritunl_client/interface_gtk.py	/^    def close(self):$/;"	kind:member	line:246
+close	../pritunl_client/interface_gtk.py	/^    def close(self):$/;"	kind:member	line:285
+close	../pritunl_client/interface_wx.py	/^    def close(self):$/;"	kind:member	line:119
+close	../pritunl_client/interface_wx.py	/^    def close(self):$/;"	kind:member	line:172
+close	../pritunl_client/interface_wx.py	/^    def close(self):$/;"	kind:member	line:209
+close_intelligently	../pritunl_client/click/utils.py	/^    def close_intelligently(self):$/;"	kind:member	line:181
+cmd	../tools/builder.py	/^    cmd = 'version'$/;"	kind:variable	line:138
+cmd	../tools/builder.py	/^    cmd = sys.argv[1]$/;"	kind:variable	line:136
+collect_usage_pieces	../pritunl_client/click/core.py	/^    def collect_usage_pieces(self, ctx):$/;"	kind:member	line:725
+collect_usage_pieces	../pritunl_client/click/core.py	/^    def collect_usage_pieces(self, ctx):$/;"	kind:member	line:884
+colorama	../pritunl_client/click/_compat.py	/^colorama = None$/;"	kind:variable	line:455
+command	../pritunl_client/click/core.py	/^    def command(self, *args, **kwargs):$/;"	kind:member	line:1079
+command	../pritunl_client/click/decorators.py	/^def command(name=None, cls=None, **attrs):$/;"	kind:function	line:91
+command_path	../pritunl_client/click/core.py	/^    def command_path(self):$/;"	kind:member	line:343
+commit	../pritunl_client/profile.py	/^    def commit(self):$/;"	kind:member	line:162
+commit	../pritunl_client/profile_linux.py	/^    def commit(self):$/;"	kind:member	line:152
+confirm	../pritunl_client/click/termui.py	/^def confirm(text, default=False, abort=False, prompt_suffix=': ',$/;"	kind:function	line:105
+confirmation_option	../pritunl_client/click/decorators.py	/^def confirmation_option(*param_decls, **attrs):$/;"	kind:function	line:164
+connect_callback	../pritunl_client/app.py	/^        def connect_callback():$/;"	kind:function	line:323
+connect_callback	../pritunl_client/shell_app.py	/^            def connect_callback():$/;"	kind:function	line:240
+connect_callback	../pritunl_client/shell_app.py	/^        def connect_callback():$/;"	kind:function	line:156
+connect_thread	../pritunl_client/profile.py	/^        def connect_thread():$/;"	kind:function	line:518
+console_scripts	../setup.py	/^console_scripts = [$/;"	kind:variable	line:89
+constants.py	../pritunl_client/constants.py	1;"	kind:file	line:1
+consume_value	../pritunl_client/click/core.py	/^    def consume_value(self, ctx, opts):$/;"	kind:member	line:1219
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:100
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:135
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:158
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:183
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:210
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:227
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:241
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:295
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:369
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:49
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:76
+convert	../pritunl_client/click/types.py	/^    def convert(self, value, param, ctx):$/;"	kind:member	line:90
+convert_type	../pritunl_client/click/types.py	/^def convert_type(ty, default=None):$/;"	kind:function	line:408
+core.py	../pritunl_client/click/core.py	1;"	kind:file	line:1
+critical	../pritunl_client/logger.py	/^def critical(log_msg, log_type=None, **kwargs):$/;"	kind:function	line:95
+cur_date	../tools/builder.py	/^cur_date = datetime.datetime.utcnow()$/;"	kind:variable	line:29
+cur_version	../tools/builder.py	/^            cur_version = line.split('=')[1].replace("'", '').strip()$/;"	kind:variable	line:131
+cwd	../tools/builder.py	/^            cwd=pacur_path,$/;"	kind:variable	line:404
+cwd	../tools/builder.py	/^        cwd=os.path.join(os.path.sep, 'tmp'),$/;"	kind:variable	line:373
+cwd	../tools/builder.py	/^        cwd=pacur_path,$/;"	kind:variable	line:436
+daemon_cmd	../pritunl_client/__main__.py	/^    def daemon_cmd(pidfile, foreground):$/;"	kind:function	line:56
+data	../tools/builder.py	/^                data=json.dumps({$/;"	kind:variable	line:183
+data	../tools/builder.py	/^        data=json.dumps({$/;"	kind:variable	line:320
+data	../tools/builder.py	/^        data=json.dumps({$/;"	kind:variable	line:348
+data_files	../setup.py	/^    data_files=data_files,$/;"	kind:variable	line:150
+data_files	../setup.py	/^data_files = []$/;"	kind:variable	line:14
+debug	../pritunl_client/logger.py	/^def debug(log_msg, log_type=None, **kwargs):$/;"	kind:function	line:81
+decorator	../pritunl_client/click/core.py	/^        def decorator(f):$/;"	kind:function	line:1085
+decorator	../pritunl_client/click/core.py	/^        def decorator(f):$/;"	kind:function	line:1097
+decorator	../pritunl_client/click/core.py	/^        def decorator(f):$/;"	kind:function	line:918
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:113
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:143
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:156
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:181
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:206
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:228
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:278
+decorator	../pritunl_client/click/decorators.py	/^    def decorator(f):$/;"	kind:function	line:52
+decorators.py	../pritunl_client/click/decorators.py	1;"	kind:file	line:1
+decrypt_vpv_conf	../pritunl_client/profile.py	/^    def decrypt_vpv_conf(self):$/;"	kind:member	line:486
+dedent	../pritunl_client/click/formatting.py	/^    def dedent(self):$/;"	kind:member	line:115
+delete	../pritunl_client/profile.py	/^    def delete(self):$/;"	kind:member	line:279
+delete	../pritunl_client/profile_linux.py	/^    def delete(self):$/;"	kind:member	line:164
+description	../setup.py	/^    description='Pritunl VPN Client',$/;"	kind:variable	line:136
+destroy	../pritunl_client/interface_gtk.py	/^    def destroy(self):$/;"	kind:member	line:138
+destroy	../pritunl_client/interface_gtk.py	/^    def destroy(self):$/;"	kind:member	line:191
+destroy	../pritunl_client/interface_gtk.py	/^    def destroy(self):$/;"	kind:member	line:243
+destroy	../pritunl_client/interface_gtk.py	/^    def destroy(self):$/;"	kind:member	line:282
+destroy	../pritunl_client/interface_gtk.py	/^    def destroy(self):$/;"	kind:member	line:423
+destroy	../pritunl_client/interface_wx.py	/^    def destroy(self):$/;"	kind:member	line:116
+destroy	../pritunl_client/interface_wx.py	/^    def destroy(self):$/;"	kind:member	line:169
+destroy	../pritunl_client/interface_wx.py	/^    def destroy(self):$/;"	kind:member	line:206
+destroy	../pritunl_client/interface_wx.py	/^    def destroy(self):$/;"	kind:member	line:354
+dict	../pritunl_client/profile.py	/^    def dict(self):$/;"	kind:member	line:75
+disable_cmd	../pritunl_client/__main__.py	/^    def disable_cmd(profile_ids):$/;"	kind:function	line:223
+do_DELETE	../pritunl_client/shell_app.py	/^    def do_DELETE(self):$/;"	kind:member	line:82
+do_GET	../pritunl_client/shell_app.py	/^    def do_GET(self):$/;"	kind:member	line:105
+do_POST	../pritunl_client/shell_app.py	/^    def do_POST(self):$/;"	kind:member	line:59
+do_PUT	../pritunl_client/shell_app.py	/^    def do_PUT(self):$/;"	kind:member	line:28
+do_complete	../pritunl_client/click/_bashcomplete.py	/^def do_complete(cli, prog_name):$/;"	kind:function	line:38
+do_disable	../pritunl_client/shell_app.py	/^    def do_disable(self):$/;"	kind:member	line:199
+do_enable	../pritunl_client/shell_app.py	/^    def do_enable(self):$/;"	kind:member	line:193
+do_import	../pritunl_client/shell_app.py	/^    def do_import(self):$/;"	kind:member	line:125
+do_list	../pritunl_client/shell_app.py	/^    def do_list(self):$/;"	kind:member	line:205
+do_remove	../pritunl_client/shell_app.py	/^    def do_remove(self):$/;"	kind:member	line:142
+do_start	../pritunl_client/shell_app.py	/^    def do_start(self):$/;"	kind:member	line:149
+do_stop	../pritunl_client/shell_app.py	/^    def do_stop(self):$/;"	kind:member	line:187
+do_token	../pritunl_client/shell_app.py	/^    def do_token(self):$/;"	kind:member	line:122
+download_url	../setup.py	/^        '%s.tar.gz' % VERSION,$/;"	kind:variable	line:142
+echo	../pritunl_client/click/utils.py	/^def echo(message=None, file=None, nl=True, err=False, color=None):$/;"	kind:function	line:213
+echo_native_types	../pritunl_client/click/utils.py	/^echo_native_types = string_types + (bytes, bytearray)$/;"	kind:variable	line:14
+echo_via_pager	../pritunl_client/click/termui.py	/^def echo_via_pager(text, color=None):$/;"	kind:function	line:190
+edit	../pritunl_client/click/_termui_impl.py	/^    def edit(self, text):$/;"	kind:member	line:373
+edit	../pritunl_client/click/termui.py	/^def edit(text=None, editor=None, env=None, require_save=True,$/;"	kind:function	line:402
+edit_file	../pritunl_client/click/_termui_impl.py	/^    def edit_file(self, filename):$/;"	kind:member	line:356
+emit	../pritunl_client/logger.py	/^    def emit(self, record):$/;"	kind:member	line:9
+enable_cmd	../pritunl_client/__main__.py	/^    def enable_cmd(profile_ids):$/;"	kind:function	line:202
+encrypt_vpv_conf	../pritunl_client/profile.py	/^    def encrypt_vpv_conf(self):$/;"	kind:member	line:440
+ensure_object	../pritunl_client/click/core.py	/^    def ensure_object(self, object_type):$/;"	kind:member	line:370
+entry_points	../setup.py	/^    entry_points={$/;"	kind:variable	line:151
+envvar_list_splitter	../pritunl_client/click/types.py	/^    envvar_list_splitter = None$/;"	kind:variable	line:33
+envvar_list_splitter	../pritunl_client/click/types.py	/^    envvar_list_splitter = os.path.pathsep$/;"	kind:variable	line:276
+envvar_list_splitter	../pritunl_client/click/types.py	/^    envvar_list_splitter = os.path.pathsep$/;"	kind:variable	line:348
+error	../pritunl_client/logger.py	/^def error(log_msg, log_type=None, **kwargs):$/;"	kind:function	line:91
+eta	../pritunl_client/click/_termui_impl.py	/^    def eta(self):$/;"	kind:member	line:124
+exception	../pritunl_client/logger.py	/^def exception(log_msg, log_type=None, **kwargs):$/;"	kind:function	line:99
+exceptions.py	../pritunl_client/click/exceptions.py	1;"	kind:file	line:1
+exceptions.py	../pritunl_client/exceptions.py	1;"	kind:file	line:1
+exit	../pritunl_client/app.py	/^    def exit(self):$/;"	kind:member	line:557
+exit	../pritunl_client/click/core.py	/^    def exit(self, code=0):$/;"	kind:member	line:401
+exit_code	../pritunl_client/click/exceptions.py	/^    exit_code = 1$/;"	kind:variable	line:9
+exit_code	../pritunl_client/click/exceptions.py	/^    exit_code = 2$/;"	kind:variable	line:35
+extra_indent	../pritunl_client/click/_textwrap.py	/^    def extra_indent(self, indent):$/;"	kind:member	line:20
+fail	../pritunl_client/click/core.py	/^    def fail(self, message):$/;"	kind:member	line:389
+fail	../pritunl_client/click/types.py	/^    def fail(self, message, param=None, ctx=None):$/;"	kind:member	line:65
+filename_to_ui	../pritunl_client/click/_compat.py	/^    def filename_to_ui(value):$/;"	kind:member	line:190
+filename_to_ui	../pritunl_client/click/_compat.py	/^    def filename_to_ui(value):$/;"	kind:member	line:361
+filter	../pritunl_client/logger.py	/^    def filter(self, record):$/;"	kind:member	line:14
+find_object	../pritunl_client/click/core.py	/^    def find_object(self, object_type):$/;"	kind:member	line:362
+find_root	../pritunl_client/click/core.py	/^    def find_root(self):$/;"	kind:member	line:355
+finish	../pritunl_client/click/_termui_impl.py	/^    def finish(self):$/;"	kind:member	line:227
+format	../pritunl_client/logger.py	/^    def format(self, record):$/;"	kind:member	line:24
+format_commands	../pritunl_client/click/core.py	/^    def format_commands(self, ctx, formatter):$/;"	kind:member	line:930
+format_disk	../pritunl_client/utils.py	/^def format_disk(disk_device):$/;"	kind:function	line:212
+format_epilog	../pritunl_client/click/core.py	/^    def format_epilog(self, ctx, formatter):$/;"	kind:member	line:808
+format_eta	../pritunl_client/click/_termui_impl.py	/^    def format_eta(self):$/;"	kind:member	line:129
+format_filename	../pritunl_client/click/utils.py	/^def format_filename(filename, shorten=False):$/;"	kind:function	line:365
+format_help	../pritunl_client/click/core.py	/^    def format_help(self, ctx, formatter):$/;"	kind:member	line:774
+format_help_text	../pritunl_client/click/core.py	/^    def format_help_text(self, ctx, formatter):$/;"	kind:member	line:789
+format_message	../pritunl_client/click/exceptions.py	/^    def format_message(self):$/;"	kind:member	line:102
+format_message	../pritunl_client/click/exceptions.py	/^    def format_message(self):$/;"	kind:member	line:136
+format_message	../pritunl_client/click/exceptions.py	/^    def format_message(self):$/;"	kind:member	line:18
+format_message	../pritunl_client/click/exceptions.py	/^    def format_message(self):$/;"	kind:member	line:75
+format_options	../pritunl_client/click/core.py	/^    def format_options(self, ctx, formatter):$/;"	kind:member	line:796
+format_options	../pritunl_client/click/core.py	/^    def format_options(self, ctx, formatter):$/;"	kind:member	line:889
+format_pct	../pritunl_client/click/_termui_impl.py	/^    def format_pct(self):$/;"	kind:member	line:140
+format_pos	../pritunl_client/click/_termui_impl.py	/^    def format_pos(self):$/;"	kind:member	line:134
+format_progress_line	../pritunl_client/click/_termui_impl.py	/^    def format_progress_line(self):$/;"	kind:member	line:143
+format_usage	../pritunl_client/click/core.py	/^    def format_usage(self, ctx, formatter):$/;"	kind:member	line:720
+format_usb_device	../pritunl_client/profile.py	/^def format_usb_device(device):$/;"	kind:function	line:680
+formatting.py	../pritunl_client/click/formatting.py	1;"	kind:file	line:1
+forward	../pritunl_client/click/core.py	/^    def forward(*args, **kwargs):$/;"	kind:member	line:476
+full_process_value	../pritunl_client/click/core.py	/^    def full_process_value(self, ctx, value):$/;"	kind:member	line:1255
+full_process_value	../pritunl_client/click/core.py	/^    def full_process_value(self, ctx, value):$/;"	kind:member	line:1571
+func	../pritunl_client/click/_compat.py	/^    def func():$/;"	kind:function	line:535
+function	../pritunl_client/click/core.py	/^            def function(__value, *args, **kwargs):$/;"	kind:function	line:923
+generate_secret	../pritunl_client/utils.py	/^def generate_secret():$/;"	kind:function	line:340
+get_app_dir	../pritunl_client/click/utils.py	/^def get_app_dir(app_name, roaming=True, force_posix=False):$/;"	kind:function	line:382
+get_auth_headers	../pritunl_client/__main__.py	/^    def get_auth_headers(add_headers=None):$/;"	kind:function	line:32
+get_best_encoding	../pritunl_client/click/_compat.py	/^def get_best_encoding(stream):$/;"	kind:function	line:34
+get_binary_stderr	../pritunl_client/click/_compat.py	/^    def get_binary_stderr():$/;"	kind:member	line:178
+get_binary_stderr	../pritunl_client/click/_compat.py	/^    def get_binary_stderr():$/;"	kind:member	line:345
+get_binary_stdin	../pritunl_client/click/_compat.py	/^    def get_binary_stdin():$/;"	kind:member	line:172
+get_binary_stdin	../pritunl_client/click/_compat.py	/^    def get_binary_stdin():$/;"	kind:member	line:331
+get_binary_stdout	../pritunl_client/click/_compat.py	/^    def get_binary_stdout():$/;"	kind:member	line:175
+get_binary_stdout	../pritunl_client/click/_compat.py	/^    def get_binary_stdout():$/;"	kind:member	line:338
+get_binary_stream	../pritunl_client/click/utils.py	/^def get_binary_stream(name):$/;"	kind:function	line:299
+get_command	../pritunl_client/click/core.py	/^    def get_command(self, ctx, cmd_name):$/;"	kind:member	line:1045
+get_command	../pritunl_client/click/core.py	/^    def get_command(self, ctx, cmd_name):$/;"	kind:member	line:1103
+get_command	../pritunl_client/click/core.py	/^    def get_command(self, ctx, cmd_name):$/;"	kind:member	line:1126
+get_completion_script	../pritunl_client/click/_bashcomplete.py	/^def get_completion_script(prog_name, complete_var):$/;"	kind:function	line:19
+get_connected_logo	../pritunl_client/utils.py	/^def get_connected_logo():$/;"	kind:function	line:86
+get_default	../pritunl_client/click/core.py	/^    def get_default(self, ctx):$/;"	kind:member	line:1207
+get_default	../pritunl_client/click/core.py	/^    def get_default(self, ctx):$/;"	kind:member	line:1520
+get_default_prog_name	../pritunl_client/click/testing.py	/^    def get_default_prog_name(self, cli):$/;"	kind:member	line:123
+get_disconnected_logo	../pritunl_client/utils.py	/^def get_disconnected_logo():$/;"	kind:function	line:93
+get_disk_profile	../pritunl_client/utils.py	/^def get_disk_profile(profile_id, timeout=3):$/;"	kind:function	line:234
+get_disk_size	../pritunl_client/utils.py	/^def get_disk_size(disk_device):$/;"	kind:function	line:178
+get_disk_type	../pritunl_client/utils.py	/^def get_disk_type(disk_device):$/;"	kind:function	line:204
+get_editor	../pritunl_client/click/_termui_impl.py	/^    def get_editor(self):$/;"	kind:member	line:342
+get_env	../pritunl_client/__main__.py	/^def get_env():$/;"	kind:function	line:239
+get_help	../pritunl_client/click/core.py	/^    def get_help(self):$/;"	kind:member	line:411
+get_help	../pritunl_client/click/core.py	/^    def get_help(self, ctx):$/;"	kind:member	line:537
+get_help	../pritunl_client/click/core.py	/^    def get_help(self, ctx):$/;"	kind:member	line:766
+get_help_option	../pritunl_client/click/core.py	/^    def get_help_option(self, ctx):$/;"	kind:member	line:742
+get_help_option_names	../pritunl_client/click/core.py	/^    def get_help_option_names(self, ctx):$/;"	kind:member	line:734
+get_help_record	../pritunl_client/click/core.py	/^    def get_help_record(self, ctx):$/;"	kind:member	line:1315
+get_help_record	../pritunl_client/click/core.py	/^    def get_help_record(self, ctx):$/;"	kind:member	line:1494
+get_icon_state	../pritunl_client/app.py	/^    def get_icon_state(self):$/;"	kind:member	line:29
+get_int_ver	../tools/builder.py	/^def get_int_ver(version):$/;"	kind:function	line:70
+get_label	../pritunl_client/interface_wx.py	/^    def get_label(self):$/;"	kind:member	line:259
+get_label	../pritunl_client/interface_wx.py	/^    def get_label(self):$/;"	kind:member	line:304
+get_logo	../pritunl_client/utils.py	/^def get_logo():$/;"	kind:function	line:79
+get_metavar	../pritunl_client/click/types.py	/^    def get_metavar(self, param):$/;"	kind:member	line:129
+get_metavar	../pritunl_client/click/types.py	/^    def get_metavar(self, param):$/;"	kind:member	line:39
+get_missing_message	../pritunl_client/click/core.py	/^    def get_missing_message(self, ctx):$/;"	kind:member	line:1266
+get_missing_message	../pritunl_client/click/types.py	/^    def get_missing_message(self, param):$/;"	kind:member	line:132
+get_missing_message	../pritunl_client/click/types.py	/^    def get_missing_message(self, param):$/;"	kind:member	line:42
+get_params	../pritunl_client/click/core.py	/^    def get_params(self, ctx):$/;"	kind:member	line:713
+get_profile	../pritunl_client/profile.py	/^    def get_profile(cls, id=None):$/;"	kind:member	line:611
+get_streerror	../pritunl_client/click/_compat.py	/^def get_streerror(e, default=None):$/;"	kind:function	line:370
+get_terminal_size	../pritunl_client/click/termui.py	/^def get_terminal_size():$/;"	kind:function	line:149
+get_text_stderr	../pritunl_client/click/_compat.py	/^    def get_text_stderr(encoding=None, errors=None):$/;"	kind:member	line:187
+get_text_stderr	../pritunl_client/click/_compat.py	/^    def get_text_stderr(encoding=None, errors=None):$/;"	kind:member	line:358
+get_text_stdin	../pritunl_client/click/_compat.py	/^    def get_text_stdin(encoding=None, errors=None):$/;"	kind:member	line:181
+get_text_stdin	../pritunl_client/click/_compat.py	/^    def get_text_stdin(encoding=None, errors=None):$/;"	kind:member	line:352
+get_text_stdout	../pritunl_client/click/_compat.py	/^    def get_text_stdout(encoding=None, errors=None):$/;"	kind:member	line:184
+get_text_stdout	../pritunl_client/click/_compat.py	/^    def get_text_stdout(encoding=None, errors=None):$/;"	kind:member	line:355
+get_text_stream	../pritunl_client/click/utils.py	/^def get_text_stream(name, encoding=None, errors='strict'):$/;"	kind:function	line:315
+get_usage	../pritunl_client/click/core.py	/^    def get_usage(self):$/;"	kind:member	line:405
+get_usage	../pritunl_client/click/core.py	/^    def get_usage(self, ctx):$/;"	kind:member	line:534
+get_usage	../pritunl_client/click/core.py	/^    def get_usage(self, ctx):$/;"	kind:member	line:708
+get_usage_pieces	../pritunl_client/click/core.py	/^    def get_usage_pieces(self, ctx):$/;"	kind:member	line:1318
+get_usage_pieces	../pritunl_client/click/core.py	/^    def get_usage_pieces(self, ctx):$/;"	kind:member	line:1620
+get_usb_devices	../pritunl_client/profile.py	/^def get_usb_devices():$/;"	kind:function	line:669
+get_usb_drives	../pritunl_client/utils.py	/^def get_usb_drives():$/;"	kind:function	line:100
+get_usb_key	../pritunl_client/profile.py	/^def get_usb_key(id):$/;"	kind:function	line:707
+get_ver	../tools/builder.py	/^def get_ver(version):$/;"	kind:function	line:61
+get_vpn_conf	../pritunl_client/profile.py	/^    def get_vpn_conf(self):$/;"	kind:member	line:428
+get_winterm_size	../pritunl_client/click/_compat.py	/^        def get_winterm_size():$/;"	kind:function	line:516
+get_winterm_size	../pritunl_client/click/_compat.py	/^get_winterm_size = None$/;"	kind:variable	line:456
+getchar	../pritunl_client/click/_termui_impl.py	/^    def getchar(echo):$/;"	kind:function	line:471
+getchar	../pritunl_client/click/_termui_impl.py	/^    def getchar(echo):$/;"	kind:function	line:487
+getchar	../pritunl_client/click/termui.py	/^def getchar(echo=False):$/;"	kind:function	line:470
+getvalue	../pritunl_client/click/formatting.py	/^    def getvalue(self):$/;"	kind:member	line:219
+github_owner	../tools/builder.py	/^    github_owner = build_keys['github_owner']$/;"	kind:variable	line:107
+github_token	../tools/builder.py	/^    github_token = build_keys['github_token']$/;"	kind:variable	line:108
+gitlab_token	../tools/builder.py	/^    gitlab_token = build_keys['gitlab_token']$/;"	kind:variable	line:109
+group	../pritunl_client/click/core.py	/^    def group(self, *args, **kwargs):$/;"	kind:member	line:1091
+group	../pritunl_client/click/decorators.py	/^def group(name=None, **attrs):$/;"	kind:function	line:118
+handle_parse_result	../pritunl_client/click/core.py	/^    def handle_parse_result(self, ctx, opts, args):$/;"	kind:member	line:1294
+has_usb_device	../pritunl_client/profile.py	/^def has_usb_device():$/;"	kind:function	line:663
+headers	../tools/builder.py	/^                headers={$/;"	kind:variable	line:179
+headers	../tools/builder.py	/^            headers={$/;"	kind:variable	line:160
+headers	../tools/builder.py	/^        headers={$/;"	kind:variable	line:225
+headers	../tools/builder.py	/^        headers={$/;"	kind:variable	line:316
+headers	../tools/builder.py	/^        headers={$/;"	kind:variable	line:344
+headers	../tools/builder.py	/^        headers={$/;"	kind:variable	line:418
+headers	../tools/builder.py	/^        headers={$/;"	kind:variable	line:467
+help_option	../pritunl_client/click/decorators.py	/^def help_option(*param_decls, **attrs):$/;"	kind:function	line:268
+hidden_input	../pritunl_client/click/testing.py	/^        def hidden_input(prompt=None):$/;"	kind:function	line:179
+hidden_prompt_func	../pritunl_client/click/termui.py	/^def hidden_prompt_func(prompt):$/;"	kind:function	line:22
+ignore_unknown_options	../pritunl_client/click/core.py	/^    ignore_unknown_options = False$/;"	kind:variable	line:521
+img_path	../pritunl_client/constants.py	/^    img_path = os.path.join(img_root, 'logo.png')$/;"	kind:variable	line:53
+img_path	../pritunl_client/constants.py	/^    img_path = os.path.join(img_root, _CONNECTED_LOGO_NAME)$/;"	kind:variable	line:56
+img_path	../pritunl_client/constants.py	/^    img_path = os.path.join(img_root, _DISCONNECTED_LOGO_NAME)$/;"	kind:variable	line:59
+import_cmd	../pritunl_client/__main__.py	/^    def import_cmd(profile_ins):$/;"	kind:function	line:96
+import_file	../pritunl_client/profile.py	/^def import_file(profile_path):$/;"	kind:function	line:621
+import_uri	../pritunl_client/profile.py	/^def import_uri(profile_uri):$/;"	kind:function	line:632
+indent	../pritunl_client/click/formatting.py	/^    def indent(self):$/;"	kind:member	line:111
+indent_only	../pritunl_client/click/_textwrap.py	/^    def indent_only(self, text):$/;"	kind:member	line:31
+indentation	../pritunl_client/click/formatting.py	/^    def indentation(self):$/;"	kind:member	line:211
+info	../pritunl_client/logger.py	/^def info(log_msg, log_type=None, **kwargs):$/;"	kind:function	line:84
+init_data	../tools/builder.py	/^        init_data = init_file.read()$/;"	kind:variable	line:274
+install_gtk	../setup.py	/^        install_gtk = False$/;"	kind:variable	line:36
+install_gtk	../setup.py	/^install_gtk = True$/;"	kind:variable	line:13
+install_systemd	../setup.py	/^        install_systemd = False$/;"	kind:variable	line:33
+install_systemd	../setup.py	/^install_systemd = True$/;"	kind:variable	line:12
+install_upstart	../setup.py	/^        install_upstart = False$/;"	kind:variable	line:30
+install_upstart	../setup.py	/^install_upstart = True$/;"	kind:variable	line:11
+interface.py	../pritunl_client/interface.py	1;"	kind:file	line:1
+interface_gtk.py	../pritunl_client/interface_gtk.py	1;"	kind:file	line:1
+interface_wx.py	../pritunl_client/interface_wx.py	1;"	kind:file	line:1
+invoke	../pritunl_client/click/core.py	/^    def invoke(*args, **kwargs):$/;"	kind:member	line:417
+invoke	../pritunl_client/click/core.py	/^    def invoke(self, ctx):$/;"	kind:member	line:570
+invoke	../pritunl_client/click/core.py	/^    def invoke(self, ctx):$/;"	kind:member	line:831
+invoke	../pritunl_client/click/core.py	/^    def invoke(self, ctx):$/;"	kind:member	line:954
+invoke	../pritunl_client/click/testing.py	/^    def invoke(self, cli, args=None, input=None, env=None,$/;"	kind:member	line:226
+invoke_param_callback	../pritunl_client/click/core.py	/^def invoke_param_callback(callback, ctx, param, value):$/;"	kind:function	line:41
+invoked_subcommands	../pritunl_client/click/core.py	/^    invoked_subcommands = property(_get_invoked_subcommands,$/;"	kind:variable	line:315
+ioctl_gwinsz	../pritunl_client/click/termui.py	/^    def ioctl_gwinsz(fd):$/;"	kind:function	line:164
+is_ascii_encoding	../pritunl_client/click/_compat.py	/^def is_ascii_encoding(encoding):$/;"	kind:function	line:26
+is_bytes	../pritunl_client/click/_compat.py	/^    def is_bytes(x):$/;"	kind:member	line:141
+is_bytes	../pritunl_client/click/_compat.py	/^    def is_bytes(x):$/;"	kind:member	line:203
+is_snapshot	../tools/builder.py	/^    is_snapshot = 'snapshot' in cur_version$/;"	kind:variable	line:361
+is_snapshot	../tools/builder.py	/^    is_snapshot = 'snapshot' in cur_version$/;"	kind:variable	line:409
+is_snapshot	../tools/builder.py	/^    is_snapshot = 'snapshot' in cur_version$/;"	kind:variable	line:459
+is_snapshot	../tools/builder.py	/^    is_snapshot = 'snapshot' in new_version$/;"	kind:variable	line:203
+isatty	../pritunl_client/click/_compat.py	/^    def isatty(self):$/;"	kind:member	line:71
+isatty	../pritunl_client/click/_compat.py	/^def isatty(stream):$/;"	kind:function	line:526
+isidentifier	../pritunl_client/click/_compat.py	/^    def isidentifier(x):$/;"	kind:member	line:169
+isidentifier	../pritunl_client/click/_compat.py	/^    isidentifier = lambda x: x.isidentifier()$/;"	kind:variable	line:200
+isolated_filesystem	../pritunl_client/click/testing.py	/^    def isolated_filesystem(self):$/;"	kind:member	line:280
+isolation	../pritunl_client/click/testing.py	/^    def isolation(self, input=None, env=None):$/;"	kind:member	line:138
+iter_packages	../tools/builder.py	/^def iter_packages():$/;"	kind:function	line:86
+iter_params_for_processing	../pritunl_client/click/core.py	/^def iter_params_for_processing(invocation_order, declaration_order):$/;"	kind:function	line:75
+iter_profiles	../pritunl_client/profile.py	/^    def iter_profiles(cls):$/;"	kind:member	line:596
+iter_rows	../pritunl_client/click/formatting.py	/^def iter_rows(rows, col_count):$/;"	kind:function	line:15
+iteritems	../pritunl_client/click/_compat.py	/^    iteritems = lambda x: iter(x.items())$/;"	kind:variable	line:201
+iteritems	../pritunl_client/click/_compat.py	/^    iteritems = lambda x: x.iteritems()$/;"	kind:variable	line:138
+join_options	../pritunl_client/click/formatting.py	/^def join_options(options):$/;"	kind:function	line:224
+keywords	../setup.py	/^    keywords='pritunl, openvpn, vpn, management, client',$/;"	kind:variable	line:143
+launch	../pritunl_client/click/termui.py	/^def launch(url, wait=False, locate=False):$/;"	kind:function	line:439
+license	../setup.py	/^    license=open('LICENSE').read(),$/;"	kind:variable	line:148
+line	../setup.py	/^        line = line.replace('%PREFIX%', prefix)$/;"	kind:variable	line:130
+line	../tools/builder.py	/^                line = line.strip()$/;"	kind:variable	line:248
+line	../tools/builder.py	/^        line = line.strip()$/;"	kind:variable	line:117
+list_cmd	../pritunl_client/__main__.py	/^    def list_cmd():$/;"	kind:function	line:76
+list_commands	../pritunl_client/click/core.py	/^    def list_commands(self, ctx):$/;"	kind:member	line:1051
+list_commands	../pritunl_client/click/core.py	/^    def list_commands(self, ctx):$/;"	kind:member	line:1106
+list_commands	../pritunl_client/click/core.py	/^    def list_commands(self, ctx):$/;"	kind:member	line:1132
+load	../pritunl_client/profile.py	/^    def load(self):$/;"	kind:member	line:128
+log_filter	../pritunl_client/logger.py	/^log_filter = LogFilter()$/;"	kind:variable	line:110
+log_handler	../pritunl_client/logger.py	/^log_handler = LogHandler(LOG_PATH, backupCount=1, maxBytes=1000000)$/;"	kind:variable	line:109
+logger	../pritunl_client/logger.py	/^logger = logging.getLogger(APP_NAME)$/;"	kind:variable	line:108
+logger.py	../pritunl_client/logger.py	1;"	kind:file	line:1
+long_description	../setup.py	/^    long_description=open('README.md').read(),$/;"	kind:variable	line:137
+lookup_default	../pritunl_client/click/core.py	/^    def lookup_default(self, name):$/;"	kind:member	line:379
+lookup_icon	../pritunl_client/interface_gtk.py	/^def lookup_icon(name):$/;"	kind:function	line:30
+lookup_icon	../pritunl_client/interface_wx.py	/^def lookup_icon(name):$/;"	kind:function	line:43
+main	../pritunl_client/app.py	/^    def main(self):$/;"	kind:member	line:563
+main	../pritunl_client/click/core.py	/^    def main(self, args=None, prog_name=None, complete_var=None,$/;"	kind:member	line:576
+maintainer	../tools/builder.py	/^            maintainer = line.split('=')[1].replace("'", '').strip()$/;"	kind:variable	line:124
+maintainer_email	../tools/builder.py	/^            maintainer_email = line.split('=')[1].replace("'", '').strip()$/;"	kind:variable	line:127
+make_context	../pritunl_client/click/core.py	/^    def make_context(self, info_name, args, parent=None, **extra):$/;"	kind:member	line:540
+make_default_short_help	../pritunl_client/click/utils.py	/^def make_default_short_help(help, max_length=45):$/;"	kind:function	line:99
+make_env	../pritunl_client/click/testing.py	/^    def make_env(self, overrides=None):$/;"	kind:member	line:130
+make_formatter	../pritunl_client/click/core.py	/^    def make_formatter(self):$/;"	kind:member	line:319
+make_input_stream	../pritunl_client/click/testing.py	/^def make_input_stream(input, charset):$/;"	kind:function	line:53
+make_metavar	../pritunl_client/click/core.py	/^    def make_metavar(self):$/;"	kind:member	line:1197
+make_metavar	../pritunl_client/click/core.py	/^    def make_metavar(self):$/;"	kind:member	line:1595
+make_parser	../pritunl_client/click/core.py	/^    def make_parser(self, ctx):$/;"	kind:member	line:757
+make_pass_decorator	../pritunl_client/click/decorators.py	/^def make_pass_decorator(object_type, ensure=False):$/;"	kind:function	line:30
+make_step	../pritunl_client/click/_termui_impl.py	/^    def make_step(self):$/;"	kind:member	line:214
+make_str	../pritunl_client/click/utils.py	/^def make_str(value):$/;"	kind:function	line:89
+measure_table	../pritunl_client/click/formatting.py	/^def measure_table(rows):$/;"	kind:function	line:7
+mirror_url	../tools/builder.py	/^    mirror_url = build_keys['mirror_url']$/;"	kind:variable	line:110
+name	../pritunl_client/click/_compat.py	/^    def name(self):$/;"	kind:member	line:431
+name	../pritunl_client/click/types.py	/^    name = 'boolean'$/;"	kind:variable	line:208
+name	../pritunl_client/click/types.py	/^    name = 'choice'$/;"	kind:variable	line:124
+name	../pritunl_client/click/types.py	/^    name = 'filename'$/;"	kind:variable	line:275
+name	../pritunl_client/click/types.py	/^    name = 'float'$/;"	kind:variable	line:225
+name	../pritunl_client/click/types.py	/^    name = 'integer range'$/;"	kind:variable	line:176
+name	../pritunl_client/click/types.py	/^    name = 'integer'$/;"	kind:variable	line:156
+name	../pritunl_client/click/types.py	/^    name = 'text'$/;"	kind:variable	line:88
+name	../pritunl_client/click/types.py	/^    name = 'text'$/;"	kind:variable	line:98
+name	../pritunl_client/click/types.py	/^    name = 'uuid'$/;"	kind:variable	line:239
+name	../pritunl_client/click/types.py	/^    name = None$/;"	kind:variable	line:25
+name	../pritunl_client/profile.py	/^    def name(self):$/;"	kind:member	line:113
+name	../setup.py	/^    name='pritunl_client',$/;"	kind:variable	line:134
+new_func	../pritunl_client/click/decorators.py	/^        def new_func(*args, **kwargs):$/;"	kind:function	line:54
+new_func	../pritunl_client/click/decorators.py	/^    def new_func(*args, **kwargs):$/;"	kind:function	line:24
+new_version	../tools/builder.py	/^    new_version = get_ver(new_version_orig)$/;"	kind:variable	line:202
+new_version_orig	../tools/builder.py	/^    new_version_orig = args[1]$/;"	kind:variable	line:201
+next	../pritunl_client/click/_termui_impl.py	/^    def next(self):$/;"	kind:member	line:232
+next_url	../tools/builder.py	/^        next_url = response.headers['Link'].split(';')[0][1:-1]$/;"	kind:variable	line:197
+next_url	../tools/builder.py	/^    next_url = 'https:\/\/api.github.com\/repos\/%s\/%s\/releases' % ($/;"	kind:variable	line:153
+normalize_opt	../pritunl_client/click/parser.py	/^def normalize_opt(opt, ctx):$/;"	kind:function	line:38
+on_autostart_profile	../pritunl_client/app.py	/^    def on_autostart_profile(self, profile_id):$/;"	kind:member	line:477
+on_connect_profile	../pritunl_client/app.py	/^    def on_connect_profile(self, profile_id):$/;"	kind:member	line:216
+on_delete_profile	../pritunl_client/app.py	/^    def on_delete_profile(self, profile_id):$/;"	kind:member	line:358
+on_disconnect_profile	../pritunl_client/app.py	/^    def on_disconnect_profile(self, profile_id):$/;"	kind:member	line:338
+on_exit	../pritunl_client/profile_linux.py	/^        def on_exit(return_code):$/;"	kind:function	line:35
+on_exit	../pritunl_client/profile_shell.py	/^        def on_exit(return_code):$/;"	kind:function	line:14
+on_no_autostart_profile	../pritunl_client/app.py	/^    def on_no_autostart_profile(self, profile_id):$/;"	kind:member	line:482
+on_rename_profile	../pritunl_client/app.py	/^    def on_rename_profile(self, profile_id):$/;"	kind:member	line:342
+on_setup_usb_key	../pritunl_client/app.py	/^    def on_setup_usb_key(self, profile_id):$/;"	kind:member	line:374
+on_status_change	../pritunl_client/app.py	/^    def on_status_change(self):$/;"	kind:member	line:203
+open	../pritunl_client/click/utils.py	/^    def open(self):$/;"	kind:member	line:158
+open_file	../pritunl_client/click/utils.py	/^def open_file(filename, mode='r', encoding=None, errors='strict',$/;"	kind:function	line:332
+open_stream	../pritunl_client/click/_compat.py	/^def open_stream(filename, mode='r', encoding=None, errors='strict',$/;"	kind:function	line:383
+open_url	../pritunl_client/click/_termui_impl.py	/^def open_url(url, wait=False, locate=False):$/;"	kind:function	line:410
+option	../pritunl_client/click/decorators.py	/^def option(*param_decls, **attrs):$/;"	kind:function	line:149
+output	../pritunl_client/click/testing.py	/^    def output(self):$/;"	kind:member	line:89
+output	../tools/builder.py	/^        output=archive_name,$/;"	kind:variable	line:372
+packages	../setup.py	/^    packages=[$/;"	kind:variable	line:144
+pacur_path	../tools/builder.py	/^    pacur_path = TEST_PACUR_PATH if is_snapshot else STABLE_PACUR_PATH$/;"	kind:variable	line:204
+pacur_path	../tools/builder.py	/^    pacur_path = TEST_PACUR_PATH if is_snapshot else STABLE_PACUR_PATH$/;"	kind:variable	line:362
+pacur_path	../tools/builder.py	/^    pacur_path = TEST_PACUR_PATH if is_snapshot else STABLE_PACUR_PATH$/;"	kind:variable	line:410
+pacur_path	../tools/builder.py	/^pacur_path = None$/;"	kind:variable	line:30
+pager	../pritunl_client/click/_termui_impl.py	/^def pager(text, color=None):$/;"	kind:function	line:252
+param_type_name	../pritunl_client/click/core.py	/^    param_type_name = 'argument'$/;"	kind:variable	line:1585
+param_type_name	../pritunl_client/click/core.py	/^    param_type_name = 'option'$/;"	kind:variable	line:1354
+param_type_name	../pritunl_client/click/core.py	/^    param_type_name = 'parameter'$/;"	kind:variable	line:1179
+parse_args	../pritunl_client/click/core.py	/^    def parse_args(self, ctx, args):$/;"	kind:member	line:562
+parse_args	../pritunl_client/click/core.py	/^    def parse_args(self, ctx, args):$/;"	kind:member	line:815
+parse_args	../pritunl_client/click/core.py	/^    def parse_args(self, ctx, args):$/;"	kind:member	line:948
+parse_args	../pritunl_client/click/parser.py	/^    def parse_args(self, args):$/;"	kind:member	line:199
+parser	../tools/builder.py	/^parser = optparse.OptionParser(usage=USAGE)$/;"	kind:variable	line:140
+parser.py	../pritunl_client/click/parser.py	1;"	kind:file	line:1
+pass_context	../pritunl_client/click/decorators.py	/^def pass_context(f):$/;"	kind:function	line:10
+pass_obj	../pritunl_client/click/decorators.py	/^def pass_obj(f):$/;"	kind:function	line:18
+password_option	../pritunl_client/click/decorators.py	/^def password_option(*param_decls, **attrs):$/;"	kind:function	line:194
+patch_files	../setup.py	/^patch_files = []$/;"	kind:variable	line:114
+pause	../pritunl_client/click/termui.py	/^def pause(info='Press any key to continue ...', err=False):$/;"	kind:function	line:492
+pct	../pritunl_client/click/_termui_impl.py	/^    def pct(self):$/;"	kind:member	line:112
+pk_autostart	../pritunl_client/__main__.py	/^def pk_autostart():$/;"	kind:function	line:316
+pk_clear_autostart	../pritunl_client/__main__.py	/^def pk_clear_autostart():$/;"	kind:function	line:351
+pk_format_device	../pritunl_client/__main__.py	/^def pk_format_device():$/;"	kind:function	line:361
+pk_get_devices	../pritunl_client/__main__.py	/^def pk_get_devices():$/;"	kind:function	line:357
+pk_get_disk_profile	../pritunl_client/__main__.py	/^def pk_get_disk_profile():$/;"	kind:function	line:365
+pk_set_autostart	../pritunl_client/__main__.py	/^def pk_set_autostart():$/;"	kind:function	line:339
+pk_set_disk_profile	../pritunl_client/__main__.py	/^def pk_set_disk_profile():$/;"	kind:function	line:370
+pk_start	../pritunl_client/__main__.py	/^def pk_start():$/;"	kind:function	line:313
+pk_stop	../pritunl_client/__main__.py	/^def pk_stop():$/;"	kind:function	line:319
+pkg_name	../tools/builder.py	/^            pkg_name = app_name.replace('_', '-')$/;"	kind:variable	line:121
+pkgbuild_data	../tools/builder.py	/^            pkgbuild_data = re.sub($/;"	kind:variable	line:385
+pkgbuild_data	../tools/builder.py	/^            pkgbuild_data = re.sub($/;"	kind:variable	line:390
+pkgbuild_path	../tools/builder.py	/^        pkgbuild_path = os.path.join(pacur_path, target, 'PKGBUILD')$/;"	kind:variable	line:382
+platforms	../setup.py	/^    platforms=[$/;"	kind:variable	line:154
+post_git_asset	../tools/builder.py	/^def post_git_asset(release_id, file_name, file_path):$/;"	kind:function	line:39
+prefix	../setup.py	/^        prefix = os.path.normpath(shlex.split(arg)[0].split('=')[-1])$/;"	kind:variable	line:27
+prefix	../setup.py	/^prefix = sys.prefix$/;"	kind:variable	line:24
+process	../pritunl_client/click/parser.py	/^    def process(self, value, state):$/;"	kind:member	line:118
+process	../pritunl_client/click/parser.py	/^    def process(self, value, state):$/;"	kind:member	line:95
+process_value	../pritunl_client/click/core.py	/^    def process_value(self, ctx, value):$/;"	kind:member	line:1237
+profile.py	../pritunl_client/profile.py	1;"	kind:file	line:1
+profile_linux.py	../pritunl_client/profile_linux.py	1;"	kind:file	line:1
+profile_shell.py	../pritunl_client/profile_shell.py	1;"	kind:file	line:1
+progressbar	../pritunl_client/click/termui.py	/^def progressbar(iterable=None, length=None, label=None, show_eta=True,$/;"	kind:function	line:207
+prompt	../pritunl_client/click/termui.py	/^def prompt(text, default=None, hide_input=False,$/;"	kind:function	line:34
+prompt_for_value	../pritunl_client/click/core.py	/^    def prompt_for_value(self, ctx):$/;"	kind:member	line:1532
+prompt_func	../pritunl_client/click/termui.py	/^    def prompt_func(text):$/;"	kind:function	line:64
+range_type	../pritunl_client/click/_compat.py	/^    range_type = range$/;"	kind:variable	line:199
+range_type	../pritunl_client/click/_compat.py	/^    range_type = xrange$/;"	kind:variable	line:139
+raw_input	../pritunl_client/click/_compat.py	/^    raw_input = input$/;"	kind:variable	line:197
+raw_input	../pritunl_client/click/_compat.py	/^    raw_input = raw_input$/;"	kind:variable	line:136
+read	../pritunl_client/click/testing.py	/^    def read(self, n=-1):$/;"	kind:member	line:37
+read1	../pritunl_client/click/_compat.py	/^    def read1(self, size):$/;"	kind:member	line:88
+readable	../pritunl_client/click/_compat.py	/^    def readable(self):$/;"	kind:member	line:99
+readline	../pritunl_client/click/testing.py	/^    def readline(self, n=-1):$/;"	kind:member	line:40
+readlines	../pritunl_client/click/testing.py	/^    def readlines(self):$/;"	kind:member	line:43
+refresh	../pritunl_client/app.py	/^                def refresh():$/;"	kind:function	line:385
+refresh	../pritunl_client/app.py	/^                def refresh():$/;"	kind:function	line:423
+refresh	../pritunl_client/app.py	/^            def refresh():$/;"	kind:function	line:176
+refresh	../pritunl_client/app.py	/^        def refresh():$/;"	kind:function	line:143
+release_body	../tools/builder.py	/^        release_body = '* Snapshot release'$/;"	kind:variable	line:265
+release_body	../tools/builder.py	/^    release_body = ''$/;"	kind:variable	line:244
+release_body	../tools/builder.py	/^    release_body = release_body.rstrip('\\n')$/;"	kind:variable	line:269
+release_id	../tools/builder.py	/^            release_id = release['id']$/;"	kind:variable	line:426
+release_id	../tools/builder.py	/^            release_id = release['id']$/;"	kind:variable	line:475
+release_id	../tools/builder.py	/^    release_id = None$/;"	kind:variable	line:414
+release_id	../tools/builder.py	/^    release_id = None$/;"	kind:variable	line:463
+remove_cmd	../pritunl_client/__main__.py	/^    def remove_cmd(profile_ids):$/;"	kind:function	line:125
+render_finish	../pritunl_client/click/_termui_impl.py	/^    def render_finish(self):$/;"	kind:member	line:105
+render_progress	../pritunl_client/click/_termui_impl.py	/^    def render_progress(self):$/;"	kind:member	line:180
+resolve_command	../pritunl_client/click/core.py	/^    def resolve_command(self, ctx, args):$/;"	kind:member	line:1019
+resolve_ctx	../pritunl_client/click/_bashcomplete.py	/^def resolve_ctx(cli, prog_name, args):$/;"	kind:function	line:27
+resolve_envvar_value	../pritunl_client/click/core.py	/^    def resolve_envvar_value(self, ctx):$/;"	kind:member	line:1277
+resolve_envvar_value	../pritunl_client/click/core.py	/^    def resolve_envvar_value(self, ctx):$/;"	kind:member	line:1551
+resolve_lazy_flag	../pritunl_client/click/types.py	/^    def resolve_lazy_flag(self, value):$/;"	kind:member	line:286
+resp	../tools/builder.py	/^            resp = requests.post($/;"	kind:variable	line:175
+response	../tools/builder.py	/^        response = requests.get($/;"	kind:variable	line:158
+response	../tools/builder.py	/^    response = requests.get($/;"	kind:variable	line:222
+response	../tools/builder.py	/^    response = requests.get($/;"	kind:variable	line:415
+response	../tools/builder.py	/^    response = requests.get($/;"	kind:variable	line:464
+response	../tools/builder.py	/^    response = requests.post($/;"	kind:variable	line:313
+response	../tools/builder.py	/^    response = requests.post($/;"	kind:variable	line:340
+resultcallback	../pritunl_client/click/core.py	/^    def resultcallback(self, replace=False):$/;"	kind:member	line:893
+run	../pritunl_client/interface_gtk.py	/^    def run(self):$/;"	kind:member	line:128
+run	../pritunl_client/interface_gtk.py	/^    def run(self):$/;"	kind:member	line:179
+run	../pritunl_client/interface_gtk.py	/^    def run(self):$/;"	kind:member	line:230
+run	../pritunl_client/interface_gtk.py	/^    def run(self):$/;"	kind:member	line:270
+run	../pritunl_client/interface_gtk.py	/^    def run(self):$/;"	kind:member	line:419
+run	../pritunl_client/interface_wx.py	/^    def run(self):$/;"	kind:member	line:157
+run	../pritunl_client/interface_wx.py	/^    def run(self):$/;"	kind:member	line:190
+run	../pritunl_client/interface_wx.py	/^    def run(self):$/;"	kind:member	line:351
+run	../pritunl_client/interface_wx.py	/^    def run(self):$/;"	kind:member	line:84
+safecall	../pritunl_client/click/utils.py	/^def safecall(func):$/;"	kind:function	line:79
+secho	../pritunl_client/click/termui.py	/^def secho(text, file=None, nl=True, err=False, color=None, **styles):$/;"	kind:function	line:387
+section	../pritunl_client/click/formatting.py	/^    def section(self, name):$/;"	kind:member	line:196
+seekable	../pritunl_client/click/_compat.py	/^    def seekable(self):$/;"	kind:member	line:122
+send_text_response	../pritunl_client/shell_app.py	/^    def send_text_response(self, text, status_code=200):$/;"	kind:member	line:20
+set_active	../pritunl_client/interface_gtk.py	/^    def set_active(self, state):$/;"	kind:member	line:351
+set_active	../pritunl_client/interface_wx.py	/^    def set_active(self, state):$/;"	kind:member	line:310
+set_autostart	../pritunl_client/profile.py	/^    def set_autostart(self, state):$/;"	kind:member	line:275
+set_binary_mode	../pritunl_client/click/_compat.py	/^        def set_binary_mode(f):$/;"	kind:function	line:158
+set_buttons	../pritunl_client/interface_gtk.py	/^    def set_buttons(self, buttons):$/;"	kind:member	line:123
+set_buttons	../pritunl_client/interface_wx.py	/^    def set_buttons(self, buttons):$/;"	kind:member	line:81
+set_callback	../pritunl_client/interface_gtk.py	/^    def set_callback(self, callback):$/;"	kind:member	line:416
+set_callback	../pritunl_client/interface_gtk.py	/^    def set_callback(self, callback, data=None):$/;"	kind:member	line:327
+set_callback	../pritunl_client/interface_gtk.py	/^    def set_callback(self, callback, data=None):$/;"	kind:member	line:354
+set_callback	../pritunl_client/interface_wx.py	/^    def set_callback(self, callback):$/;"	kind:member	line:348
+set_callback	../pritunl_client/interface_wx.py	/^    def set_callback(self, callback, data=None):$/;"	kind:member	line:265
+set_callback	../pritunl_client/interface_wx.py	/^    def set_callback(self, callback, data=None):$/;"	kind:member	line:313
+set_disk_profile	../pritunl_client/utils.py	/^def set_disk_profile(profile_id, profile_iv, profile_key, timeout=30):$/;"	kind:function	line:289
+set_icon	../pritunl_client/interface_gtk.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:161
+set_icon	../pritunl_client/interface_gtk.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:212
+set_icon	../pritunl_client/interface_gtk.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:261
+set_icon	../pritunl_client/interface_gtk.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:397
+set_icon	../pritunl_client/interface_gtk.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:84
+set_icon	../pritunl_client/interface_wx.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:138
+set_icon	../pritunl_client/interface_wx.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:184
+set_icon	../pritunl_client/interface_wx.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:341
+set_icon	../pritunl_client/interface_wx.py	/^    def set_icon(self, icon_path):$/;"	kind:member	line:65
+set_icon_state	../pritunl_client/app.py	/^    def set_icon_state(self, state):$/;"	kind:member	line:22
+set_image	../pritunl_client/interface_gtk.py	/^    def set_image(self, image_path):$/;"	kind:member	line:105
+set_image	../pritunl_client/interface_wx.py	/^    def set_image(self, image_path):$/;"	kind:member	line:75
+set_input_label	../pritunl_client/interface_gtk.py	/^    def set_input_label(self, label):$/;"	kind:member	line:170
+set_input_label	../pritunl_client/interface_wx.py	/^    def set_input_label(self, label):$/;"	kind:member	line:148
+set_input_width	../pritunl_client/interface_gtk.py	/^    def set_input_width(self, width):$/;"	kind:member	line:173
+set_input_width	../pritunl_client/interface_wx.py	/^    def set_input_width(self, width):$/;"	kind:member	line:151
+set_label	../pritunl_client/interface_gtk.py	/^    def set_label(self, label):$/;"	kind:member	line:294
+set_label	../pritunl_client/interface_gtk.py	/^    def set_label(self, label):$/;"	kind:member	line:321
+set_label	../pritunl_client/interface_gtk.py	/^    def set_label(self, label):$/;"	kind:member	line:345
+set_label	../pritunl_client/interface_wx.py	/^    def set_label(self, label):$/;"	kind:member	line:228
+set_label	../pritunl_client/interface_wx.py	/^    def set_label(self, label):$/;"	kind:member	line:256
+set_label	../pritunl_client/interface_wx.py	/^    def set_label(self, label):$/;"	kind:member	line:301
+set_menu	../pritunl_client/interface_gtk.py	/^    def set_menu(self, menu):$/;"	kind:member	line:408
+set_menu	../pritunl_client/interface_wx.py	/^    def set_menu(self, menu):$/;"	kind:member	line:345
+set_message	../pritunl_client/interface_gtk.py	/^    def set_message(self, message):$/;"	kind:member	line:164
+set_message	../pritunl_client/interface_gtk.py	/^    def set_message(self, message):$/;"	kind:member	line:215
+set_message	../pritunl_client/interface_gtk.py	/^    def set_message(self, message):$/;"	kind:member	line:91
+set_message	../pritunl_client/interface_wx.py	/^    def set_message(self, message):$/;"	kind:member	line:141
+set_message	../pritunl_client/interface_wx.py	/^    def set_message(self, message):$/;"	kind:member	line:68
+set_message_secondary	../pritunl_client/interface_gtk.py	/^    def set_message_secondary(self, message):$/;"	kind:member	line:167
+set_message_secondary	../pritunl_client/interface_gtk.py	/^    def set_message_secondary(self, message):$/;"	kind:member	line:218
+set_message_secondary	../pritunl_client/interface_gtk.py	/^    def set_message_secondary(self, message):$/;"	kind:member	line:98
+set_message_secondary	../pritunl_client/interface_wx.py	/^    def set_message_secondary(self, message):$/;"	kind:member	line:144
+set_message_secondary	../pritunl_client/interface_wx.py	/^    def set_message_secondary(self, message):$/;"	kind:member	line:71
+set_name	../pritunl_client/profile.py	/^    def set_name(self, name):$/;"	kind:member	line:271
+set_select_label	../pritunl_client/interface_gtk.py	/^    def set_select_label(self, label):$/;"	kind:member	line:221
+set_shell	../pritunl_client/constants.py	/^def set_shell():$/;"	kind:function	line:86
+set_state	../pritunl_client/interface_gtk.py	/^    def set_state(self, state):$/;"	kind:member	line:324
+set_state	../pritunl_client/interface_gtk.py	/^    def set_state(self, state):$/;"	kind:member	line:348
+set_state	../pritunl_client/interface_wx.py	/^    def set_state(self, state):$/;"	kind:member	line:262
+set_state	../pritunl_client/interface_wx.py	/^    def set_state(self, state):$/;"	kind:member	line:307
+set_title	../pritunl_client/interface_gtk.py	/^    def set_title(self, title):$/;"	kind:member	line:158
+set_title	../pritunl_client/interface_gtk.py	/^    def set_title(self, title):$/;"	kind:member	line:209
+set_title	../pritunl_client/interface_gtk.py	/^    def set_title(self, title):$/;"	kind:member	line:258
+set_title	../pritunl_client/interface_gtk.py	/^    def set_title(self, title):$/;"	kind:member	line:77
+set_title	../pritunl_client/interface_wx.py	/^    def set_title(self, title):$/;"	kind:member	line:135
+set_title	../pritunl_client/interface_wx.py	/^    def set_title(self, title):$/;"	kind:member	line:181
+set_title	../pritunl_client/interface_wx.py	/^    def set_title(self, title):$/;"	kind:member	line:62
+set_tooltip	../pritunl_client/interface_gtk.py	/^    def set_tooltip(self, label):$/;"	kind:member	line:393
+set_tooltip	../pritunl_client/interface_wx.py	/^    def set_tooltip(self, label):$/;"	kind:member	line:336
+set_type	../pritunl_client/interface_gtk.py	/^    def set_type(self, type):$/;"	kind:member	line:118
+set_type	../pritunl_client/interface_wx.py	/^    def set_type(self, type):$/;"	kind:member	line:78
+set_visibility	../pritunl_client/interface_gtk.py	/^    def set_visibility(self, visibility):$/;"	kind:member	line:176
+set_visibility	../pritunl_client/interface_gtk.py	/^    def set_visibility(self, visibility):$/;"	kind:member	line:227
+set_visibility	../pritunl_client/interface_wx.py	/^    def set_visibility(self, visibility):$/;"	kind:member	line:154
+setup.py	../setup.py	1;"	kind:file	line:1
+setup_data	../tools/builder.py	/^        setup_data = setup_file.read()$/;"	kind:variable	line:286
+shell_app.py	../pritunl_client/shell_app.py	1;"	kind:file	line:1
+should_strip_ansi	../pritunl_client/click/_compat.py	/^def should_strip_ansi(stream=None, color=None):$/;"	kind:function	line:463
+show	../pritunl_client/click/exceptions.py	/^    def show(self, file=None):$/;"	kind:member	line:21
+show	../pritunl_client/click/exceptions.py	/^    def show(self, file=None):$/;"	kind:member	line:41
+show_about	../pritunl_client/app.py	/^    def show_about(self):$/;"	kind:member	line:487
+show_connect_error	../pritunl_client/app.py	/^    def show_connect_error(self, prfl, status):$/;"	kind:member	line:121
+show_help	../pritunl_client/click/core.py	/^        def show_help(ctx, param, value):$/;"	kind:function	line:748
+show_import_profile	../pritunl_client/app.py	/^    def show_import_profile(self):$/;"	kind:member	line:515
+show_import_profile_error	../pritunl_client/app.py	/^    def show_import_profile_error(self, message):$/;"	kind:member	line:504
+show_import_profile_uri	../pritunl_client/app.py	/^    def show_import_profile_uri(self):$/;"	kind:member	line:532
+sig_handler	../pritunl_client/__main__.py	/^        def sig_handler(signum, frame):$/;"	kind:function	line:290
+sort_key	../pritunl_client/click/core.py	/^    def sort_key(item):$/;"	kind:function	line:80
+split_arg_string	../pritunl_client/click/parser.py	/^def split_arg_string(string):$/;"	kind:function	line:45
+split_envvar_value	../pritunl_client/click/types.py	/^    def split_envvar_value(self, rv):$/;"	kind:member	line:55
+split_opt	../pritunl_client/click/parser.py	/^def split_opt(opt):$/;"	kind:function	line:29
+start	../pritunl_client/profile.py	/^    def start(self, status_callback, connect_callback=None, passwd=None):$/;"	kind:member	line:324
+start_autostart	../pritunl_client/profile.py	/^    def start_autostart(self, status_callback, connect_callback=None):$/;"	kind:member	line:332
+start_cmd	../pritunl_client/__main__.py	/^    def start_cmd(profile_ids, password):$/;"	kind:function	line:149
+start_server	../pritunl_client/shell_app.py	/^    def start_server(self):$/;"	kind:member	line:251
+status	../pritunl_client/profile.py	/^    def status(self):$/;"	kind:member	line:122
+status_callback	../pritunl_client/shell_app.py	/^        def status_callback():$/;"	kind:function	line:153
+status_callback	../pritunl_client/shell_app.py	/^        def status_callback():$/;"	kind:function	line:228
+stderr_poll_thread	../pritunl_client/profile.py	/^        def stderr_poll_thread():$/;"	kind:function	line:525
+stdout_poll_thread	../pritunl_client/profile.py	/^        def stdout_poll_thread():$/;"	kind:function	line:537
+stop	../pritunl_client/profile.py	/^    def stop(self, silent=False):$/;"	kind:member	line:589
+stop_cmd	../pritunl_client/__main__.py	/^    def stop_cmd(profile_ids):$/;"	kind:function	line:181
+string_types	../pritunl_client/click/_compat.py	/^    string_types = (str, unicode)$/;"	kind:variable	line:137
+string_types	../pritunl_client/click/_compat.py	/^    string_types = (str,)$/;"	kind:variable	line:198
+strip_ansi	../pritunl_client/click/_compat.py	/^def strip_ansi(value):$/;"	kind:function	line:459
+style	../pritunl_client/click/termui.py	/^def style(text, fg=None, bg=None, bold=None, dim=None, underline=None,$/;"	kind:function	line:306
+sync_conf	../pritunl_client/profile.py	/^    def sync_conf(self):$/;"	kind:member	line:347
+takes_value	../pritunl_client/click/parser.py	/^    def takes_value(self):$/;"	kind:member	line:92
+term_len	../pritunl_client/click/_compat.py	/^def term_len(x):$/;"	kind:function	line:522
+termui.py	../pritunl_client/click/termui.py	1;"	kind:file	line:1
+test_mirror_url	../tools/builder.py	/^    test_mirror_url = build_keys['test_mirror_url']$/;"	kind:variable	line:111
+testing.py	../pritunl_client/click/testing.py	1;"	kind:file	line:1
+text_streams	../pritunl_client/click/_compat.py	/^text_streams = {$/;"	kind:variable	line:564
+text_type	../pritunl_client/click/_compat.py	/^    text_type = str$/;"	kind:variable	line:196
+text_type	../pritunl_client/click/_compat.py	/^    text_type = unicode$/;"	kind:variable	line:134
+time_per_iteration	../pritunl_client/click/_termui_impl.py	/^    def time_per_iteration(self):$/;"	kind:member	line:118
+toggle_icon_state	../pritunl_client/app.py	/^    def toggle_icon_state(self):$/;"	kind:member	line:32
+type_cast_value	../pritunl_client/click/core.py	/^    def type_cast_value(self, ctx, value):$/;"	kind:member	line:1227
+types.py	../pritunl_client/click/types.py	1;"	kind:file	line:1
+unpack_args	../pritunl_client/click/utils.py	/^def unpack_args(args, nargs_spec):$/;"	kind:function	line:21
+unstyle	../pritunl_client/click/termui.py	/^def unstyle(text):$/;"	kind:function	line:375
+update_icon	../pritunl_client/app.py	/^    def update_icon(self):$/;"	kind:member	line:115
+update_menu	../pritunl_client/app.py	/^    def update_menu(self):$/;"	kind:member	line:35
+update_profile	../pritunl_client/profile.py	/^    def update_profile(self, data):$/;"	kind:member	line:224
+url	../setup.py	/^    url='https:\/\/github.com\/pritunl\/pritunl-client',$/;"	kind:variable	line:140
+utils.py	../pritunl_client/click/utils.py	1;"	kind:file	line:1
+utils.py	../pritunl_client/utils.py	1;"	kind:file	line:1
+value_from_envvar	../pritunl_client/click/core.py	/^    def value_from_envvar(self, ctx):$/;"	kind:member	line:1288
+value_from_envvar	../pritunl_client/click/core.py	/^    def value_from_envvar(self, ctx):$/;"	kind:member	line:1560
+value_is_missing	../pritunl_client/click/core.py	/^    def value_is_missing(self, value):$/;"	kind:member	line:1248
+ver_date_str	../tools/builder.py	/^            ver_date_str = 'Version ' + new_version.replace($/;"	kind:variable	line:213
+version	../setup.py	/^    version=VERSION,$/;"	kind:variable	line:135
+version	../tools/builder.py	/^                    version = line.split(' ')[1]$/;"	kind:variable	line:256
+version	../tools/builder.py	/^    version = None$/;"	kind:variable	line:243
+version_option	../pritunl_client/click/decorators.py	/^def version_option(version=None, *param_decls, **attrs):$/;"	kind:function	line:214
+visible_input	../pritunl_client/click/testing.py	/^        def visible_input(prompt=None):$/;"	kind:function	line:172
+visible_prompt_func	../pritunl_client/click/termui.py	/^visible_prompt_func = raw_input$/;"	kind:variable	line:15
+wait_for_usb_insert	../pritunl_client/app.py	/^    def wait_for_usb_insert(self):$/;"	kind:member	line:138
+wait_for_usb_remove	../pritunl_client/app.py	/^    def wait_for_usb_remove(self):$/;"	kind:member	line:170
+warning	../pritunl_client/logger.py	/^def warning(log_msg, log_type=None, **kwargs):$/;"	kind:function	line:87
+wget	../tools/builder.py	/^def wget(url, cwd=None, output=None):$/;"	kind:function	line:32
+wrap_text	../pritunl_client/click/formatting.py	/^def wrap_text(text, width=78, initial_indent='', subsequent_indent='',$/;"	kind:function	line:21
+wrapper	../pritunl_client/click/utils.py	/^    def wrapper(*args, **kwargs):$/;"	kind:function	line:81
+writable	../pritunl_client/click/_compat.py	/^    def writable(self):$/;"	kind:member	line:109
+write	../pritunl_client/click/_compat.py	/^        def write(self, x):$/;"	kind:function	line:52
+write	../pritunl_client/click/formatting.py	/^    def write(self, string):$/;"	kind:member	line:107
+write_dl	../pritunl_client/click/formatting.py	/^    def write_dl(self, rows, col_max=30, col_spacing=2):$/;"	kind:member	line:158
+write_env	../pritunl_client/utils.py	/^def write_env(env_data):$/;"	kind:function	line:333
+write_heading	../pritunl_client/click/formatting.py	/^    def write_heading(self, heading):$/;"	kind:member	line:137
+write_paragraph	../pritunl_client/click/formatting.py	/^    def write_paragraph(self):$/;"	kind:member	line:141
+write_profile	../pritunl_client/profile.py	/^    def write_profile(self, profile_data):$/;"	kind:member	line:200
+write_text	../pritunl_client/click/formatting.py	/^    def write_text(self, text):$/;"	kind:member	line:146
+write_usage	../pritunl_client/click/formatting.py	/^    def write_usage(self, prog, args='', prefix='Usage: '):$/;"	kind:member	line:119
+write_usb_key	../pritunl_client/profile.py	/^def write_usb_key(id, iv, key):$/;"	kind:function	line:690
+writelines	../pritunl_client/click/_compat.py	/^        def writelines(self, lines):$/;"	kind:function	line:61
+zip_safe	../setup.py	/^    zip_safe=False,$/;"	kind:variable	line:149

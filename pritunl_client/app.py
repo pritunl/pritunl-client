@@ -223,9 +223,25 @@ class App(object):
 
         auth_type = prfl.auth_type
         if auth_type:
-            passwd = ''
+            username_passwd = ["",""]
 
             if 'password' in auth_type:
+                dialog = interface.InputDialog()
+                dialog.set_title(APP_NAME_FORMATED)
+                dialog.set_icon(utils.get_logo())
+                dialog.set_message('Profile Username Required')
+                dialog.set_message_secondary('Enter username for %s' % (
+                    prfl.name))
+                dialog.set_input_label('Username:')
+                dialog.set_input_width(16)
+                dialog.set_visibility(False)
+                resp = dialog.run()
+                dialog.destroy()
+                if resp is None:
+                    return
+                else:
+                    username_passwd[0] = resp
+
                 dialog = interface.InputDialog()
                 dialog.set_title(APP_NAME_FORMATED)
                 dialog.set_icon(utils.get_logo())
@@ -240,7 +256,7 @@ class App(object):
                 if resp is None:
                     return
                 else:
-                    passwd += resp
+                    username_passwd[1] += resp
 
             if 'pin' in auth_type:
                 dialog = interface.InputDialog()
