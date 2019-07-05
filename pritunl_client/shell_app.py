@@ -9,6 +9,8 @@ import SocketServer
 import threading
 import json
 import httplib
+import urllib
+from socket import error as socket_error
 
 auth_token = utils.generate_secret()
 
@@ -17,6 +19,20 @@ class ThreadingHTTPServer(SocketServer.ThreadingMixIn,
     pass
 
 class Request(BaseHTTPServer.BaseHTTPRequestHandler):
+    def prfl_lookup(self):
+        vpn_list_url = 'http://localhost:9797/list'
+        vpn_table = urllib.urlopen(vpn_list_url)
+        vpn_headers = vpn_table.readline().strip().split()
+        vpn_info = []
+        for row in vpn_table:
+            row = row.strip().split()
+            vpn_data = dict(zip(vpn_headers, row))
+            vpn_info.append(vpn_data)
+        for vpn_data in vpn_info:
+            if self.args[2] == vpn_data['NAME']:
+                self.args[2] = vpn_data['PROFILE_ID']
+        return self.args[2]
+
     def send_text_response(self, text, status_code=200):
         self.send_response(status_code)
         self.send_header('Content-type', 'text/plain')
@@ -152,6 +168,7 @@ class Request(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
 
     def do_remove(self):
+        self.args[2] = self.prfl_lookup()
         prfl = profile.Profile.get_profile(self.args[2])
         if prfl:
             prfl.delete()
@@ -169,6 +186,7 @@ class Request(BaseHTTPServer.BaseHTTPRequestHandler):
             evt.set()
             pass
 
+        self.args[2] = self.prfl_lookup()
         prfl = profile.Profile.get_profile(self.args[2])
         if not prfl:
             self.send_text_response('Profile not found', 404)
@@ -200,6 +218,7 @@ class Request(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
 
     def do_stop(self):
+        self.args[2] = self.prfl_lookup()
         prfl = profile.Profile.get_profile(self.args[2])
         if not prfl:
             self.send_text_response('Profile not found', 404)
@@ -209,6 +228,7 @@ class Request(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
 
     def do_enable(self):
+        self.args[2] = self.prfl_lookup()
         prfl = profile.Profile.get_profile(self.args[2])
         if not prfl:
             self.send_text_response('Profile not found', 404)
@@ -218,6 +238,7 @@ class Request(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
 
     def do_disable(self):
+        self.args[2] = self.prfl_lookup()
         prfl = profile.Profile.get_profile(self.args[2])
         if not prfl:
             self.send_text_response('Profile not found', 404)
@@ -273,12 +294,15 @@ class ShellApp(object):
                 args=(status_callback, connect_callback)).start()
 
     def start_server(self):
-        server = ThreadingHTTPServer(
-            ('127.0.0.1', 9797),
-            Request,
-        )
-        logger.info('Starting pritunl-client daemon...', 'shell')
+        try:
+            server = ThreadingHTTPServer(
+                ('127.0.0.1', 9797),
+                Request,
+            )
+            logger.info('Starting pritunl-client daemon...', 'shell')
 
-        self.autostart()
+            self.autostart()
 
-        server.serve_forever()
+            server.serve_forever()
+        except socket_error:
+            logger.info('Address already in use. Make sure that port 9797 is available.', 'shell')
