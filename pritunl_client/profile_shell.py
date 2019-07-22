@@ -23,6 +23,25 @@ class ProfileShell(profile.Profile):
                 passwd_file.write('pritunl_client\n')
                 passwd_file.write('%s\n' % passwd)
 
+        systemd_resolve = False
+        try:
+            subprocess.check_call(['which', 'systemd-resolve'])
+            with open('/etc/resolv.conf', 'r') as resolv_file:
+                data = resolv_file.read()
+                if 'systemd-resolved' in data or '127.0.0.53' in data:
+                    systemd_resolve = True
+        except:
+            pass
+        if systemd_resolve:
+            script_path = os.path.join(SHARE_DIR, 'update-systemd-resolved.sh')
+        else:
+            script_path = os.path.join(SHARE_DIR, 'update-resolv-conf.sh')
+
+        args.extend(['--script-security', '2'])
+        args.append('--up-restart')
+        args.extend(['--up', script_path])
+        args.extend(['--down', script_path])
+
         self._run_ovpn(status_callback, connect_callback, args, on_exit, False)
 
     def _start_autostart(self, status_callback, connect_callback):
