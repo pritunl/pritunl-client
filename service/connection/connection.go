@@ -4,10 +4,10 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"github.com/pritunl/pritunl-client-electron/service/config"
-	"github.com/pritunl/pritunl-client-electron/service/event"
-	"github.com/pritunl/pritunl-client-electron/service/sprofile"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/event"
+	"github.com/pritunl/pritunl-client/service/sprofile"
+	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
 

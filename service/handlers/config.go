@@ -3,9 +3,9 @@ package handlers
 import (
 	"github.com/dropbox/godropbox/errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/config"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 type configData struct {

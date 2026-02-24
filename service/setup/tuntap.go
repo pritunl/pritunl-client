@@ -1,11 +1,12 @@
 package setup
 
 import (
-	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/command"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
 	"strings"
+
+	"github.com/dropbox/godropbox/errors"
+	"github.com/pritunl/pritunl-client/service/command"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 func TunTapGet(all bool) (adpaters []string, err error) {

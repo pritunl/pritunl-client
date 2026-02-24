@@ -15,11 +15,11 @@ import (
 	"time"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/config"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/network"
-	"github.com/pritunl/pritunl-client-electron/service/platform"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/network"
+	"github.com/pritunl/pritunl-client/service/platform"
+	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
 

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/errortypes"
 )
 
 func SystemDirectory() (pth string, err error) {

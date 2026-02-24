@@ -1,4 +1,4 @@
-module github.com/pritunl/pritunl-client-electron/service
+module github.com/pritunl/pritunl-client/service
 
 go 1.24.0
 

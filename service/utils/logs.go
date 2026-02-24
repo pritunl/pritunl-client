@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/errortypes"
 )
 
 func GetServiceLog() (data string, err error) {

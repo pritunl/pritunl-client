@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/event"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/event"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 func wakeupPost(c *gin.Context) {

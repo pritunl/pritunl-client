@@ -11,7 +11,7 @@ import (
 
 	"github.com/dropbox/godropbox/container/set"
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/errortypes"
 	"github.com/sirupsen/logrus"
 )
 

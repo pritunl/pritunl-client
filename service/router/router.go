@@ -10,8 +10,8 @@ import (
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/handlers"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/handlers"
 )
 
 type Router struct {

@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pritunl/pritunl-client-electron/service/command"
+	"github.com/pritunl/pritunl-client/service/command"
 )
 
 func RootDir() string {

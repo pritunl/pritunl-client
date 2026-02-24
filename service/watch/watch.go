@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pritunl/pritunl-client-electron/service/autoclean"
-	"github.com/pritunl/pritunl-client-electron/service/config"
-	"github.com/pritunl/pritunl-client-electron/service/connection"
-	"github.com/pritunl/pritunl-client-electron/service/event"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/autoclean"
+	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/connection"
+	"github.com/pritunl/pritunl-client/service/event"
+	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
 

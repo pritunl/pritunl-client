@@ -3,8 +3,8 @@ package connection
 import (
 	"strings"
 
-	"github.com/pritunl/pritunl-client-electron/service/sprofile"
-	"github.com/pritunl/pritunl-client-electron/service/types"
+	"github.com/pritunl/pritunl-client/service/sprofile"
+	"github.com/pritunl/pritunl-client/service/types"
 	"github.com/sirupsen/logrus"
 )
 

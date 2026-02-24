@@ -21,10 +21,10 @@ import (
 
 	"github.com/dropbox/godropbox/container/set"
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/command"
-	"github.com/pritunl/pritunl-client-electron/service/constants"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/platform"
+	"github.com/pritunl/pritunl-client/service/command"
+	"github.com/pritunl/pritunl-client/service/constants"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/platform"
 	"github.com/sirupsen/logrus"
 )
 

@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/connection"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/connection"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 func networkDnsReset(c *gin.Context) {

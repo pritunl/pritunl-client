@@ -3,9 +3,9 @@ package handlers
 import (
 	"github.com/dropbox/godropbox/errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/log"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/log"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 func logGet(c *gin.Context) {

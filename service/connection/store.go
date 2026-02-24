@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/dropbox/godropbox/container/set"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
 

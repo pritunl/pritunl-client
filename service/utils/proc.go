@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/command"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/command"
+	"github.com/pritunl/pritunl-client/service/errortypes"
 	"github.com/sirupsen/logrus"
 )
 

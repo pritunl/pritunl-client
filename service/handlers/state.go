@@ -4,9 +4,9 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/connection"
-	"github.com/pritunl/pritunl-client-electron/service/constants"
-	"github.com/pritunl/pritunl-client-electron/service/update"
+	"github.com/pritunl/pritunl-client/service/connection"
+	"github.com/pritunl/pritunl-client/service/constants"
+	"github.com/pritunl/pritunl-client/service/update"
 )
 
 type stateData struct {

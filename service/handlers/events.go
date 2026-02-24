@@ -8,10 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/pritunl/pritunl-client-electron/service/connection"
-	"github.com/pritunl/pritunl-client-electron/service/event"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
-	"github.com/pritunl/pritunl-client-electron/service/watch"
+	"github.com/pritunl/pritunl-client/service/connection"
+	"github.com/pritunl/pritunl-client/service/event"
+	"github.com/pritunl/pritunl-client/service/utils"
+	"github.com/pritunl/pritunl-client/service/watch"
 	"github.com/sirupsen/logrus"
 )
 

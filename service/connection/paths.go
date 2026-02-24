@@ -7,9 +7,9 @@ import (
 	"runtime"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/constants"
-	"github.com/pritunl/pritunl-client-electron/service/platform"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/constants"
+	"github.com/pritunl/pritunl-client/service/platform"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 func GetBashPath() string {

@@ -15,11 +15,11 @@ import (
 
 	"github.com/dropbox/godropbox/container/set"
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/command"
-	"github.com/pritunl/pritunl-client-electron/service/config"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/tuntap"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/command"
+	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/tuntap"
+	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pritunl/pritunl-client-electron/service/auth"
+	"github.com/pritunl/pritunl-client/service/auth"
 	"github.com/sirupsen/logrus"
 )
 

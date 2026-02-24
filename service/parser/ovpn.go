@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/dropbox/godropbox/container/set"
-	"github.com/pritunl/pritunl-client-electron/service/constants"
+	"github.com/pritunl/pritunl-client/service/constants"
 	"github.com/sirupsen/logrus"
 )
 

@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 func FindPath() (pth string, exists, move bool, err error) {

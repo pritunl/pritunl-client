@@ -3,7 +3,7 @@ package winsvc
 import (
 	"github.com/dropbox/godropbox/errors"
 	"github.com/judwhite/go-svc"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/errortypes"
 )
 
 type Service struct {

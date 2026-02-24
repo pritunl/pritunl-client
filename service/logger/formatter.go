@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/pritunl/pritunl-client-electron/service/colorize"
+	"github.com/pritunl/pritunl-client/service/colorize"
 	"github.com/sirupsen/logrus"
 )
 

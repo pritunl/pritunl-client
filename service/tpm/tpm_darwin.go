@@ -12,10 +12,10 @@ import (
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/google/go-tpm-tools/client"
-	"github.com/pritunl/pritunl-client-electron/service/command"
-	"github.com/pritunl/pritunl-client-electron/service/constants"
-	"github.com/pritunl/pritunl-client-electron/service/errortypes"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/command"
+	"github.com/pritunl/pritunl-client/service/constants"
+	"github.com/pritunl/pritunl-client/service/errortypes"
+	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
 

@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/service/platform"
-	"github.com/pritunl/pritunl-client-electron/service/sprofile"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/platform"
+	"github.com/pritunl/pritunl-client/service/sprofile"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 var Key = ""

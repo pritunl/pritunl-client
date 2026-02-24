@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pritunl/pritunl-client-electron/service/config"
-	"github.com/pritunl/pritunl-client-electron/service/platform"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
+	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/platform"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 var (

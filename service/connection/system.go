@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pritunl/pritunl-client-electron/service/event"
-	"github.com/pritunl/pritunl-client-electron/service/sprofile"
-	"github.com/pritunl/pritunl-client-electron/service/update"
+	"github.com/pritunl/pritunl-client/service/event"
+	"github.com/pritunl/pritunl-client/service/sprofile"
+	"github.com/pritunl/pritunl-client/service/update"
 	"github.com/sirupsen/logrus"
 )
 

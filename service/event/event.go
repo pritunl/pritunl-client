@@ -2,10 +2,11 @@
 package event
 
 import (
-	"github.com/dropbox/godropbox/container/set"
-	"github.com/pritunl/pritunl-client-electron/service/utils"
 	"sync"
 	"time"
+
+	"github.com/dropbox/godropbox/container/set"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 var (

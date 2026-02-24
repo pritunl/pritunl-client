@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pritunl/pritunl-client-electron/service/command"
+	"github.com/pritunl/pritunl-client/service/command"
 )
 
 func Uninstall() {
