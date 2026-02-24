@@ -7,9 +7,9 @@ import (
 	"github.com/dropbox/godropbox/errors"
 	"github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
-	"github.com/pritunl/pritunl-client-electron/cli/constants"
-	"github.com/pritunl/pritunl-client-electron/cli/errortypes"
-	"github.com/pritunl/pritunl-client-electron/cli/sprofile"
+	"github.com/pritunl/pritunl-client/cli/constants"
+	"github.com/pritunl/pritunl-client/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/sprofile"
 )
 
 func refresh() {

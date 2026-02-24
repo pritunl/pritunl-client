@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pritunl/pritunl-client-electron/cli/sprofile"
+	"github.com/pritunl/pritunl-client/cli/sprofile"
 	"github.com/pritunl/tools/logger"
 )
 

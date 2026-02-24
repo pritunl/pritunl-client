@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/cli/iface"
+	"github.com/pritunl/pritunl-client/cli/iface"
 	"github.com/spf13/cobra"
 )
 

@@ -6,8 +6,8 @@ import (
 	"runtime"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/cli/errortypes"
-	"github.com/pritunl/pritunl-client-electron/cli/service"
+	"github.com/pritunl/pritunl-client/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/service"
 )
 
 func Get(prflId string) (prfl *Profile, err error) {

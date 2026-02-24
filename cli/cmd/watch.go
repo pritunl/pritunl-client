@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/pritunl/pritunl-client-electron/cli/watch"
+	"github.com/pritunl/pritunl-client/cli/watch"
 	"github.com/spf13/cobra"
 )
 

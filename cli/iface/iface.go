@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/errortypes"
 	"github.com/pritunl/tools/logger"
 )
 

@@ -16,11 +16,11 @@ import (
 
 	"github.com/dropbox/godropbox/container/set"
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/cli/errortypes"
-	"github.com/pritunl/pritunl-client-electron/cli/profile"
-	"github.com/pritunl/pritunl-client-electron/cli/service"
-	"github.com/pritunl/pritunl-client-electron/cli/terminal"
-	"github.com/pritunl/pritunl-client-electron/cli/utils"
+	"github.com/pritunl/pritunl-client/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/profile"
+	"github.com/pritunl/pritunl-client/cli/service"
+	"github.com/pritunl/pritunl-client/cli/terminal"
+	"github.com/pritunl/pritunl-client/cli/utils"
 	"github.com/spf13/cobra"
 )
 

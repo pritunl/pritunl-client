@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/dropbox/godropbox/errors"
-	"github.com/pritunl/pritunl-client-electron/cli/errortypes"
-	"github.com/pritunl/pritunl-client-electron/cli/utils"
+	"github.com/pritunl/pritunl-client/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/utils"
 )
 
 var httpClient = &http.Client{

@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/pritunl/pritunl-client-electron/cli/sprofile"
+	"github.com/pritunl/pritunl-client/cli/sprofile"
 	"github.com/spf13/cobra"
 )
 

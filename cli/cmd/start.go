@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/pritunl/pritunl-client-electron/cli/sprofile"
+	"github.com/pritunl/pritunl-client/cli/sprofile"
 	"github.com/spf13/cobra"
 )
 

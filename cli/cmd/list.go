@@ -7,8 +7,8 @@ import (
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/olekukonko/tablewriter"
-	"github.com/pritunl/pritunl-client-electron/cli/errortypes"
-	"github.com/pritunl/pritunl-client-electron/cli/sprofile"
+	"github.com/pritunl/pritunl-client/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/sprofile"
 	"github.com/spf13/cobra"
 )
 
