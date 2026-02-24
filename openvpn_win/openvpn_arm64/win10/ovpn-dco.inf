@@ -1,0 +1,91 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=Net
+ClassGuid={4d36e972-e325-11ce-bfc1-08002be10318}
+Provider=%ovpn-dco.CompanyName%
+CatalogFile=ovpn-dco.cat
+PnpLockdown=1
+DriverVer = 02/17/2026,2.8.2.0
+
+[DestinationDirs]
+DefaultDestDir = 12
+ovpn-dco_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %ovpn-dco.DiskName%,,,""
+
+[SourceDisksFiles]
+ovpn-dco.sys  = 1,,
+;
+
+
+[Manufacturer]
+%ovpn-dco.CompanyName%=%ovpn-dco.Name%,NTARM64
+
+[ovpn-dco.NTARM64]
+%ovpn-dco.DeviceDesc%=ovpn-dco_Device, ovpn-dco
+
+[ovpn-dco_Device.NT]
+CopyFiles=Drivers_Dir
+AddReg=ovpn-dco_AddReg
+
+Characteristics     = 1  ; NCF_VIRTUAL
+
+*IfType             = 53 ; IF_TYPE_PROP_VIRTUAL
+*MediaType          = 19 ; NdisMediumIP
+*PhysicalMediaType  = 0 ; NdisPhysicalMediumUnspecified
+
+*IfConnectorPresent = 0
+*ConnectionType     = 1 ; NET_IF_CONNECTION_PASSIVE
+*DirectionType      = 0 ; NET_IF_DIRECTION_SENDRECEIVE
+*AccessType         = 2 ; NET_IF_ACCESS_POINT_TO_POINT
+*HardwareLoopback   = 0
+
+EnableDhcp = 0 ; Disable DHCP
+
+[ovpn-dco_AddReg]
+HKR, Ndi\Interfaces,    UpperRange, 0, "ndis5"
+HKR, Ndi\Interfaces,    LowerRange, 0, "nolower"
+HKR, Ndi,               Service,    0, %ovpn-dco.Name%
+
+[Drivers_Dir]
+ovpn-dco.sys
+
+[ovpn-dco_Device.NT.Services]
+AddService = ovpn-dco,%SPSVCINST_ASSOCSERVICE%, ovpn-dco_Service_Inst
+
+[ovpn-dco_Service_Inst]
+DisplayName    = %ovpn-dco.Name%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\ovpn-dco.sys
+
+[ovpn-dco_Device.NT.CoInstallers]
+AddReg=ovpn-dco_Device_CoInstaller_AddReg
+CopyFiles=ovpn-dco_Device_CoInstaller_CopyFiles
+
+[ovpn-dco_Device_CoInstaller_AddReg]
+;
+
+
+[ovpn-dco_Device_CoInstaller_CopyFiles]
+;
+
+
+[ovpn-dco_Device.NT.Wdf]
+KmdfService = ovpn-dco, ovpn-dco_wdfsect
+
+[ovpn-dco_wdfsect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ovpn-dco.Name = "ovpn-dco"
+ovpn-dco.DiskName = "OpenVPN Data Channel Offload Install Disk"
+ovpn-dco.DeviceDesc = "OpenVPN Data Channel Offload"
+ovpn-dco.SVCDESC = %ovpn-dco.DeviceDesc%
+ovpn-dco.CompanyName = "OpenVPN, Inc"
+
