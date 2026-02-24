@@ -27,7 +27,7 @@ STABLE_PACUR_PATH = '../pritunl-pacur'
 TEST_PACUR_PATH = '../pritunl-pacur-test'
 BUILD_KEYS_PATH = os.path.expanduser('~/data/build/pritunl_build.json')
 BUILD_TARGETS = ('pritunl-client-electron', 'pritunl-client')
-REPO_NAME = 'pritunl-client-electron'
+REPO_NAME = 'pritunl-client'
 RELEASE_NAME = 'Pritunl Client'
 
 cur_date = datetime.datetime.utcnow()
