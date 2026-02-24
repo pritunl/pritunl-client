@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_VER="$(curl -s https://api.github.com/repos/pritunl/pritunl-client-electron/releases/latest | python -c 'import json,sys;print(json.load(sys.stdin)["tag_name"])')"
+APP_VER="$(curl -s https://api.github.com/repos/pritunl/pritunl-client/releases/latest | python -c 'import json,sys;print(json.load(sys.stdin)["tag_name"])')"
 
 read -r -p "Install Pritunl Client v$APP_VER? [y/N] " response
 if ! [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
@@ -9,15 +9,15 @@ then
     exit
 fi
 
-ROOT_PATH="$(pwd)/pritunl-client-electron-$APP_VER"
+ROOT_PATH="$(pwd)/pritunl-client-$APP_VER"
 function clean {
   rm -rf "$ROOT_PATH"
 }
 
 trap clean EXIT
 
-curl -L https://github.com/pritunl/pritunl-client-electron/archive/$APP_VER.tar.gz | tar x
-cd pritunl-client-electron-$APP_VER
+curl -L https://github.com/pritunl/pritunl-client/archive/$APP_VER.tar.gz | tar x
+cd pritunl-client-$APP_VER
 
 # Pritunl
 mkdir -p build/macos/Applications
@@ -93,4 +93,4 @@ sudo launchctl enable system/com.pritunl.service
 sudo launchctl load /Library/LaunchDaemons/com.pritunl.service.plist
 
 cd ..
-rm -rf pritunl-client-electron-$APP_VER
+rm -rf pritunl-client-$APP_VER
