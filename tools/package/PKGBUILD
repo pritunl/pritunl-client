@@ -13,7 +13,7 @@ arch="amd64"
 license=("custom")
 section="utils"
 priority="optional"
-url="https://github.com/pritunl/pritunl-client-electron"
+url="https://github.com/pritunl/pritunl-client"
 rpmopts=(
     "%global __requires_exclude (libffmpeg|libEGL|libGLESv2|libvk_swiftshader|libvulkan)\\.so"
     "Provides: config(pritunl-client-electron) = %{version}-%{release}"
@@ -39,7 +39,7 @@ conflicts=(
     "pritunl-client"
 )
 sources=(
-    "pritunl-client-electron.tar"
+    "pritunl-client.tar"
 )
 hashsums=(
     "d05e8e3d56d86a82082bd2811a65e2b9ca778c6d4e099edcaded5b603ccd1fec"

@@ -32,11 +32,11 @@ cd
 ## build package
 
 ```bash
-git clone https://github.com/pritunl/pritunl-client-electron.git
-cd pritunl-client-electron
-git archive --format=tar master > tools/package/pritunl-client-electron.tar
+git clone https://github.com/pritunl/pritunl-client.git
+cd pritunl-client
+git archive --format=tar master > tools/package/pritunl-client.tar
 cd tools/package
-NEW_HASH=$(sha256sum pritunl-client-electron.tar | awk '{print $1}')
+NEW_HASH=$(sha256sum pritunl-client.tar | awk '{print $1}')
 sed -i "/hashsums=(/,/)/ {0,/\"[a-f0-9]\{64\}\"/ s/\"[a-f0-9]\{64\}\"/\"$NEW_HASH\"/}" PKGBUILD
 
 sudo podman run --rm -t -v `pwd`:/pacur:Z localhost/pacur/fedora-42
