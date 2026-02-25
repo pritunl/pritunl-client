@@ -9,6 +9,10 @@ rm -f /Users/apple/build/openvpn
 rm -f /Users/apple/build/openvpn_arm64
 rm -f /Users/apple/build/openvpn10
 
+tar xf m4-1.4.21.tar.xz
+cd ./m4-1.4.21
+sh ../build_m4.sh
+
 tar xf autoconf-2.72.tar.gz
 cd ./autoconf-2.72
 sh ../build_autoconf.sh
