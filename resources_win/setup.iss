@@ -38,8 +38,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "..\build\win\pritunl-win32-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not IsArm64
 Source: "..\build\win\pritunl-win32-arm64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: IsArm64
 Source: "..\tuntap_win\tuntap_amd64\*"; DestDir: "{app}\tuntap"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not IsArm64
+Source: "..\tuntap_win\tuntap10_amd64\*"; DestDir: "{app}\tuntap10"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not IsArm64
 Source: "..\openvpn_win\openvpn_amd64\*"; DestDir: "{app}\openvpn"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not IsArm64
 Source: "..\tuntap_win\tuntap_arm64\*"; DestDir: "{app}\tuntap"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: IsArm64
+Source: "..\tuntap_win\tuntap10_arm64\*"; DestDir: "{app}\tuntap10"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: IsArm64
 Source: "..\openvpn_win\openvpn_arm64\*"; DestDir: "{app}\openvpn"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: IsArm64
 Source: "..\service\service_amd64.exe"; DestDir: "{app}"; DestName: "pritunl-service.exe"; Flags: ignoreversion; Check: not IsArm64
 Source: "..\cli\cli_amd64.exe"; DestDir: "{app}"; DestName: "pritunl-client.exe"; Flags: ignoreversion; Check: not IsArm64
