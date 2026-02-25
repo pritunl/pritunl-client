@@ -36,21 +36,7 @@ func GetBashPath() string {
 func GetWgPath() string {
 	switch runtime.GOOS {
 	case "windows":
-		path := filepath.Join(utils.GetWinDrive(),
-			"Program Files", "WireGuard", "wg.exe")
-		exists, _ := utils.Exists(path)
-		if exists {
-			return path
-		}
-
-		path = filepath.Join(utils.GetWinDrive(),
-			"Program Files (x86)", "WireGuard", "wg.exe")
-		exists, _ = utils.Exists(path)
-		if exists {
-			return path
-		}
-
-		break
+		return filepath.Join(utils.GetRootDir(), "wireguard", "wg.exe")
 	case "darwin":
 		if constants.Development {
 			return filepath.Join(utils.GetRootDir(), "..",
@@ -76,21 +62,7 @@ func GetWgPath() string {
 func GetWgQuickPath() string {
 	switch runtime.GOOS {
 	case "windows":
-		path := filepath.Join(utils.GetWinDrive(),
-			"Program Files", "WireGuard", "wg-quick.exe")
-		exists, _ := utils.Exists(path)
-		if exists {
-			return path
-		}
-
-		path = filepath.Join(utils.GetWinDrive(),
-			"Program Files (x86)", "WireGuard", "wg-quick.exe")
-		exists, _ = utils.Exists(path)
-		if exists {
-			return path
-		}
-
-		break
+		return filepath.Join(utils.GetRootDir(), "wireguard", "wg-quick.exe")
 	case "darwin":
 		if constants.Development {
 			return filepath.Join(utils.GetRootDir(), "..",
@@ -123,21 +95,7 @@ func GetWgQuickPath() string {
 func GetWgUtilPath() string {
 	switch runtime.GOOS {
 	case "windows":
-		path := filepath.Join(utils.GetWinDrive(),
-			"Program Files", "WireGuard", "wireguard.exe")
-		exists, _ := utils.Exists(path)
-		if exists {
-			return path
-		}
-
-		path = filepath.Join(utils.GetWinDrive(),
-			"Program Files (x86)", "WireGuard", "wireguard.exe")
-		exists, _ = utils.Exists(path)
-		if exists {
-			return path
-		}
-
-		break
+		return filepath.Join(utils.GetRootDir(), "wireguard", "wireguard.exe")
 	case "darwin":
 		break
 	case "linux":
