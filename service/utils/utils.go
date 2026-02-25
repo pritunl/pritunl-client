@@ -832,9 +832,24 @@ func GetRootDir() (pth string) {
 	return
 }
 
+func TunTapPath10() string {
+	if constants.Development {
+		pth := filepath.Join(GetRootDir(),
+			"..", "tuntap_win", "tuntap10_amd64")
+
+		exists, _ := ExistsDir(pth)
+		if exists {
+			return pth
+		}
+	}
+
+	return filepath.Join(GetRootDir(), "tuntap10")
+}
+
 func TunTapPath() string {
 	if constants.Development {
-		pth := filepath.Join(GetRootDir(), "..", "tuntap_win", "tuntap_amd64")
+		pth := filepath.Join(GetRootDir(),
+			"..", "tuntap_win", "tuntap_amd64")
 
 		exists, _ := ExistsDir(pth)
 		if exists {
