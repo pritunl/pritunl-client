@@ -43,17 +43,27 @@ func TunTapGet(all bool) (adpaters []string, err error) {
 func TunTapInstall() (err error) {
 	cmd := command.Command(
 		"pnputil.exe",
-		"-a", "oemvista.inf",
-		"-i",
+		"/add-driver", "ovpn-dco.inf",
+		"/install",
 	)
 	cmd.Dir = utils.TunTapPath()
 
 	err = cmd.Run()
 	if err != nil {
-		err = &errortypes.ExecError{
-			errors.Wrap(err, "setup: Driver setup error"),
+		cmd = command.Command(
+			"pnputil.exe",
+			"/add-driver", "ovpn-dco.inf",
+			"/install",
+		)
+		cmd.Dir = utils.TunTapPath10()
+
+		err = cmd.Run()
+		if err != nil {
+			err = &errortypes.ExecError{
+				errors.Wrap(err, "setup: Driver setup error"),
+			}
+			return
 		}
-		return
 	}
 
 	return
