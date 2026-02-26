@@ -1,7 +1,7 @@
 /// <reference path="../References.d.ts"/>
 import * as Errors from "../Errors"
 import fs from "fs";
-import tar from "tar";
+import * as tar from "tar";
 import childProcess from "child_process";
 import electron from "electron";
 import path from "path";
@@ -597,34 +597,28 @@ export interface TarData {
 	data: string
 }
 
-export function tarRead(path: string): Promise<TarData[]> {
-	return new Promise<TarData[]>((resolve, reject): void => {
-		try {
-			let files: TarData[] = []
-			let parser = new tar.Parse()
+export function tarRead(pth: string): Promise<TarData[]> {
+	let files: TarData[] = []
 
-			fs.createReadStream(path)
-				.pipe(parser)
-				.on("entry", (entry) => {
-					let data = ""
+	return tar.list({
+		file: pth,
+		onReadEntry: (entry: tar.ReadEntry) => {
+			let data = ""
 
-					entry.on("data", (content) => {
-						data += content.toString()
-					})
-					entry.on("end", () => {
-						files.push({
-							path: entry.path,
-							data: data,
-						})
-					})
+			entry.on("data", (content: Buffer) => {
+				data += content.toString()
+			})
+			entry.on("end", () => {
+				files.push({
+					path: entry.path,
+					data: data,
 				})
-				.on("end", () => {
-					resolve(files)
-				})
-		} catch(err) {
-			err = new Errors.ReadError(err, "Utils: Failed to read tar file",
-				{path: path});
-			reject(err)
-		}
+			})
+		},
+	}).then(() => {
+		return files
+	}).catch((err) => {
+		throw new Errors.ReadError(err, "Utils: Failed to read tar file",
+			{path: pth})
 	})
 }
