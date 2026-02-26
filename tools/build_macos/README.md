@@ -5,9 +5,6 @@ mkdir -p /Users/apple/build
 cp ./* /Users/apple/build/
 cp ../../openvpn_macos/* /Users/apple/build/
 cd /Users/apple/build
-rm -f /Users/apple/build/openvpn
-rm -f /Users/apple/build/openvpn_arm64
-rm -f /Users/apple/build/openvpn10
 
 tar xf m4-1.4.21.tar.xz
 cd ./m4-1.4.21
@@ -40,7 +37,7 @@ cd ../
 
 tar xf openssl-3.3.6.tar.gz
 cd ./openssl-3.3.6
-sh ../build_openssl_arm.sh
+sh ../build_openssl.sh
 cd ../
 
 tar xf pkcs11-helper-1.31.0.tar.bz2
@@ -50,7 +47,7 @@ cd ../
 
 tar xf openvpn-2.7.0.tar.gz
 cd ./openvpn-2.7.0
-sh ../build_openvpn_arm.sh
+sh ../build_openvpn.sh
 cd ../
 
 
