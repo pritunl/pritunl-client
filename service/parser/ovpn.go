@@ -185,6 +185,7 @@ func (o *Ovpn) Export(chown string) string {
 	}
 
 	output += "pull-filter ignore \"ping-restart\"\n"
+	output += "pull-filter ignore \"dhcp-option DOMAIN-ROUTE\"\n"
 
 	if o.DataCiphers != "" {
 		output += fmt.Sprintf("data-ciphers \"%s\"\n", o.DataCiphers)
