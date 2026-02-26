@@ -1,14 +1,14 @@
 "use strict";
 (global["webpackChunkpritunl"] = global["webpackChunkpritunl"] || []).push([[824],{
 
-/***/ 6740:
+/***/ 740:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   allPathsLoader: () => (/* binding */ allPathsLoader)
 /* harmony export */ });
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1635);
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(635);
 /*
  * Copyright 2023 Palantir Technologies, Inc. All rights reserved.
  *
@@ -32,7 +32,7 @@ var allPathsLoader = function (name, size) { return (0,tslib__WEBPACK_IMPORTED_M
     var getIconPaths;
     return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__generator */ .YH)(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, Promise.all(/* import() | blueprint-icons-all-paths */[__webpack_require__.e(783), __webpack_require__.e(672), __webpack_require__.e(860)]).then(__webpack_require__.bind(__webpack_require__, 4521))];
+            case 0: return [4 /*yield*/, Promise.all(/* import() | blueprint-icons-all-paths */[__webpack_require__.e(783), __webpack_require__.e(672), __webpack_require__.e(860)]).then(__webpack_require__.bind(__webpack_require__, 521))];
             case 1:
                 getIconPaths = (_a.sent()).getIconPaths;
                 return [2 /*return*/, getIconPaths(name, size)];

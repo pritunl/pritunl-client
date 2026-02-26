@@ -1,7 +1,7 @@
 "use strict";
 (global["webpackChunkpritunl"] = global["webpackChunkpritunl"] || []).push([[860],{
 
-/***/ 4521:
+/***/ 521:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -12,8 +12,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   iconNameToPathsRecordKey: () => (/* binding */ iconNameToPathsRecordKey)
 /* harmony export */ });
 /* harmony import */ var change_case__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(287);
-/* harmony import */ var _generated_16px_paths__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4347);
-/* harmony import */ var _generated_20px_paths__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7824);
+/* harmony import */ var _generated_16px_paths__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(347);
+/* harmony import */ var _generated_20px_paths__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(824);
 /* harmony import */ var _iconTypes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(772);
 /*
  * Copyright 2021 Palantir Technologies, Inc. All rights reserved.
