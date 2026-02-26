@@ -30,7 +30,7 @@ OPENSSL_CFLAGS="-I/Users/apple/build/openssl/include" \
     --disable-plugin-down-root \
     --disable-lz4 \
     --with-crypto-library=openssl \
-    --build=x86_64-apple-darwin \
+    --build=arm-apple-darwin \
     --enable-pkcs11 \
     --enable-static \
     --disable-shared \

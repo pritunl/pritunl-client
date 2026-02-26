@@ -9,7 +9,7 @@ export LINKFLAGS="-mmacosx-version-min=11.0"
 unset OPENSSL_LOCAL_CONFIG_DIR
 
 perl ./Configure \
-  darwin64-x86_64-cc \
+  darwin64-arm64-cc \
   enable-ec_nistp_64_gcc_128 \
   no-ssl3 \
   no-ssl3-method \
