@@ -76,6 +76,9 @@ const css = {
 	updateButton: {
 		marginTop: "7px",
 	} as React.CSSProperties,
+	controlButton: {
+		borderRadius: "10px",
+	} as React.CSSProperties,
 };
 
 export default class Main extends React.Component<{}, State> {
@@ -296,6 +299,11 @@ export default class Main extends React.Component<{}, State> {
 		let version = Constants.state.version
 		if (Constants.state.version) {
 			version = " v" + Constants.state.version
+		}
+
+		let controlButtonStyle: React.CSSProperties
+		if (Constants.platform === "darwin") {
+			controlButtonStyle = css.controlButton
 		}
 
 		let menu: JSX.Element = <Blueprint.Menu>
@@ -539,6 +547,7 @@ export default class Main extends React.Component<{}, State> {
 									{...targetProps}
 									minimal={true}
 									icon="menu"
+									style={controlButtonStyle}
 								/>
 							)}
 							usePortal={true}
@@ -548,6 +557,7 @@ export default class Main extends React.Component<{}, State> {
 					<button
 						className="bp5-button bp5-minimal bp5-icon-minus"
 						type="button"
+						style={controlButtonStyle}
 						hidden={!Constants.frameless}
 						onClick={(): void => {
 							Electron.ipcRenderer.send("control", "minimize")
@@ -557,6 +567,7 @@ export default class Main extends React.Component<{}, State> {
 						className="bp5-button bp5-minimal bp5-icon-cross close-button"
 						type="button"
 						hidden={!Constants.frameless}
+						style={controlButtonStyle}
 						onClick={(): void => {
 							window.close()
 						}}
