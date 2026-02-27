@@ -34,10 +34,10 @@ export function themeVer3(): void {
   blueprintTheme5.disabled = true;
 	if (theme === "dark") {
 		document.body.className = 'bp3-theme bp5-dark';
-		document.documentElement.className = 'dark3-scroll';
+		document.documentElement.className = 'dark3-scroll bp5-focus-disabled';
 	} else {
 		document.body.className = 'bp3-theme';
-		document.documentElement.className = '';
+		document.documentElement.className = 'bp5-focus-disabled';
 	}
   themeVer = 3;
 }
@@ -51,10 +51,10 @@ export function themeVer5(): void {
   blueprintTheme5.disabled = false;
 	if (theme === "dark") {
 		document.body.className = 'bp5-dark';
-		document.documentElement.className = 'dark5-scroll';
+		document.documentElement.className = 'dark5-scroll bp5-focus-disabled';
 	} else {
 		document.body.className = '';
-		document.documentElement.className = '';
+		document.documentElement.className = 'bp5-focus-disabled';
 	}
   themeVer = 5;
 }
@@ -63,10 +63,10 @@ export function light(): void {
 	theme = 'light';
 	if (themeVer === 3) {
 		document.body.className = 'bp3-theme';
-		document.documentElement.className = '';
+		document.documentElement.className = 'bp5-focus-disabled';
 	} else {
 		document.body.className = '';
-		document.documentElement.className = '';
+		document.documentElement.className = 'bp5-focus-disabled';
 	}
 	callbacks.forEach((callback: Callback): void => {
 		callback();
@@ -77,10 +77,10 @@ export function dark(): void {
 	theme = 'dark';
 	if (themeVer === 3) {
 		document.body.className = 'bp3-theme bp5-dark';
-		document.documentElement.className = 'dark3-scroll';
+		document.documentElement.className = 'dark3-scroll bp5-focus-disabled';
 	} else {
 		document.body.className = 'bp5-dark';
-		document.documentElement.className = 'dark5-scroll';
+		document.documentElement.className = 'dark5-scroll bp5-focus-disabled';
 	}
 	callbacks.forEach((callback: Callback): void => {
 		callback();
