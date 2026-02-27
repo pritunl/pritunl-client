@@ -12,7 +12,7 @@ export interface Callback {
 
 let callbacks: Set<Callback> = new Set<Callback>();
 export let theme = 'dark';
-export let themeVer = 5;
+export let themeVer = 3;
 let editorThemeName = '';
 export const monospaceSize = "12px"
 export const monospaceFont = "Consolas, Menlo, 'Roboto Mono', 'DejaVu Sans Mono'"
