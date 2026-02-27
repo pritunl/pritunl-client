@@ -15840,7 +15840,7 @@ var loader = {
 
 let Theme_callbacks = new Set();
 let theme = 'dark';
-let themeVer = 5;
+let themeVer = 3;
 let editorThemeName = '';
 const monospaceSize = "12px";
 const monospaceFont = "Consolas, Menlo, 'Roboto Mono', 'DejaVu Sans Mono'";
@@ -15858,11 +15858,11 @@ function themeVer3() {
     blueprintTheme5.disabled = true;
     if (theme === "dark") {
         document.body.className = 'bp3-theme bp5-dark';
-        document.documentElement.className = 'dark3-scroll';
+        document.documentElement.className = 'dark3-scroll bp5-focus-disabled';
     }
     else {
         document.body.className = 'bp3-theme';
-        document.documentElement.className = '';
+        document.documentElement.className = 'bp5-focus-disabled';
     }
     themeVer = 3;
 }
@@ -15873,11 +15873,11 @@ function themeVer5() {
     blueprintTheme5.disabled = false;
     if (theme === "dark") {
         document.body.className = 'bp5-dark';
-        document.documentElement.className = 'dark5-scroll';
+        document.documentElement.className = 'dark5-scroll bp5-focus-disabled';
     }
     else {
         document.body.className = '';
-        document.documentElement.className = '';
+        document.documentElement.className = 'bp5-focus-disabled';
     }
     themeVer = 5;
 }
@@ -15885,11 +15885,11 @@ function light() {
     theme = 'light';
     if (themeVer === 3) {
         document.body.className = 'bp3-theme';
-        document.documentElement.className = '';
+        document.documentElement.className = 'bp5-focus-disabled';
     }
     else {
         document.body.className = '';
-        document.documentElement.className = '';
+        document.documentElement.className = 'bp5-focus-disabled';
     }
     Theme_callbacks.forEach((callback) => {
         callback();
@@ -15899,11 +15899,11 @@ function dark() {
     theme = 'dark';
     if (themeVer === 3) {
         document.body.className = 'bp3-theme bp5-dark';
-        document.documentElement.className = 'dark3-scroll';
+        document.documentElement.className = 'dark3-scroll bp5-focus-disabled';
     }
     else {
         document.body.className = 'bp5-dark';
-        document.documentElement.className = 'dark5-scroll';
+        document.documentElement.className = 'dark5-scroll bp5-focus-disabled';
     }
     Theme_callbacks.forEach((callback) => {
         callback();
@@ -18202,7 +18202,9 @@ class Importer {
         ovpnData = ovpnData.trim() + "\n" + keyData;
         let confData;
         try {
-            confData = JSON.parse(jsonData);
+            if (jsonData) {
+                confData = JSON.parse(jsonData);
+            }
         }
         catch (e) {
             let err = new ParseError(null, "Importer: Json parse error", { path: pth });
