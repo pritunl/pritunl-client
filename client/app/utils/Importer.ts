@@ -139,7 +139,9 @@ export class Importer {
 
 		let confData: ProfileTypes.Profile
 		try {
-			confData = JSON.parse(jsonData)
+			if (jsonData) {
+				confData = JSON.parse(jsonData)
+			}
 		} catch (e) {
 			let err = new Errors.ParseError(null,
 				"Importer: Json parse error",
