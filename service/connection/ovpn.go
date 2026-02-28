@@ -1107,6 +1107,24 @@ func (o *Ovpn) parseLine(line string) {
 			o.conn.Data.ServerAddr = strings.TrimSpace(line[sIndex+1 : eIndex])
 			o.conn.Data.UpdateEvent()
 		}
+	} else if strings.Contains(line, "add net") &&
+		strings.Contains(line, "gateway") {
+
+		split := strings.Fields(line)
+		gwIndex := -1
+		for i, s := range split {
+			if s == "gateway" {
+				gwIndex = i
+				break
+			}
+		}
+
+		if gwIndex != -1 && gwIndex+1 < len(split) &&
+			o.conn.Data.ClientAddr == "" {
+
+			o.conn.Data.ClientAddr = split[gwIndex+1]
+			o.conn.Data.UpdateEvent()
+		}
 	} else if strings.Contains(line, "network/local/netmask") {
 		eIndex := strings.LastIndex(line, "/")
 		line = line[:eIndex]
