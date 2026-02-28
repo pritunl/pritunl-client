@@ -1094,11 +1094,12 @@ func (o *Ovpn) parseLine(line string) {
 			o.conn.Data.SendProfileEvent("auth_error")
 		}
 	} else if strings.Contains(line, "link remote:") {
-		sIndex := strings.LastIndex(line, "]") + 1
+		sIndex := strings.LastIndex(line, "]")
 		eIndex := strings.LastIndex(line, ":")
-
-		o.conn.Data.ServerAddr = line[sIndex:eIndex]
-		o.conn.Data.UpdateEvent()
+		if sIndex != -1 && eIndex != -1 {
+			o.conn.Data.ServerAddr = strings.TrimSpace(line[sIndex+1 : eIndex])
+			o.conn.Data.UpdateEvent()
+		}
 	} else if strings.Contains(line, "network/local/netmask") {
 		eIndex := strings.LastIndex(line, "/")
 		line = line[:eIndex]
