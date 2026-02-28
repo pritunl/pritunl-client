@@ -196,6 +196,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 		o.remotes,
 		o.conn.Profile.DisableGateway,
 		o.conn.Profile.DisableDns,
+		o.conn.Profile.Dco,
 	)
 
 	if runtime.GOOS == "windows" {
