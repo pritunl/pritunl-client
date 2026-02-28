@@ -269,7 +269,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 	}
 
 	if runtime.GOOS == "windows" {
-		o.tapIface = tuntap.Acquire()
+		o.tapIface = tuntap.Acquire(o.conn.Profile.Dco)
 
 		if o.tapIface == "null" {
 		} else if o.tapIface != "" {
