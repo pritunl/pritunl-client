@@ -64,6 +64,7 @@ type Sprofile struct {
 	DeviceAuth         bool                        `json:"device_auth"`
 	DisableGateway     bool                        `json:"disable_gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
+	Dco                bool                        `json:"dco"`
 	RestrictClient     bool                        `json:"restrict_client"`
 	ForceDns           bool                        `json:"force_dns"`
 	SsoAuth            bool                        `json:"sso_auth"`
@@ -106,6 +107,7 @@ type SprofileClient struct {
 	DeviceAuth         bool                        `json:"device_auth"`
 	DisableGateway     bool                        `json:"disable_Gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
+	Dco                bool                        `json:"dco"`
 	RestrictClient     bool                        `json:"restrict_client"`
 	ForceDns           bool                        `json:"force_dns"`
 	SsoAuth            bool                        `json:"sso_auth"`
@@ -151,6 +153,7 @@ func (s *Sprofile) Client() (sprflc *SprofileClient) {
 		DeviceAuth:         s.DeviceAuth,
 		DisableGateway:     s.DisableGateway,
 		DisableDns:         s.DisableDns,
+		Dco:                s.Dco,
 		RestrictClient:     s.RestrictClient,
 		ForceDns:           s.ForceDns,
 		SsoAuth:            s.SsoAuth,
@@ -211,6 +214,7 @@ func (s *Sprofile) Copy() (sprfl *Sprofile) {
 		DeviceAuth:         s.DeviceAuth,
 		DisableGateway:     s.DisableGateway,
 		DisableDns:         s.DisableDns,
+		Dco:                s.Dco,
 		RestrictClient:     s.RestrictClient,
 		ForceDns:           s.ForceDns,
 		SsoAuth:            s.SsoAuth,
@@ -394,6 +398,7 @@ func (s *Sprofile) syncUpdate(data string) (updated bool, err error) {
 		s.DeviceAuth = confData.DeviceAuth
 		s.DisableGateway = confData.DisableGateway
 		s.DisableDns = confData.DisableDns
+		s.Dco = confData.Dco
 		s.RestrictClient = confData.RestrictClient
 		s.ForceDns = confData.ForceDns
 		s.SsoAuth = confData.SsoAuth
