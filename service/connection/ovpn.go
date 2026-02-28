@@ -1026,6 +1026,13 @@ func (o *Ovpn) parseLine(line string) {
 
 		o.conn.Data.ValidateAuthToken()
 
+		sIndex := strings.LastIndex(line, "]")
+		eIndex := strings.LastIndex(line, ":")
+		if sIndex != -1 && eIndex != -1 {
+			o.conn.Data.ServerAddr = strings.TrimSpace(line[sIndex+1 : eIndex])
+			o.conn.Data.UpdateEvent()
+		}
+
 		go func() {
 			defer func() {
 				panc := recover()
