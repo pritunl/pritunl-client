@@ -71,6 +71,7 @@ type Ovpn struct {
 
 	DisableGateway bool
 	DisableDns     bool
+	Dco            bool
 }
 
 func (o *Ovpn) Export(chown string) string {
@@ -189,6 +190,10 @@ func (o *Ovpn) Export(chown string) string {
 
 	if o.DataCiphers != "" {
 		output += fmt.Sprintf("data-ciphers \"%s\"\n", o.DataCiphers)
+	} else if o.Dco {
+		output += "ignore-unknown-option data-ciphers\n"
+		output += "data-ciphers \"AES-256-GCM:AES-128-GCM:" +
+			"CHACHA20-POLY1305\"\n"
 	} else {
 		output += "ignore-unknown-option data-ciphers\n"
 		output += "data-ciphers \"AES-256-GCM:AES-128-GCM:" +
@@ -217,11 +222,12 @@ func (o *Ovpn) Export(chown string) string {
 }
 
 func Import(data string, remotes []Remote,
-	disableGateway, disableDns bool) (o *Ovpn) {
+	disableGateway, disableDns, dco bool) (o *Ovpn) {
 
 	o = &Ovpn{
 		DisableGateway: disableGateway,
 		DisableDns:     disableDns,
+		Dco:            dco,
 	}
 
 	inCa := false
@@ -336,8 +342,14 @@ func Import(data string, remotes []Remote,
 			for _, cipher := range strings.Split(lines[1], ":") {
 				switch strings.ToLower(cipher) {
 				case "aes-128-cbc":
+					if dco {
+						continue
+					}
 					cipher = "AES-128-CBC"
 				case "aes-256-cbc":
+					if dco {
+						continue
+					}
 					cipher = "AES-256-CBC"
 				case "aes-128-gcm":
 					cipher = "AES-128-GCM"
@@ -635,6 +647,10 @@ func Import(data string, remotes []Remote,
 			o.MssFix = mssFix
 			break
 		case "fragment":
+			if dco {
+				break
+			}
+
 			if len(lines) != 2 {
 				logrus.WithFields(logrus.Fields{
 					"line": line,
@@ -691,6 +707,10 @@ func Import(data string, remotes []Remote,
 
 			break
 		case "comp-lzo":
+			if dco {
+				break
+			}
+
 			if len(lines) != 2 {
 				logrus.WithFields(logrus.Fields{
 					"line": line,
@@ -717,6 +737,10 @@ func Import(data string, remotes []Remote,
 			o.BlockOutsideDns = true
 			break
 		case "compress":
+			if dco {
+				break
+			}
+
 			if len(lines) != 2 {
 				logrus.WithFields(logrus.Fields{
 					"line": line,
