@@ -71,6 +71,7 @@ type Data struct {
 	Remotes          Remotes     `json:"remotes"`
 	DefaultOvpnPort  int         `json:"-"`
 	DefaultOvpnProto string      `json:"-"`
+	clientAddrFinal  bool        `json:"-"`
 	macAddrs         []string    `json:"-"`
 	authToken        *AuthToken  `json:"-"`
 }
