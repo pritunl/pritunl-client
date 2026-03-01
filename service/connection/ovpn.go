@@ -197,6 +197,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 		o.conn.Profile.DisableGateway,
 		o.conn.Profile.DisableDns,
 		o.conn.Profile.Dco,
+		o.conn.Profile.DebugOutput,
 	)
 
 	if runtime.GOOS == "windows" {
@@ -258,9 +259,14 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 
 	o.conn.Data.UpdateEvent()
 
+	verb := "2"
+	if o.conn.Profile.DebugOutput {
+		verb = "6"
+	}
+
 	args := []string{
 		"--config", confPath,
-		"--verb", "2",
+		"--verb", verb,
 	}
 
 	if o.conn.State.IsStop() {
