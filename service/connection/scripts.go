@@ -5,6 +5,9 @@ const (
 	blockScriptWindows = "@echo off\n"
 	upScriptDarwin     = `#!/bin/bash -e
 
+[ -n "${ifconfig_local}" ] && echo "ifconfig_local=${ifconfig_local}${ifconfig_netmask:+ ifconfig_netmask=${ifconfig_netmask}}"
+[ -n "${ifconfig_remote}" ] && echo "ifconfig_remote=${ifconfig_remote}"
+
 CONN_ID="$(echo ${config} | /sbin/md5)"
 
 for optionname in ${!foreign_option_*} ; do
@@ -93,6 +96,9 @@ fi
 exit 0
 `
 	upDnsScriptDarwin = `#!/bin/bash -e
+
+[ -n "${ifconfig_local}" ] && echo "ifconfig_local=${ifconfig_local}${ifconfig_netmask:+ ifconfig_netmask=${ifconfig_netmask}}"
+[ -n "${ifconfig_remote}" ] && echo "ifconfig_remote=${ifconfig_remote}"
 
 CONN_ID="$(echo ${config} | /sbin/md5)"
 
@@ -219,6 +225,9 @@ exit 0
 # foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
 # foreign_option_4='dhcp-option DOMAIN-SEARCH bnc.local'
 
+[ -n "${ifconfig_local}" ] && echo "ifconfig_local=${ifconfig_local}${ifconfig_netmask:+ ifconfig_netmask=${ifconfig_netmask}}"
+[ -n "${ifconfig_remote}" ] && echo "ifconfig_remote=${ifconfig_remote}"
+
 ## You might need to set the path manually here, i.e.
 RESOLVCONF=` + "`" + `which resolvconf` + "`" + `
 if [[ -z "$RESOLVCONF" ]]; then
@@ -308,6 +317,9 @@ DBUS_DEST="org.freedesktop.resolve1"
 DBUS_NODE="/org/freedesktop/resolve1"
 
 SCRIPT_NAME="${BASH_SOURCE[0]##*/}"
+
+[ -n "${ifconfig_local}" ] && echo "ifconfig_local=${ifconfig_local}${ifconfig_netmask:+ ifconfig_netmask=${ifconfig_netmask}}"
+[ -n "${ifconfig_remote}" ] && echo "ifconfig_remote=${ifconfig_remote}"
 
 log() {
   logger -s -t "$SCRIPT_NAME" "$@"
@@ -745,10 +757,16 @@ fi
 #   dns_server_1_sni dns.mycorp.in
 #
 
-[ -z "${dns_vars_file}" ] || . "${dns_vars_file}"
+[ -n "${ifconfig_local}" ] && echo "ifconfig_local=${ifconfig_local}${ifconfig_netmask:+ ifconfig_netmask=${ifconfig_netmask}}"
+[ -n "${ifconfig_remote}" ] && echo "ifconfig_remote=${ifconfig_remote}"
 
 echo "dns-updown: script_type=${script_type} dev=${dev}"
-echo "dns-updown: dns_vars_file=${dns_vars_file:-<not set>}"
+echo "dns-updown: dns_vars_file=${dns_vars_file:-<not_set>}"
+
+case "${script_type}" in
+    dns-up|dns-down) ;;
+    *) exit 0 ;;
+esac
 
 echo "dns-updown: --- begin dns environment ---"
 for var in ${!dns_*}; do
