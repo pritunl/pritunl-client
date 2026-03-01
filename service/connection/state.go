@@ -142,6 +142,7 @@ func (s *State) SetConnecting() {
 		"disable_gateway":  s.conn.Profile.DisableGateway,
 		"disable_dns":      s.conn.Profile.DisableDns,
 		"dco":              s.conn.Profile.Dco,
+		"debug_output":     s.conn.Profile.DebugOutput,
 		"geo_sort":         s.conn.Profile.GeoSort,
 		"force_connect":    s.conn.Profile.ForceConnect,
 		"force_dns":        s.conn.Profile.ForceDns,
