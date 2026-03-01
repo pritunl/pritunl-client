@@ -188,6 +188,12 @@ func (o *Ovpn) Export(chown string) string {
 	output += "pull-filter ignore \"ping-restart\"\n"
 	output += "pull-filter ignore \"dhcp-option DOMAIN-ROUTE\"\n"
 
+	if o.Dco {
+		output += "pull-filter ignore \"comp-lzo\"\n"
+		output += "pull-filter ignore \"compress\"\n"
+		output += "pull-filter ignore \"fragment\"\n"
+	}
+
 	if o.DataCiphers != "" {
 		output += fmt.Sprintf("data-ciphers \"%s\"\n", o.DataCiphers)
 	} else if o.Dco {
