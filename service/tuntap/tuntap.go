@@ -160,12 +160,14 @@ func Resize(size int) (err error) {
 
 	for i := 0; i < add; i++ {
 		tapName := fmt.Sprintf("Pritunl %d", curSize+1)
+		tapDcoName := fmt.Sprintf("Pritunl DCO %d", curSize+1)
 
 		if renameError {
 			output, err = utils.ExecCombinedOutputLogged(
 				nil,
 				toolpath,
 				"create",
+				"--hwid", "tap0901",
 			)
 		} else {
 			output, err = utils.ExecCombinedOutputLogged(
@@ -173,6 +175,7 @@ func Resize(size int) (err error) {
 				toolpath,
 				"create",
 				"--name", tapName,
+				"--hwid", "tap0901",
 			)
 		}
 		if err != nil {
@@ -199,6 +202,7 @@ func Resize(size int) (err error) {
 					nil,
 					toolpath,
 					"create",
+					"--hwid", "tap0901",
 				)
 			} else {
 				output, err = utils.ExecCombinedOutputLogged(
@@ -206,6 +210,7 @@ func Resize(size int) (err error) {
 					toolpath,
 					"create",
 					"--name", tapName,
+					"--hwid", "tap0901",
 				)
 			}
 			if err != nil {
@@ -216,6 +221,7 @@ func Resize(size int) (err error) {
 						nil,
 						toolpath,
 						"create",
+						"--hwid", "tap0901",
 					)
 					if err != nil {
 						_ = clean()
@@ -228,6 +234,17 @@ func Resize(size int) (err error) {
 				time.Sleep(200 * time.Millisecond)
 				continue
 			}
+		}
+
+		output, err = utils.ExecCombinedOutputLogged(
+			nil,
+			toolpath,
+			"create",
+			"--name", tapDcoName,
+			"--hwid", "ovpn-dco",
+		)
+		if err != nil {
+			err = nil
 		}
 
 		curSize += 1
@@ -249,7 +266,7 @@ func Size() int {
 	return curSize
 }
 
-func Acquire() (tap string) {
+func Acquire(dco bool) (tap string) {
 	tapsLock.Lock()
 	defer tapsLock.Unlock()
 
@@ -259,6 +276,11 @@ func Acquire() (tap string) {
 	}
 
 	tap, taps = taps[0], taps[1:]
+
+	if dco {
+		tap = strings.Replace(tap, "Pritunl", "Pritunl DCO", 1)
+	}
+
 	return
 }
 
@@ -269,6 +291,8 @@ func Release(tap string) {
 	if tap == "null" {
 		return
 	}
+
+	tap = strings.Replace(tap, "DCO ", "", 1)
 
 	taps = append(taps, tap)
 	sort.Strings(taps)
