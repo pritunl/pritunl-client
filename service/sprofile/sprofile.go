@@ -65,6 +65,7 @@ type Sprofile struct {
 	DisableGateway     bool                        `json:"disable_gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
 	Dco                bool                        `json:"dco"`
+	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
 	ForceDns           bool                        `json:"force_dns"`
 	SsoAuth            bool                        `json:"sso_auth"`
@@ -108,6 +109,7 @@ type SprofileClient struct {
 	DisableGateway     bool                        `json:"disable_Gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
 	Dco                bool                        `json:"dco"`
+	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
 	ForceDns           bool                        `json:"force_dns"`
 	SsoAuth            bool                        `json:"sso_auth"`
@@ -154,6 +156,7 @@ func (s *Sprofile) Client() (sprflc *SprofileClient) {
 		DisableGateway:     s.DisableGateway,
 		DisableDns:         s.DisableDns,
 		Dco:                s.Dco,
+		DebugOutput:        s.DebugOutput,
 		RestrictClient:     s.RestrictClient,
 		ForceDns:           s.ForceDns,
 		SsoAuth:            s.SsoAuth,
@@ -215,6 +218,7 @@ func (s *Sprofile) Copy() (sprfl *Sprofile) {
 		DisableGateway:     s.DisableGateway,
 		DisableDns:         s.DisableDns,
 		Dco:                s.Dco,
+		DebugOutput:        s.DebugOutput,
 		RestrictClient:     s.RestrictClient,
 		ForceDns:           s.ForceDns,
 		SsoAuth:            s.SsoAuth,
@@ -399,6 +403,7 @@ func (s *Sprofile) syncUpdate(data string) (updated bool, err error) {
 		s.DisableGateway = confData.DisableGateway
 		s.DisableDns = confData.DisableDns
 		s.Dco = confData.Dco
+		s.DebugOutput = confData.DebugOutput
 		s.RestrictClient = confData.RestrictClient
 		s.ForceDns = confData.ForceDns
 		s.SsoAuth = confData.SsoAuth
