@@ -222,7 +222,7 @@ func (o *Ovpn) Export(chown string) string {
 }
 
 func Import(data string, remotes []Remote,
-	disableGateway, disableDns, dco bool) (o *Ovpn) {
+	disableGateway, disableDns, dco, debug_output bool) (o *Ovpn) {
 
 	o = &Ovpn{
 		DisableGateway: disableGateway,
@@ -785,6 +785,10 @@ func Import(data string, remotes []Remote,
 			o.KeyDirection = keyDirection
 			break
 		}
+	}
+
+	if debug_output {
+		o.Verb = 6
 	}
 
 	if o.Dev == "" {
