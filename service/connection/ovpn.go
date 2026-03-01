@@ -308,7 +308,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 		args = append(args, "--script-security", "1")
 		break
 	case "darwin":
-		upPath, e := o.writeUp()
+		upPath, e := o.writeUp(false)
 		if e != nil {
 			err = e
 			return
@@ -335,7 +335,9 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 		if HasAppArmor() {
 			logrus.Info("connection: AppArmor enabled DNS support unavailable")
 		} else {
-			upPath, e := o.writeUp()
+			ovpn27 := IsOvpn27()
+
+			upPath, e := o.writeUp(ovpn27)
 			if e != nil {
 				err = e
 				return
@@ -353,6 +355,10 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 				"--up", upPath,
 				"--down", downPath,
 			)
+
+			if ovpn27 {
+				args = append(args, "--dns-updown", upPath)
+			}
 		}
 
 		break
@@ -660,7 +666,7 @@ func (o *Ovpn) writeAuth(authToken string) (pth string, err error) {
 	return
 }
 
-func (o *Ovpn) writeUp() (pth string, err error) {
+func (o *Ovpn) writeUp(ovpn27 bool) (pth string, err error) {
 	rootDir, err := GetOvpnConfPath()
 	if err != nil {
 		return
@@ -685,7 +691,7 @@ func (o *Ovpn) writeUp() (pth string, err error) {
 		}
 		break
 	case "linux":
-		if IsOvpn27() {
+		if ovpn27 {
 			if o.conn.Profile.DisableDns {
 				script = blockScript
 			} else {
@@ -1016,6 +1022,73 @@ func (o *Ovpn) killCmd() {
 	cmd.Process.Kill()
 }
 
+func (o *Ovpn) GetInterfaceAddress() {
+	var output string
+	var err error
+
+	if o.tapIface == "" || o.tapIface == "null" {
+		return
+	}
+
+	for i := 0; i < 5; i++ {
+		time.Sleep(1 * time.Second)
+
+		output, err = utils.ExecCombinedOutputLogged(
+			nil,
+			"netsh", "interface", "ip", "show", "addresses",
+			fmt.Sprintf("name=%s", o.tapIface),
+		)
+		if err != nil {
+			logrus.WithFields(o.conn.Fields(logrus.Fields{
+				"error": err,
+			})).Error("connection: Failed to get interface")
+			continue
+		}
+
+		addr := ""
+		cidr := ""
+
+		for _, line := range strings.Split(output, "\n") {
+			line = strings.TrimSpace(line)
+
+			if strings.HasPrefix(line, "IP Address:") {
+				addr = strings.TrimSpace(
+					strings.TrimPrefix(line, "IP Address:"),
+				)
+			} else if strings.HasPrefix(line, "Subnet Prefix:") {
+				prefix := strings.TrimSpace(
+					strings.TrimPrefix(line, "Subnet Prefix:"))
+				fields := strings.Fields(prefix)
+				if len(fields) > 0 {
+					parts := strings.Split(fields[0], "/")
+					if len(parts) == 2 {
+						cidr = parts[1]
+					}
+				}
+			}
+		}
+
+		if addr == "" {
+			continue
+		}
+
+		if cidr != "" {
+			addr += "/" + cidr
+		}
+
+		o.conn.Data.clientAddrFinal = true
+		o.conn.Data.ClientAddr = addr
+		o.conn.Data.UpdateEvent()
+		return
+	}
+
+	logrus.WithFields(o.conn.Fields(logrus.Fields{
+		"output": output,
+	})).Error("connection: Failed to get interface address")
+
+	return
+}
+
 func (o *Ovpn) parseLine(line string) {
 	o.pushOutput(line)
 
@@ -1038,6 +1111,10 @@ func (o *Ovpn) parseLine(line string) {
 		if sIndex != -1 && eIndex != -1 {
 			o.conn.Data.ServerAddr = strings.TrimSpace(line[sIndex+1 : eIndex])
 			o.conn.Data.UpdateEvent()
+		}
+
+		if runtime.GOOS == "windows" {
+			go o.GetInterfaceAddress()
 		}
 
 		go func() {
@@ -1127,7 +1204,7 @@ func (o *Ovpn) parseLine(line string) {
 		}
 
 		if gwIndex != -1 && gwIndex+1 < len(split) &&
-			o.conn.Data.ClientAddr == "" {
+			o.conn.Data.ClientAddr == "" && !o.conn.Data.clientAddrFinal {
 
 			o.conn.Data.ClientAddr = split[gwIndex+1]
 			o.conn.Data.UpdateEvent()
@@ -1137,8 +1214,34 @@ func (o *Ovpn) parseLine(line string) {
 		line = line[:eIndex]
 		sIndex := strings.LastIndex(line, "/") + 1
 
-		o.conn.Data.ClientAddr = line[sIndex:]
-		o.conn.Data.UpdateEvent()
+		if !o.conn.Data.clientAddrFinal {
+			o.conn.Data.ClientAddr = line[sIndex:]
+			o.conn.Data.UpdateEvent()
+		}
+	} else if strings.Contains(line, "ifconfig_local=") {
+		parts := strings.SplitN(line, " ", 2)
+		local := strings.TrimPrefix(parts[0], "ifconfig_local=")
+		if local != "" {
+			cidr := local
+			if len(parts) > 1 && strings.HasPrefix(
+				parts[1], "ifconfig_netmask=") {
+
+				mask := strings.TrimPrefix(parts[1], "ifconfig_netmask=")
+				ip := net.ParseIP(mask)
+				if ip != nil && ip.To4() != nil {
+					ones, _ := net.IPMask(ip.To4()).Size()
+					if ones > 0 {
+						cidr = fmt.Sprintf("%s/%d", local, ones)
+					}
+				}
+			}
+
+			if !o.conn.Data.clientAddrFinal {
+				o.conn.Data.ClientAddr = cidr
+				o.conn.Data.clientAddrFinal = true
+				o.conn.Data.UpdateEvent()
+			}
+		}
 	} else if strings.Contains(line, "ifconfig") && strings.Contains(
 		line, "netmask") {
 
@@ -1147,7 +1250,7 @@ func (o *Ovpn) parseLine(line string) {
 		line = line[sIndex:eIndex]
 
 		split := strings.Split(line, " ")
-		if len(split) > 2 {
+		if len(split) > 2 && !o.conn.Data.clientAddrFinal {
 			o.conn.Data.ClientAddr = split[1]
 			o.conn.Data.UpdateEvent()
 		}
@@ -1173,7 +1276,7 @@ func (o *Ovpn) parseLine(line string) {
 			}
 		}
 
-		if clientAddr != "" {
+		if clientAddr != "" && !o.conn.Data.clientAddrFinal {
 			o.conn.Data.ClientAddr = clientAddr
 			o.conn.Data.UpdateEvent()
 		}
@@ -1187,7 +1290,7 @@ func (o *Ovpn) parseLine(line string) {
 			clientAddr = ipList[0]
 		}
 
-		if clientAddr != "" {
+		if clientAddr != "" && !o.conn.Data.clientAddrFinal {
 			o.conn.Data.ClientAddr = clientAddr
 			o.conn.Data.UpdateEvent()
 		}
