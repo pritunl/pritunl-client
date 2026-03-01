@@ -30,6 +30,7 @@ type Profile struct {
 	DisableGateway     bool                        `json:"disable_gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
 	Dco                bool                        `json:"dco"`
+	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
 	ForceDns           bool                        `json:"force_dns"`
 	SsoAuth            bool                        `json:"sso_auth"`
@@ -124,6 +125,7 @@ func (p *Profile) ImportSystemProfile(sprfl *sprofile.Sprofile) {
 	p.DisableGateway = sprfl.DisableGateway
 	p.DisableDns = sprfl.DisableDns
 	p.Dco = sprfl.Dco
+	p.DebugOutput = sprfl.DebugOutput
 	p.RestrictClient = sprfl.RestrictClient
 	p.ForceDns = sprfl.ForceDns
 	p.SsoAuth = sprfl.SsoAuth
