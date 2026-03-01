@@ -16535,6 +16535,8 @@ function New(self) {
             disable_reconnect_local: this.disable_reconnect_local,
             disable_gateway: this.disable_gateway,
             disable_dns: this.disable_dns,
+            dco: this.dco,
+            debug_output: this.debug_output,
             force_dns: this.force_dns,
             sso_auth: this.sso_auth,
             password_mode: this.password_mode,
@@ -16573,6 +16575,8 @@ function New(self) {
         this.disable_reconnect_local = data.disable_reconnect_local;
         this.disable_gateway = data.disable_gateway;
         this.disable_dns = data.disable_dns;
+        this.dco = data.dco;
+        this.debug_output = data.debug_output;
         this.force_dns = data.force_dns;
         this.sso_auth = data.sso_auth;
         this.password_mode = data.password_mode;
@@ -16610,6 +16614,8 @@ function New(self) {
             device_auth: this.device_auth,
             disable_gateway: this.disable_gateway,
             disable_dns: this.disable_dns,
+            dco: this.dco,
+            debug_output: this.debug_output,
             force_dns: this.force_dns,
             sso_auth: this.sso_auth,
             password_mode: this.password_mode,
@@ -16648,6 +16654,8 @@ function New(self) {
         this.disable_reconnect_local = data.disable_reconnect_local;
         this.disable_gateway = data.disable_gateway;
         this.disable_dns = data.disable_dns;
+        this.dco = data.dco;
+        this.debug_output = data.debug_output;
         this.sso_auth = data.sso_auth;
         this.password_mode = data.password_mode;
         this.token = data.token;
@@ -19246,6 +19254,8 @@ class ProfileConnect extends react.Component {
             device_auth: prfl.device_auth,
             disable_gateway: prfl.disable_gateway,
             disable_dns: prfl.disable_dns,
+            dco: prfl.dco,
+            debug_output: prfl.debug_output,
             force_dns: prfl.force_dns,
             restrict_client: prfl.restrict_client,
             sso_auth: prfl.sso_auth,
@@ -19719,6 +19729,14 @@ class ProfileSettings extends react.Component {
                             value: profile.disable_dns,
                         },
                         {
+                            label: 'Data Channel Offload',
+                            value: profile.dco,
+                        },
+                        {
+                            label: 'Debug Output',
+                            value: profile.debug_output,
+                        },
+                        {
                             label: 'Force DNS',
                             value: profile.force_dns,
                         },
@@ -19792,6 +19810,12 @@ class ProfileSettings extends react.Component {
                         } }),
                     react.createElement(PageSwitch, { label: "Disable DNS", help: "Disable configuring the DNS configuration provided by the server on this profile.", hidden: profile.restrict_client, checked: !!profile.disable_dns, onToggle: () => {
                             this.set("disable_dns", !profile.disable_dns);
+                        } }),
+                    react.createElement(PageSwitch, { label: "Data Channel Offload", help: "Enable Data Channel Offload for improved performance.", hidden: profile.restrict_client, checked: !!profile.dco, onToggle: () => {
+                            this.set("dco", !profile.dco);
+                        } }),
+                    react.createElement(PageSwitch, { label: "Debug Output", help: "Enable debug output logging for this profile.", hidden: profile.restrict_client, checked: !!profile.debug_output, onToggle: () => {
+                            this.set("debug_output", !profile.debug_output);
                         } }),
                     react.createElement(PageSwitch, { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority.", hidden: platform !== "darwin", checked: !!profile.force_dns, onToggle: () => {
                             this.set("force_dns", !profile.force_dns);
