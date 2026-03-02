@@ -5,6 +5,7 @@ Pritunl Client Changelog
 
 Add wg route metric support
 Add ovpn dco support
+Add debug options
 Bundle WireGuard on Windows
 Support openvpn 2.7
 
