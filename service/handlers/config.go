@@ -14,6 +14,7 @@ type configData struct {
 	DisableWakeWatch bool `json:"disable_wake_watch"`
 	DisableNetClean  bool `json:"disable_net_clean"`
 	DisableWgDns     bool `json:"disable_wg_dns"`
+	DisableBrowser   bool `json:"disable_browser"`
 	InterfaceMetric  int  `json:"interface_metric"`
 }
 
@@ -24,6 +25,7 @@ func configGet(c *gin.Context) {
 		DisableWakeWatch: config.Config.DisableWakeWatch,
 		DisableNetClean:  config.Config.DisableNetClean,
 		DisableWgDns:     config.Config.DisableWgDns,
+		DisableBrowser:   config.Config.DisableBrowser,
 		InterfaceMetric:  config.Config.InterfaceMetric,
 	}
 
@@ -47,6 +49,7 @@ func configPut(c *gin.Context) {
 	config.Config.DisableWakeWatch = data.DisableWakeWatch
 	config.Config.DisableNetClean = data.DisableNetClean
 	config.Config.DisableWgDns = data.DisableWgDns
+	config.Config.DisableBrowser = data.DisableBrowser
 	config.Config.InterfaceMetric = data.InterfaceMetric
 
 	err = config.Save()
