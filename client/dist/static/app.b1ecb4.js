@@ -19451,6 +19451,15 @@ const ProfileSettings_css = {
         width: "340px",
         position: "absolute",
     },
+    dialogBody: {
+        marginBottom: "0",
+    },
+    dialogFooter: {
+        marginTop: "10px",
+    },
+    info: {
+        marginBottom: "0",
+    },
     label: {
         width: "100%",
         maxWidth: "220px",
@@ -19765,7 +19774,7 @@ class ProfileSettings extends react.Component {
         return react.createElement("div", { style: ProfileSettings_css.box },
             react.createElement("button", { className: "bp5-button bp5-icon-cog", style: ProfileSettings_css.button, type: "button", disabled: this.state.disabled, onClick: this.openDialog }, "Settings"),
             react.createElement(Dialog, { title: "Profile Settings", style: ProfileSettings_css.dialog, isOpen: this.state.dialog, usePortal: true, portalContainer: document.body, onClose: this.closeDialog },
-                react.createElement("div", { className: "bp5-dialog-body" },
+                react.createElement("div", { className: "bp5-dialog-body", style: ProfileSettings_css.dialogBody },
                     react.createElement(PageInput, { disabled: this.state.disabled, label: "Name", help: "Profile name.", type: "text", placeholder: "Enter name", value: profile.name || "", onChange: (val) => {
                             this.set("name", val);
                         } }),
@@ -19820,7 +19829,7 @@ class ProfileSettings extends react.Component {
                     react.createElement(PageSwitch, { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority.", hidden: platform !== "darwin", checked: !!profile.force_dns, onToggle: () => {
                             this.set("force_dns", !profile.force_dns);
                         } }),
-                    react.createElement(PageInfo, { fields: [
+                    react.createElement(PageInfo, { style: ProfileSettings_css.info, fields: [
                             {
                                 label: 'ID',
                                 value: profile.id || '-',
@@ -19835,7 +19844,7 @@ class ProfileSettings extends react.Component {
                             },
                         ] }),
                     dataInfo),
-                react.createElement("div", { className: "bp5-dialog-footer" },
+                react.createElement("div", { className: "bp5-dialog-footer", style: ProfileSettings_css.dialogFooter },
                     react.createElement("div", { className: "bp5-dialog-footer-actions" },
                         react.createElement("button", { className: "bp5-button bp5-icon-console", type: "button", style: ProfileSettings_css.toggleDataBtn, disabled: this.state.disabled, onClick: this.toggleData }, "Debugging"),
                         react.createElement("button", { className: "bp5-button bp5-intent-danger bp5-icon-cross", type: "button", disabled: this.state.disabled, onClick: this.closeDialog }, "Cancel"),
@@ -21545,7 +21554,7 @@ class ConfigView extends react.Component {
                         this.set("disable_net_clean", !this.state.config.disable_net_clean);
                     } })),
             react.createElement("div", { className: "layout horizontal" },
-                react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for SSO authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
+                react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for single sign-on authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
                         this.set("disable_browser", !this.state.config.disable_browser);
                     } })),
             react.createElement("div", { className: "layout horizontal" },

@@ -4644,7 +4644,7 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                         this.set("disable_net_clean", !this.state.config.disable_net_clean);
                     } })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for SSO authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for single sign-on authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
                         this.set("disable_browser", !this.state.config.disable_browser);
                     } })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
@@ -7148,6 +7148,15 @@ const css = {
         width: "340px",
         position: "absolute",
     },
+    dialogBody: {
+        marginBottom: "0",
+    },
+    dialogFooter: {
+        marginTop: "10px",
+    },
+    info: {
+        marginBottom: "0",
+    },
     label: {
         width: "100%",
         maxWidth: "220px",
@@ -7462,7 +7471,7 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.box },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-icon-cog", style: css.button, type: "button", disabled: this.state.disabled, onClick: this.openDialog }, "Settings"),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_9__.Dialog, { title: "Profile Settings", style: css.dialog, isOpen: this.state.dialog, usePortal: true, portalContainer: document.body, onClose: this.closeDialog },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-dialog-body" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-dialog-body", style: css.dialogBody },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInput__WEBPACK_IMPORTED_MODULE_3__["default"], { disabled: this.state.disabled, label: "Name", help: "Profile name.", type: "text", placeholder: "Enter name", value: profile.name || "", onChange: (val) => {
                             this.set("name", val);
                         } }),
@@ -7517,7 +7526,7 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority.", hidden: _Constants__WEBPACK_IMPORTED_MODULE_6__.platform !== "darwin", checked: !!profile.force_dns, onToggle: () => {
                             this.set("force_dns", !profile.force_dns);
                         } }),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInfo__WEBPACK_IMPORTED_MODULE_2__["default"], { fields: [
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInfo__WEBPACK_IMPORTED_MODULE_2__["default"], { style: css.info, fields: [
                             {
                                 label: 'ID',
                                 value: profile.id || '-',
@@ -7532,7 +7541,7 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                             },
                         ] }),
                     dataInfo),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-dialog-footer" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-dialog-footer", style: css.dialogFooter },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-dialog-footer-actions" },
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-icon-console", type: "button", style: css.toggleDataBtn, disabled: this.state.disabled, onClick: this.toggleData }, "Debugging"),
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-intent-danger bp5-icon-cross", type: "button", disabled: this.state.disabled, onClick: this.closeDialog }, "Cancel"),

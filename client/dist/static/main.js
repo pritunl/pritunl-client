@@ -6898,7 +6898,7 @@ class Main {
         let titleBarStyle;
         let framelessClient = false;
         let width = 424;
-        let height = 528;
+        let height = 550;
         let minWidth = 385;
         let minHeight = 440;
         let maxWidth = 670;
