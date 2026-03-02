@@ -19811,7 +19811,7 @@ class ProfileSettings extends react.Component {
                     react.createElement(PageSwitch, { label: "Disable DNS", help: "Disable configuring the DNS configuration provided by the server on this profile.", hidden: profile.restrict_client, checked: !!profile.disable_dns, onToggle: () => {
                             this.set("disable_dns", !profile.disable_dns);
                         } }),
-                    react.createElement(PageSwitch, { label: "Data Channel Offload", help: "Enable Data Channel Offload for improved performance.", hidden: profile.restrict_client, checked: !!profile.dco, onToggle: () => {
+                    react.createElement(PageSwitch, { label: "Data Channel Offload", help: "Enable Data Channel Offload for improved performance. Requires server support and configuration changes.", hidden: profile.restrict_client, checked: !!profile.dco, onToggle: () => {
                             this.set("dco", !profile.dco);
                         } }),
                     react.createElement(PageSwitch, { label: "Debug Output", help: "Enable debug output logging for this profile.", hidden: profile.restrict_client, checked: !!profile.debug_output, onToggle: () => {
@@ -21543,6 +21543,10 @@ class ConfigView extends react.Component {
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable network clean", help: "Disable Windows VPN interface cleanup on startup.", checked: !!this.state.config.disable_net_clean, onToggle: () => {
                         this.set("disable_net_clean", !this.state.config.disable_net_clean);
+                    } })),
+            react.createElement("div", { className: "layout horizontal" },
+                react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for SSO authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
+                        this.set("disable_browser", !this.state.config.disable_browser);
                     } })),
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Enable safe storage", help: "Enable encryption of profile keys with safe storage. May cause client to become unresponsive or connections to fail.", checked: !!safeStorage, onToggle: () => {

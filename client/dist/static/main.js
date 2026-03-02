@@ -7164,7 +7164,9 @@ function init() {
                     }
                 }
                 else if (event.type === "sso_auth") {
-                    openLink(event.data.url);
+                    if (event.data.open !== false) {
+                        openLink(event.data.url);
+                    }
                 }
                 else if (event.type === "tpm_open") {
                     Tpm_open(event.data.id, event.data.private_key);
