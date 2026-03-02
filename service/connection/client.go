@@ -127,8 +127,9 @@ type PingData struct {
 }
 
 type SsoEventData struct {
-	Id  string `json:"id"`
-	Url string `json:"url"`
+	Id   string `json:"id"`
+	Url  string `json:"url"`
+	Open bool   `json:"open"`
 }
 
 type Client struct {
@@ -659,8 +660,9 @@ func (c *Client) authorize(host string, ssoToken string,
 		evt2 := &event.Event{
 			Type: "sso_auth",
 			Data: &SsoEventData{
-				Id:  c.conn.Profile.Id,
-				Url: respBx.SsoUrl,
+				Id:   c.conn.Profile.Id,
+				Url:  respBx.SsoUrl,
+				Open: !config.Config.DisableBrowser,
 			},
 		}
 		evt2.Init()
