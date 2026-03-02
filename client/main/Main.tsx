@@ -435,7 +435,9 @@ function init() {
 						electron.app.quit()
 					}
 				} else if (event.type === "sso_auth") {
-					Utils.openLink(event.data.url)
+					if (event.data.open !== false) {
+						Utils.openLink(event.data.url)
+					}
 				} else if (event.type === "tpm_open") {
 					Tpm.open(event.data.id, event.data.private_key)
 				} else if (event.type === "tpm_sign") {
