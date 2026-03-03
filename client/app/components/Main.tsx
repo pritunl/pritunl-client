@@ -569,7 +569,7 @@ export default class Main extends React.Component<{}, State> {
 						hidden={!Constants.frameless}
 						style={controlButtonStyle}
 						onClick={(): void => {
-							window.close()
+							Electron.ipcRenderer.send("control", "close")
 						}}
 					/>
 				</div>
