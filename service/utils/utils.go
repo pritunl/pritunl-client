@@ -185,7 +185,7 @@ func RemoveScutilKey(typ, key string) (err error) {
 	return
 }
 
-func GetPrimaryService() (serviceId string, err error) {
+func getPrimaryService() (serviceId string, err error) {
 	cmd := command.Command("/usr/sbin/scutil")
 	cmd.Stdin = strings.NewReader("open\n" +
 		"show State:/Network/Global/IPv4\n" +
@@ -213,25 +213,29 @@ func GetPrimaryService() (serviceId string, err error) {
 	return
 }
 
-func SetPrimaryServiceDns(serviceId string, domains []string) (err error) {
-	input := fmt.Sprintf("open\n"+
-		"get State:/Network/Service/%s/DNS\n"+
-		"d.add SearchDomains * %s\n"+
-		"set State:/Network/Service/%s/DNS\n"+
-		"set Setup:/Network/Service/%s/DNS\n"+
-		"quit\n",
-		serviceId, strings.Join(domains, " "), serviceId, serviceId)
+func hasPrimaryBackup(serviceId string) (exists bool, err error) {
+	if serviceId == "" {
+		return
+	}
+
+	backupKey := fmt.Sprintf(
+		"State:/Network/Pritunl/Backup/%s/DNS",
+		serviceId,
+	)
 
 	cmd := command.Command("/usr/sbin/scutil")
-	cmd.Stdin = strings.NewReader(input)
+	cmd.Stdin = strings.NewReader(
+		fmt.Sprintf("open\nshow %s\nquit\n", backupKey))
 
-	err = cmd.Run()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		err = &CommandError{
-			errors.Wrap(err, "utils: Failed to exec scutil"),
+			errors.Wrap(err, "utils: Failed to check DNS backup"),
 		}
 		return
 	}
+
+	exists = !strings.Contains(string(output), "No such key")
 
 	return
 }
@@ -242,22 +246,33 @@ func SetScutilDns(connId string, addresses, domains []string) (err error) {
 	macDnsLock.Lock()
 	defer macDnsLock.Unlock()
 
+	primaryServiceId, err := getPrimaryService()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Warning("utils: Failed to get primary service for DNS")
+	}
+
+	inputBackup := ""
+	if primaryServiceId != "" {
+		hasBackup, e := hasPrimaryBackup(primaryServiceId)
+		if e != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": e,
+			}).Warning("utils: Failed to check backup for DNS")
+		}
+
+		if !hasBackup {
+			inputBackup = fmt.Sprintf(
+				"set State:/Network/Pritunl/Backup/%s/DNS\n",
+				primaryServiceId,
+			)
+		}
+	}
+
 	input := ""
-	if domains == nil || len(domains) == 0 {
-		input = fmt.Sprintf("open\n"+
-			"d.init\n"+
-			"d.add ServerAddresses * %s\n"+
-			"d.add SupplementalMatchDomains * \"\"\n"+
-			"remove State:%s\n"+
-			"remove Setup:%s\n"+
-			"set State:%s\n"+
-			"set Setup:%s\n"+
-			"set State:/Network/Pritunl/Connection/%s\n"+
-			"quit\n",
-			strings.Join(addresses, " "),
-			PritunlScutilKey, PritunlScutilKey, PritunlScutilKey,
-			PritunlScutilKey, connId)
-	} else {
+	inputPrimary := ""
+	if len(addresses) > 0 && len(domains) > 0 {
 		input = fmt.Sprintf("open\n"+
 			"d.init\n"+
 			"d.add ServerAddresses * %s\n"+
@@ -272,33 +287,81 @@ func SetScutilDns(connId string, addresses, domains []string) (err error) {
 			strings.Join(addresses, " "), strings.Join(domains, " "),
 			PritunlScutilKey, PritunlScutilKey, PritunlScutilKey,
 			PritunlScutilKey, connId)
-	}
-
-	cmd := command.Command("/usr/sbin/scutil")
-	cmd.Stdin = strings.NewReader(input)
-
-	err = cmd.Run()
-	if err != nil {
-		err = &CommandError{
-			errors.Wrap(err, "utils: Failed to exec scutil"),
+		if primaryServiceId != "" {
+			inputPrimary = fmt.Sprintf("open\n"+
+				"get State:/Network/Service/%s/DNS\n"+
+				"%s"+
+				"d.add SearchDomains * %s\n"+
+				"set State:/Network/Service/%s/DNS\n"+
+				"set Setup:/Network/Service/%s/DNS\n"+
+				"quit\n",
+				primaryServiceId, inputBackup, strings.Join(domains, " "),
+				primaryServiceId, primaryServiceId)
 		}
-		return
+	} else if len(addresses) > 0 {
+		input = fmt.Sprintf("open\n"+
+			"d.init\n"+
+			"d.add ServerAddresses * %s\n"+
+			"d.add SupplementalMatchDomains * \"\"\n"+
+			"remove State:%s\n"+
+			"remove Setup:%s\n"+
+			"set State:%s\n"+
+			"set Setup:%s\n"+
+			"set State:/Network/Pritunl/Connection/%s\n"+
+			"quit\n",
+			strings.Join(addresses, " "),
+			PritunlScutilKey, PritunlScutilKey, PritunlScutilKey,
+			PritunlScutilKey, connId)
+	} else if len(domains) > 0 {
+		input = fmt.Sprintf("open\n"+
+			"d.init\n"+
+			"d.add SearchDomains * %s\n"+
+			"d.add SupplementalMatchDomains * \"\"\n"+
+			"remove State:%s\n"+
+			"remove Setup:%s\n"+
+			"set State:%s\n"+
+			"set Setup:%s\n"+
+			"set State:/Network/Pritunl/Connection/%s\n"+
+			"quit\n",
+			strings.Join(domains, " "),
+			PritunlScutilKey, PritunlScutilKey, PritunlScutilKey,
+			PritunlScutilKey, connId)
+		if primaryServiceId != "" {
+			inputPrimary = fmt.Sprintf("open\n"+
+				"get State:/Network/Service/%s/DNS\n"+
+				"%s"+
+				"d.add SearchDomains * %s\n"+
+				"set State:/Network/Service/%s/DNS\n"+
+				"set Setup:/Network/Service/%s/DNS\n"+
+				"quit\n",
+				primaryServiceId, inputBackup, strings.Join(domains, " "),
+				primaryServiceId, primaryServiceId)
+		}
 	}
 
-	if len(domains) > 0 {
-		primaryServiceId, e := GetPrimaryService()
-		if e != nil {
-			logrus.WithFields(logrus.Fields{
-				"error": e,
-			}).Warning("utils: Failed to get primary service for DNS")
-		} else if primaryServiceId != "" {
-			err = SetPrimaryServiceDns(primaryServiceId, domains)
-			if err != nil {
-				logrus.WithFields(logrus.Fields{
-					"error": err,
-				}).Warning("utils: Failed to set primary service DNS")
-				err = nil
+	if input != "" {
+		cmd := command.Command("/usr/sbin/scutil")
+		cmd.Stdin = strings.NewReader(input)
+
+		err = cmd.Run()
+		if err != nil {
+			err = &CommandError{
+				errors.Wrap(err, "utils: Failed to exec connection scutil"),
 			}
+			return
+		}
+	}
+
+	if inputPrimary != "" {
+		cmd := command.Command("/usr/sbin/scutil")
+		cmd.Stdin = strings.NewReader(inputPrimary)
+
+		err = cmd.Run()
+		if err != nil {
+			err = &CommandError{
+				errors.Wrap(err, "utils: Failed to exec primary scutil"),
+			}
+			return
 		}
 	}
 
@@ -324,6 +387,101 @@ func ClearScutilDns(connId string) (err error) {
 		}
 		return
 	}
+
+	return
+}
+
+func RestoreSearchDomains(primaryServiceId string) (err error) {
+	if primaryServiceId == "" {
+		return
+	}
+
+	macDnsLock.Lock()
+	defer macDnsLock.Unlock()
+
+	backupKey := fmt.Sprintf(
+		"State:/Network/Pritunl/Backup/%s/DNS",
+		primaryServiceId,
+	)
+
+	cmd := command.Command("/usr/sbin/scutil")
+	cmd.Stdin = strings.NewReader(
+		fmt.Sprintf("open\nshow %s\nquit\n", backupKey))
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		err = &CommandError{
+			errors.Wrap(err, "utils: Failed to load primary DNS backup"),
+		}
+		return
+	}
+
+	outputStr := string(output)
+	if strings.Contains(outputStr, "No such key") {
+		return
+	}
+
+	domains := []string{}
+	lines := strings.Split(outputStr, "\n")
+	inSearch := false
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "SearchDomains") ||
+			strings.Contains(line, "SearchDomains : <array>") {
+
+			inSearch = true
+			continue
+		}
+
+		if inSearch {
+			if strings.HasPrefix(line, "}") || line == "" {
+				break
+			}
+
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				dom := strings.TrimSpace(parts[1])
+				if dom != "" {
+					domains = append(domains, dom)
+				}
+			}
+		}
+	}
+
+	input := fmt.Sprintf(
+		"open\nget State:/Network/Service/%s/DNS\n",
+		primaryServiceId,
+	)
+	if len(domains) == 0 {
+		input += "d.remove SearchDomains\n"
+	} else {
+		input += "d.add SearchDomains * " + strings.Join(domains, " ") + "\n"
+	}
+
+	input += fmt.Sprintf(
+		"set State:/Network/Service/%s/DNS\n"+
+			"set Setup:/Network/Service/%s/DNS\n"+
+			"remove %s\n"+
+			"quit\n",
+		primaryServiceId, primaryServiceId, backupKey,
+	)
+
+	cmd = command.Command("/usr/sbin/scutil")
+	cmd.Stdin = strings.NewReader(input)
+
+	err = cmd.Run()
+	if err != nil {
+		err = &CommandError{
+			errors.Wrap(err, "utils: Failed to restore primary DNS"),
+		}
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"primary":  primaryServiceId,
+		"backup":   backupKey,
+		"restored": domains,
+	}).Info("utils: Restored DNS search domains from backup")
 
 	return
 }
@@ -415,10 +573,29 @@ func RestoreScutilDns(force bool) (err error) {
 
 	logrus.Info("utils: Restore DNS")
 
-	connIds, err := GetScutilConnIds()
+	primaryServiceId := ""
+	connIds := []string{}
+	func() {
+		macDnsLock.Lock()
+		defer macDnsLock.Unlock()
+
+		primaryServiceId, err = getPrimaryService()
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Warning("utils: Failed to get primary service for DNS")
+			err = nil
+		}
+
+		connIds, err = getScutilConnIds()
+		if err != nil {
+			return
+		}
+	}()
 	if err != nil {
 		return
 	}
+
 	connected := len(connIds) != 0
 
 	restoreKey := ""
@@ -461,6 +638,16 @@ func RestoreScutilDns(force bool) (err error) {
 		}
 	}
 
+	if !connected {
+		err = RestoreSearchDomains(primaryServiceId)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("utils: Failed to restore primary DNS")
+			err = nil
+		}
+	}
+
 	ClearDNSCache()
 
 	return
@@ -493,7 +680,7 @@ func RefreshScutilDns() (err error) {
 	return
 }
 
-func GetScutilConnIds() (ids []string, err error) {
+func getScutilConnIds() (ids []string, err error) {
 	ids = []string{}
 
 	cmd := command.Command("/usr/sbin/scutil")
@@ -525,7 +712,7 @@ func ClearScutilConnKeys() (err error) {
 	macDnsLock.Lock()
 	defer macDnsLock.Unlock()
 
-	connIds, err := GetScutilConnIds()
+	connIds, err := getScutilConnIds()
 	if err != nil {
 		return
 	}
