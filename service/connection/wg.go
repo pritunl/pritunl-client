@@ -297,7 +297,7 @@ func (w *Wg) WatchConnection() (err error) {
 		!config.Config.DisableWgDns {
 
 		err := utils.SetScutilDns(w.conn.Id,
-			w.conn.Data.DnsServers, w.conn.Data.DnsServers)
+			w.conn.Data.DnsServers, w.conn.Data.SearchDomains)
 		if err != nil {
 			logrus.WithFields(w.conn.Fields(logrus.Fields{
 				"error": err,
