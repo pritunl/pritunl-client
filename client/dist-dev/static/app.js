@@ -4549,6 +4549,11 @@ const css = {
         position: "relative",
         margin: "8px",
     },
+    buttonsTop: {
+        position: "absolute",
+        top: "5px",
+        right: "5px",
+    },
     footer: {
         margin: 0,
     },
@@ -4621,15 +4626,17 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             safeStorage = _Config__WEBPACK_IMPORTED_MODULE_2__["default"].safe_storage;
         }
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-card layout vertical flex", style: css.card },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.buttonsTop },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross", onClick: this.props.onClose })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("h3", { style: css.header }, "Advanced Settings")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Disable DNS watch", help: "Disable automatic correction of DNS changes if configuration is lost from system network change.", checked: !!this.state.config.disable_dns_watch, onToggle: () => {
-                        this.set("disable_dns_watch", !this.state.config.disable_dns_watch);
-                    } })),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Enable DNS refresh", help: "Automatically refresh DNS to fix issues with macOS DNS cache.", checked: !!this.state.config.enable_dns_refresh, onToggle: () => {
                         this.set("enable_dns_refresh", !this.state.config.enable_dns_refresh);
+                    } })),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Disable DNS watch", help: "Disable automatic correction of DNS changes if configuration is lost from system network change.", checked: !!this.state.config.disable_dns_watch, onToggle: () => {
+                        this.set("disable_dns_watch", !this.state.config.disable_dns_watch);
                     } })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Disable WireGuard DNS watch", help: "Disable WireGuard DNS watch on macOS.", checked: !!this.state.config.disable_wg_dns, onToggle: () => {
@@ -5294,7 +5301,7 @@ const css = {
         marginRight: '10px',
     },
     deleteButton: {},
-    deleteButtonBox: {
+    buttonsTop: {
         position: "absolute",
         top: "5px",
         right: "5px",
@@ -5442,8 +5449,9 @@ class Logs extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             viewsDom.push(react__WEBPACK_IMPORTED_MODULE_0__.createElement("option", { value: prfl.id }, prfl.formattedName() + " logs"));
         });
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-card layout vertical flex", style: css.card },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.deleteButtonBox },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ConfirmButton__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "bp5-minimal bp5-intent-danger bp5-icon-trash", style: css.deleteButton, safe: true, progressClassName: "bp5-intent-danger", dialogClassName: "bp5-intent-danger bp5-icon-delete", dialogLabel: "Clear Logs", confirmMsg: "Confirm clearing " + label + " logs", disabled: this.state.disabled, onConfirm: this.onDelete })),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.buttonsTop },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ConfirmButton__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "bp5-minimal bp5-intent-danger bp5-icon-trash", style: css.deleteButton, safe: true, progressClassName: "bp5-intent-danger", dialogClassName: "bp5-intent-danger bp5-icon-delete", dialogLabel: "Clear Logs", confirmMsg: "Confirm clearing " + label + " logs", disabled: this.state.disabled, onConfirm: this.onDelete }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross", onClick: this.props.onClose })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("h3", { style: css.header }, "Log Viewer")),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
@@ -5751,10 +5759,20 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                 page = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Profiles__WEBPACK_IMPORTED_MODULE_10__["default"], null);
                 break;
             case "/logs":
-                page = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Logs__WEBPACK_IMPORTED_MODULE_11__["default"], null);
+                page = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Logs__WEBPACK_IMPORTED_MODULE_11__["default"], { onClose: () => {
+                        this.setState({
+                            ...this.state,
+                            path: "/profiles",
+                        });
+                    } });
                 break;
             case "/config":
-                page = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Config__WEBPACK_IMPORTED_MODULE_12__["default"], null);
+                page = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Config__WEBPACK_IMPORTED_MODULE_12__["default"], { onClose: () => {
+                        this.setState({
+                            ...this.state,
+                            path: "/profiles",
+                        });
+                    } });
                 break;
         }
         let version = _Constants__WEBPACK_IMPORTED_MODULE_4__.state.version;
@@ -6267,7 +6285,7 @@ const css = {
     },
     card: {
         position: "relative",
-        margin: '8px',
+        margin: '0 8px 8px 0',
         paddingRight: 0,
     },
     progress: {
@@ -7343,6 +7361,10 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             dataInfo = react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.dataInfoBox },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInfo__WEBPACK_IMPORTED_MODULE_2__["default"], { fields: [
                         {
+                            label: 'Configuration Sync Hosts',
+                            value: syncHosts,
+                        },
+                        {
                             label: 'System',
                             value: profile.system,
                         },
@@ -7523,17 +7545,15 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { label: "Debug Output", help: "Enable debug output logging for this profile.", hidden: profile.restrict_client, checked: !!profile.debug_output, onToggle: () => {
                             this.set("debug_output", !profile.debug_output);
                         } }),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority.", hidden: _Constants__WEBPACK_IMPORTED_MODULE_6__.platform !== "darwin", checked: !!profile.force_dns, onToggle: () => {
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority. This is not recommended unless required and will cause networking compatibility issues.", hidden: _Constants__WEBPACK_IMPORTED_MODULE_6__.platform !== "darwin" &&
+                            !profile.force_dns &&
+                            !this.state.showData, checked: !!profile.force_dns, onToggle: () => {
                             this.set("force_dns", !profile.force_dns);
                         } }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInfo__WEBPACK_IMPORTED_MODULE_2__["default"], { style: css.info, fields: [
                             {
                                 label: 'ID',
                                 value: profile.id || '-',
-                            },
-                            {
-                                label: 'Configuration Sync Hosts',
-                                value: syncHosts,
                             },
                             {
                                 label: 'Last Configuration Sync',
@@ -7572,10 +7592,27 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const css = {};
+const profilesStyle = `
+.profiles-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+	margin: 8px 0 0 8px;
+}
+@media (min-width: 864px) {
+	.profiles-grid {
+		grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+	}
+}
+`;
 class Profiles extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     constructor(props, context) {
         super(props, context);
+        this.onResize = () => {
+            this.setState({
+                windowWidth: document.documentElement.clientWidth,
+            });
+        };
         this.onChange = () => {
             this.setState({
                 profiles: _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_1__["default"].profiles,
@@ -7583,22 +7620,25 @@ class Profiles extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         };
         this.state = {
             profiles: _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_1__["default"].profiles,
+            windowWidth: document.documentElement.clientWidth,
         };
     }
     componentDidMount() {
         _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_1__["default"].addChangeListener(this.onChange);
         _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.sync();
+        window.addEventListener('resize', this.onResize);
         this.interval = setInterval(() => {
             _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.sync(true);
         }, 1000);
     }
     componentWillUnmount() {
         _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_1__["default"].removeChangeListener(this.onChange);
+        window.removeEventListener('resize', this.onResize);
         clearInterval(this.interval);
     }
     render() {
         let profilesDom = [];
-        let minimal = this.state.profiles.length > 3;
+        let minimal = this.state.profiles.length > 3 && this.state.windowWidth < 864;
         let prflIds = new Set();
         this.state.profiles.forEach((prfl) => {
             if (prflIds.has(prfl.id)) {
@@ -7607,7 +7647,9 @@ class Profiles extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             prflIds.add(prfl.id);
             profilesDom.push(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Profile__WEBPACK_IMPORTED_MODULE_3__["default"], { key: prfl.id, profile: prfl, minimal: minimal }));
         });
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, profilesDom);
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("style", null, profilesStyle),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "profiles-grid" }, profilesDom));
     }
 }
 

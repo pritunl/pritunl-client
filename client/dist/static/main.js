@@ -6879,6 +6879,11 @@ external_electron_default().ipcMain.on("control", (evt, msg, data) => {
             main.window.minimize();
         }
     }
+    else if (msg === "close") {
+        if (main && main.window) {
+            main.window.close();
+        }
+    }
     else if (msg === "download-update") {
         openLink("https://client.pritunl.com/#install");
     }
@@ -6899,10 +6904,8 @@ class Main {
         let framelessClient = false;
         let width = 424;
         let height = 550;
-        let minWidth = 385;
-        let minHeight = 440;
-        let maxWidth = 670;
-        let maxHeight = 800;
+        let minWidth = 390;
+        let minHeight = 520;
         if ((external_process_default()).platform === "win32" || main_Config.frameless) {
             frameless = true;
             framelessClient = true;
@@ -6929,8 +6932,6 @@ class Main {
             height = Math.round(height * zoomFactor);
             minWidth = Math.round(minWidth * zoomFactor);
             minHeight = Math.round(minHeight * zoomFactor);
-            maxWidth = Math.round(maxWidth * zoomFactor);
-            maxHeight = Math.round(maxHeight * zoomFactor);
         }
         this.window = new (external_electron_default()).BrowserWindow({
             title: "Pritunl Client",
@@ -6944,8 +6945,6 @@ class Main {
             height: height,
             minWidth: minWidth,
             minHeight: minHeight,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
             backgroundColor: "#151719",
             webPreferences: {
                 zoomFactor: zoomFactor,

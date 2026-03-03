@@ -19646,6 +19646,10 @@ class ProfileSettings extends react.Component {
             dataInfo = react.createElement("div", { style: ProfileSettings_css.dataInfoBox },
                 react.createElement(PageInfo, { fields: [
                         {
+                            label: 'Configuration Sync Hosts',
+                            value: syncHosts,
+                        },
+                        {
                             label: 'System',
                             value: profile.system,
                         },
@@ -19826,17 +19830,15 @@ class ProfileSettings extends react.Component {
                     react.createElement(PageSwitch, { label: "Debug Output", help: "Enable debug output logging for this profile.", hidden: profile.restrict_client, checked: !!profile.debug_output, onToggle: () => {
                             this.set("debug_output", !profile.debug_output);
                         } }),
-                    react.createElement(PageSwitch, { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority.", hidden: platform !== "darwin", checked: !!profile.force_dns, onToggle: () => {
+                    react.createElement(PageSwitch, { label: "Force DNS configuration", help: "Configure only one DNS server to correct issues with macOS DNS server priority. This is not recommended unless required and will cause networking compatibility issues.", hidden: platform !== "darwin" &&
+                            !profile.force_dns &&
+                            !this.state.showData, checked: !!profile.force_dns, onToggle: () => {
                             this.set("force_dns", !profile.force_dns);
                         } }),
                     react.createElement(PageInfo, { style: ProfileSettings_css.info, fields: [
                             {
                                 label: 'ID',
                                 value: profile.id || '-',
-                            },
-                            {
-                                label: 'Configuration Sync Hosts',
-                                value: syncHosts,
                             },
                             {
                                 label: 'Last Configuration Sync',
@@ -19881,7 +19883,7 @@ const Profile_css = {
     },
     card: {
         position: "relative",
-        margin: '8px',
+        margin: '0 8px 8px 0',
         paddingRight: 0,
     },
     progress: {
@@ -20124,10 +20126,27 @@ class Profile extends react.Component {
 
 
 
-const Profiles_css = {};
+const profilesStyle = `
+.profiles-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+	margin: 8px 0 0 8px;
+}
+@media (min-width: 864px) {
+	.profiles-grid {
+		grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+	}
+}
+`;
 class Profiles extends react.Component {
     constructor(props, context) {
         super(props, context);
+        this.onResize = () => {
+            this.setState({
+                windowWidth: document.documentElement.clientWidth,
+            });
+        };
         this.onChange = () => {
             this.setState({
                 profiles: stores_ProfilesStore.profiles,
@@ -20135,22 +20154,25 @@ class Profiles extends react.Component {
         };
         this.state = {
             profiles: stores_ProfilesStore.profiles,
+            windowWidth: document.documentElement.clientWidth,
         };
     }
     componentDidMount() {
         stores_ProfilesStore.addChangeListener(this.onChange);
         sync();
+        window.addEventListener('resize', this.onResize);
         this.interval = setInterval(() => {
             sync(true);
         }, 1000);
     }
     componentWillUnmount() {
         stores_ProfilesStore.removeChangeListener(this.onChange);
+        window.removeEventListener('resize', this.onResize);
         clearInterval(this.interval);
     }
     render() {
         let profilesDom = [];
-        let minimal = this.state.profiles.length > 3;
+        let minimal = this.state.profiles.length > 3 && this.state.windowWidth < 864;
         let prflIds = new Set();
         this.state.profiles.forEach((prfl) => {
             if (prflIds.has(prfl.id)) {
@@ -20159,7 +20181,9 @@ class Profiles extends react.Component {
             prflIds.add(prfl.id);
             profilesDom.push(react.createElement(Profile, { key: prfl.id, profile: prfl, minimal: minimal }));
         });
-        return react.createElement("div", null, profilesDom);
+        return react.createElement("div", null,
+            react.createElement("style", null, profilesStyle),
+            react.createElement("div", { className: "profiles-grid" }, profilesDom));
     }
 }
 
@@ -20300,7 +20324,7 @@ const Logs_css = {
         marginRight: '10px',
     },
     deleteButton: {},
-    deleteButtonBox: {
+    buttonsTop: {
         position: "absolute",
         top: "5px",
         right: "5px",
@@ -20448,8 +20472,9 @@ class Logs extends react.Component {
             viewsDom.push(react.createElement("option", { value: prfl.id }, prfl.formattedName() + " logs"));
         });
         return react.createElement("div", { className: "bp5-card layout vertical flex", style: Logs_css.card },
-            react.createElement("div", { style: Logs_css.deleteButtonBox },
-                react.createElement(ConfirmButton, { className: "bp5-minimal bp5-intent-danger bp5-icon-trash", style: Logs_css.deleteButton, safe: true, progressClassName: "bp5-intent-danger", dialogClassName: "bp5-intent-danger bp5-icon-delete", dialogLabel: "Clear Logs", confirmMsg: "Confirm clearing " + label + " logs", disabled: this.state.disabled, onConfirm: this.onDelete })),
+            react.createElement("div", { style: Logs_css.buttonsTop },
+                react.createElement(ConfirmButton, { className: "bp5-minimal bp5-intent-danger bp5-icon-trash", style: Logs_css.deleteButton, safe: true, progressClassName: "bp5-intent-danger", dialogClassName: "bp5-intent-danger bp5-icon-delete", dialogLabel: "Clear Logs", confirmMsg: "Confirm clearing " + label + " logs", disabled: this.state.disabled, onConfirm: this.onDelete }),
+                react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross", onClick: this.props.onClose })),
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement("h3", { style: Logs_css.header }, "Log Viewer")),
             react.createElement("div", { className: "layout horizontal" },
@@ -21459,6 +21484,11 @@ const Config_css = {
         position: "relative",
         margin: "8px",
     },
+    buttonsTop: {
+        position: "absolute",
+        top: "5px",
+        right: "5px",
+    },
     footer: {
         margin: 0,
     },
@@ -21531,15 +21561,17 @@ class ConfigView extends react.Component {
             safeStorage = app_Config.safe_storage;
         }
         return react.createElement("div", { className: "bp5-card layout vertical flex", style: Config_css.card },
+            react.createElement("div", { style: Config_css.buttonsTop },
+                react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross", onClick: this.props.onClose })),
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement("h3", { style: Config_css.header }, "Advanced Settings")),
             react.createElement("div", { className: "layout horizontal" },
-                react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable DNS watch", help: "Disable automatic correction of DNS changes if configuration is lost from system network change.", checked: !!this.state.config.disable_dns_watch, onToggle: () => {
-                        this.set("disable_dns_watch", !this.state.config.disable_dns_watch);
-                    } })),
-            react.createElement("div", { className: "layout horizontal" },
                 react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Enable DNS refresh", help: "Automatically refresh DNS to fix issues with macOS DNS cache.", checked: !!this.state.config.enable_dns_refresh, onToggle: () => {
                         this.set("enable_dns_refresh", !this.state.config.enable_dns_refresh);
+                    } })),
+            react.createElement("div", { className: "layout horizontal" },
+                react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable DNS watch", help: "Disable automatic correction of DNS changes if configuration is lost from system network change.", checked: !!this.state.config.disable_dns_watch, onToggle: () => {
+                        this.set("disable_dns_watch", !this.state.config.disable_dns_watch);
                     } })),
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable WireGuard DNS watch", help: "Disable WireGuard DNS watch on macOS.", checked: !!this.state.config.disable_wg_dns, onToggle: () => {
@@ -25362,10 +25394,20 @@ class Main extends react.Component {
                 page = react.createElement(Profiles, null);
                 break;
             case "/logs":
-                page = react.createElement(Logs, null);
+                page = react.createElement(Logs, { onClose: () => {
+                        this.setState({
+                            ...this.state,
+                            path: "/profiles",
+                        });
+                    } });
                 break;
             case "/config":
-                page = react.createElement(ConfigView, null);
+                page = react.createElement(ConfigView, { onClose: () => {
+                        this.setState({
+                            ...this.state,
+                            path: "/profiles",
+                        });
+                    } });
                 break;
         }
         let version = state.version;
