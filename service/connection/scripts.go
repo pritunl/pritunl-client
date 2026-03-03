@@ -80,14 +80,17 @@ quit
 EOF
 grep PrimaryService | sed -e 's/.*PrimaryService : //'
 )"
-  /usr/sbin/scutil <<-EOF > /dev/null
+if [ -n "$SERVICE_ID" ]; then
+/usr/sbin/scutil <<-EOF > /dev/null
 open
 get State:/Network/Service/${SERVICE_ID}/DNS
+set State:/Network/Pritunl/Backup/${SERVICE_ID}/DNS
 d.add SearchDomains * ${DNS_SEARCH}
 set State:/Network/Service/${SERVICE_ID}/DNS
 set Setup:/Network/Service/${SERVICE_ID}/DNS
 quit
 EOF
+fi
 fi
 
 /usr/bin/dscacheutil -flushcache || true
@@ -172,14 +175,17 @@ quit
 EOF
 grep PrimaryService | sed -e 's/.*PrimaryService : //'
 )"
-  /usr/sbin/scutil <<-EOF > /dev/null
+if [ -n "$SERVICE_ID" ]; then
+/usr/sbin/scutil <<-EOF > /dev/null
 open
 get State:/Network/Service/${SERVICE_ID}/DNS
+set State:/Network/Pritunl/Backup/${SERVICE_ID}/DNS
 d.add SearchDomains * ${DNS_SEARCH}
 set State:/Network/Service/${SERVICE_ID}/DNS
 set Setup:/Network/Service/${SERVICE_ID}/DNS
 quit
 EOF
+fi
 fi
 
 /usr/sbin/networksetup -listallnetworkservices | grep -v "*" | while read service; do
