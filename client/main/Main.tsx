@@ -118,6 +118,10 @@ electron.ipcMain.on(
 			if (main && main.window) {
 				main.window.minimize()
 			}
+		} else if (msg === "close") {
+			if (main && main.window) {
+				main.window.close()
+			}
 		} else if (msg === "download-update") {
 			Utils.openLink("https://client.pritunl.com/#install")
 		}
