@@ -1,6 +1,10 @@
 Pritunl Client Changelog
 ========================
 
+<%= version %>
+
+Add grid layout
+
 Version 1.3.4554.60 2026-03-02
 ------------------------------
 
