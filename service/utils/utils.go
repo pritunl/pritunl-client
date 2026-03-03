@@ -708,6 +708,18 @@ func getScutilConnIds() (ids []string, err error) {
 	return
 }
 
+func GetScutilConnIds() (ids []string, err error) {
+	macDnsLock.Lock()
+	defer macDnsLock.Unlock()
+
+	ids, err = getScutilConnIds()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func ClearScutilConnKeys() (err error) {
 	macDnsLock.Lock()
 	defer macDnsLock.Unlock()
