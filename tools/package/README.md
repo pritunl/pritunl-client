@@ -23,7 +23,7 @@ source ~/.bashrc
 
 go install github.com/pacur/pacur@latest
 cd "$(ls -d ~/go/pkg/mod/github.com/pacur/pacur@*/docker/ | sort -V | tail -n 1)"
-sudo find . -maxdepth 1 -type d -name "*" ! -name "." ! -name ".." ! -name "fedora-42" -exec rm -rf {} +
+sudo find . -maxdepth 1 -type d -name "*" ! -name "." ! -name ".." ! -name "fedora-43" ! -name "archlinux" -exec rm -rf {} +
 sh clean.sh
 sh build.sh
 cd
@@ -39,5 +39,6 @@ cd tools/package
 NEW_HASH=$(sha256sum pritunl-client.tar | awk '{print $1}')
 sed -i "/hashsums=(/,/)/ {0,/\"[a-f0-9]\{64\}\"/ s/\"[a-f0-9]\{64\}\"/\"$NEW_HASH\"/}" PKGBUILD
 
-sudo podman run --rm -t -v `pwd`:/pacur:Z localhost/pacur/fedora-42
+sudo podman run --rm -t -v `pwd`:/pacur:Z localhost/pacur/archlinux
+sudo podman run --rm -t -v `pwd`:/pacur:Z localhost/pacur/fedora-43
 ```
