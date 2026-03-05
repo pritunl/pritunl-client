@@ -5199,7 +5199,7 @@ __webpack_require__.r(__webpack_exports__);
 const css = {
     progress: {
         width: '100%',
-        height: '4px',
+        height: '2px',
         borderRadius: 0,
     },
     progressBar: {
@@ -5528,7 +5528,7 @@ const css = {
         overflowX: 'auto',
         overflowY: 'auto',
         userSelect: 'none',
-        height: 'auto',
+        height: '38px',
         padding: '0 4px 0 8px',
     },
     navTitle: {
@@ -5542,17 +5542,27 @@ const css = {
     },
     link: {
         padding: '0 7px',
+        marginLeft: '3px',
     },
     sub: {
         color: 'inherit',
     },
     heading: {
         fontFamily: "'Fredoka One', cursive",
-        marginRight: '11px',
+        marginTop: '-3px',
+        marginRight: '2px',
+        fontSize: '26px',
+    },
+    headingDarwin: {
+        fontFamily: "'Fredoka One', cursive",
+        marginTop: '-3px',
+        marginLeft: '77px',
+        marginRight: '2px',
         fontSize: '26px',
     },
     loading: {
         position: 'absolute',
+        top: '36px',
         width: '100%',
         zIndex: '100',
     },
@@ -5569,8 +5579,19 @@ const css = {
     updateButton: {
         marginTop: "7px",
     },
-    controlButton: {
+    controlButtonFirst: {
+        marginLeft: '4px',
+    },
+    controlButtonFirstDarwin: {
         borderRadius: "10px",
+        marginLeft: '4px',
+    },
+    controlButton: {
+        marginLeft: '3px',
+    },
+    controlButtonDarwin: {
+        borderRadius: "10px",
+        marginLeft: '3px',
     },
 };
 class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
@@ -5713,6 +5734,7 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                 _Alert__WEBPACK_IMPORTED_MODULE_13__.info(updateElm, 0);
             }
         }
+        let showControls = _Constants__WEBPACK_IMPORTED_MODULE_4__.frameless && process.platform !== "darwin";
         let themeLabel = "";
         let themeIcon;
         if (_Theme__WEBPACK_IMPORTED_MODULE_2__.theme === "dark") {
@@ -5779,10 +5801,8 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         if (_Constants__WEBPACK_IMPORTED_MODULE_4__.state.version) {
             version = " v" + _Constants__WEBPACK_IMPORTED_MODULE_4__.state.version;
         }
-        let controlButtonStyle;
-        if (_Constants__WEBPACK_IMPORTED_MODULE_4__.platform === "darwin") {
-            controlButtonStyle = css.controlButton;
-        }
+        let controlButtonStyle = process.platform === "darwin" ?
+            css.controlButtonDarwin : css.controlButton;
         let menu = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_14__.Menu, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", { className: "bp5-menu-header" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", { className: "bp5-heading", style: css.menuLabel }, "Pritunl Client" + version)),
@@ -5877,11 +5897,13 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_16__.MenuItem, { text: "Developer Tools", intent: "warning", icon: "code", onClick: () => {
                     electron__WEBPACK_IMPORTED_MODULE_1__.ipcRenderer.send("control", "dev-tools");
                 } }));
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.container, className: "layout vertical" },
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.container, className: "layout vertical" + ((process.platform === "linux" && _Constants__WEBPACK_IMPORTED_MODULE_4__.frameless) ?
+                " container-border" : "") },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_LoadingBar__WEBPACK_IMPORTED_MODULE_9__["default"], { intent: "primary", style: css.loading }),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("nav", { className: "bp5-navbar layout horizontal", style: css.nav },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-navbar-group bp5-align-left flex webkit-drag", style: css.navTitle },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-navbar-heading", style: css.heading }, "pritunl")),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-navbar-heading", style: process.platform === "darwin" ?
+                            css.headingDarwin : css.heading }, "pritunl")),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-navbar-group bp5-align-right", style: css.navGroup },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-intent-danger bp5-icon-error", style: css.link, hidden: !this.state.showErrors, onClick: () => {
                             let elmnt = document.getElementById("toaster2");
@@ -5907,10 +5929,10 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                         } }, "Logs"),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_17__.Popover, { interactionKind: "click", popoverClassName: "main-menu", placement: _blueprintjs_core__WEBPACK_IMPORTED_MODULE_18__.Position.BOTTOM, content: menu, defaultIsOpen: false, renderTarget: ({ isOpen, ...targetProps }) => (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_19__.Button, { ...targetProps, minimal: true, icon: "menu", style: controlButtonStyle })), usePortal: true, minimal: true })),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-minus", type: "button", style: controlButtonStyle, hidden: !_Constants__WEBPACK_IMPORTED_MODULE_4__.frameless, onClick: () => {
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-minus", type: "button", style: controlButtonStyle, hidden: !showControls, onClick: () => {
                             electron__WEBPACK_IMPORTED_MODULE_1__.ipcRenderer.send("control", "minimize");
                         } }),
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross close-button", type: "button", hidden: !_Constants__WEBPACK_IMPORTED_MODULE_4__.frameless, style: controlButtonStyle, onClick: () => {
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross close-button", type: "button", hidden: !showControls, style: controlButtonStyle, onClick: () => {
                             window.close();
                         } }))),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout vertical flex", style: css.content }, page));

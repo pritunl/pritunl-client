@@ -18515,7 +18515,7 @@ class LoadingStore extends EventEmitter {
 const LoadingBar_css = {
     progress: {
         width: '100%',
-        height: '4px',
+        height: '2px',
         borderRadius: 0,
     },
     progressBar: {
@@ -25163,7 +25163,7 @@ const Main_css = {
         overflowX: 'auto',
         overflowY: 'auto',
         userSelect: 'none',
-        height: 'auto',
+        height: '38px',
         padding: '0 4px 0 8px',
     },
     navTitle: {
@@ -25177,17 +25177,27 @@ const Main_css = {
     },
     link: {
         padding: '0 7px',
+        marginLeft: '3px',
     },
     sub: {
         color: 'inherit',
     },
     heading: {
         fontFamily: "'Fredoka One', cursive",
-        marginRight: '11px',
+        marginTop: '-3px',
+        marginRight: '2px',
+        fontSize: '26px',
+    },
+    headingDarwin: {
+        fontFamily: "'Fredoka One', cursive",
+        marginTop: '-3px',
+        marginLeft: '77px',
+        marginRight: '2px',
         fontSize: '26px',
     },
     loading: {
         position: 'absolute',
+        top: '36px',
         width: '100%',
         zIndex: '100',
     },
@@ -25204,8 +25214,19 @@ const Main_css = {
     updateButton: {
         marginTop: "7px",
     },
-    controlButton: {
+    controlButtonFirst: {
+        marginLeft: '4px',
+    },
+    controlButtonFirstDarwin: {
         borderRadius: "10px",
+        marginLeft: '4px',
+    },
+    controlButton: {
+        marginLeft: '3px',
+    },
+    controlButtonDarwin: {
+        borderRadius: "10px",
+        marginLeft: '3px',
     },
 };
 class Main extends react.Component {
@@ -25348,6 +25369,7 @@ class Main extends react.Component {
                 info(updateElm, 0);
             }
         }
+        let showControls = frameless && process.platform !== "darwin";
         let themeLabel = "";
         let themeIcon;
         if (theme === "dark") {
@@ -25414,10 +25436,8 @@ class Main extends react.Component {
         if (state.version) {
             version = " v" + state.version;
         }
-        let controlButtonStyle;
-        if (platform === "darwin") {
-            controlButtonStyle = Main_css.controlButton;
-        }
+        let controlButtonStyle = process.platform === "darwin" ?
+            Main_css.controlButtonDarwin : Main_css.controlButton;
         let menu = react.createElement(Menu, null,
             react.createElement("li", { className: "bp5-menu-header" },
                 react.createElement("h6", { className: "bp5-heading", style: Main_css.menuLabel }, "Pritunl Client" + version)),
@@ -25512,11 +25532,13 @@ class Main extends react.Component {
             react.createElement(MenuItem, { text: "Developer Tools", intent: "warning", icon: "code", onClick: () => {
                     external_electron_namespaceObject.ipcRenderer.send("control", "dev-tools");
                 } }));
-        return react.createElement("div", { style: Main_css.container, className: "layout vertical" },
+        return react.createElement("div", { style: Main_css.container, className: "layout vertical" + ((process.platform === "linux" && frameless) ?
+                " container-border" : "") },
             react.createElement(LoadingBar, { intent: "primary", style: Main_css.loading }),
             react.createElement("nav", { className: "bp5-navbar layout horizontal", style: Main_css.nav },
                 react.createElement("div", { className: "bp5-navbar-group bp5-align-left flex webkit-drag", style: Main_css.navTitle },
-                    react.createElement("div", { className: "bp5-navbar-heading", style: Main_css.heading }, "pritunl")),
+                    react.createElement("div", { className: "bp5-navbar-heading", style: process.platform === "darwin" ?
+                            Main_css.headingDarwin : Main_css.heading }, "pritunl")),
                 react.createElement("div", { className: "bp5-navbar-group bp5-align-right", style: Main_css.navGroup },
                     react.createElement("button", { className: "bp5-button bp5-minimal bp5-intent-danger bp5-icon-error", style: Main_css.link, hidden: !this.state.showErrors, onClick: () => {
                             let elmnt = document.getElementById("toaster2");
@@ -25542,10 +25564,10 @@ class Main extends react.Component {
                         } }, "Logs"),
                     react.createElement("div", null,
                         react.createElement(Popover, { interactionKind: "click", popoverClassName: "main-menu", placement: Position.BOTTOM, content: menu, defaultIsOpen: false, renderTarget: ({ isOpen, ...targetProps }) => (react.createElement(Button, { ...targetProps, minimal: true, icon: "menu", style: controlButtonStyle })), usePortal: true, minimal: true })),
-                    react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-minus", type: "button", style: controlButtonStyle, hidden: !frameless, onClick: () => {
+                    react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-minus", type: "button", style: controlButtonStyle, hidden: !showControls, onClick: () => {
                             external_electron_namespaceObject.ipcRenderer.send("control", "minimize");
                         } }),
-                    react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross close-button", type: "button", hidden: !frameless, style: controlButtonStyle, onClick: () => {
+                    react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross close-button", type: "button", hidden: !showControls, style: controlButtonStyle, onClick: () => {
                             window.close();
                         } }))),
             react.createElement("div", { className: "layout vertical flex", style: Main_css.content }, page));

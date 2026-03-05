@@ -6843,7 +6843,8 @@ span.bp5-icon:empty.bp5-icon-large{
         flex-shrink:1; }
   .bp5-menu-item::before,
   .bp5-menu-item > *{
-    margin-right:7px; }
+    margin-right:7px;
+    margin-top:3px; }
   .bp5-menu-item:empty::before,
   .bp5-menu-item > :last-child{
     margin-right:0; }

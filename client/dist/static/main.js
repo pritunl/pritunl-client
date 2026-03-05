@@ -6902,19 +6902,21 @@ class Main {
         let frameless = false;
         let titleBarStyle;
         let framelessClient = false;
-        let width = 424;
+        let width = 430;
         let height = 550;
-        let minWidth = 390;
+        let minWidth = 430;
         let minHeight = 520;
         if ((external_process_default()).platform === "win32" || main_Config.frameless) {
             frameless = true;
             framelessClient = true;
-            width = 430;
-            minWidth = 410;
             if ((external_process_default()).platform === "win32") {
                 frameless = false;
                 titleBarStyle = "hidden";
             }
+        }
+        if ((external_process_default()).platform === "darwin") {
+            frameless = false;
+            titleBarStyle = "hiddenInset";
         }
         if (main_Config.window_width && main_Config.window_height) {
             width = main_Config.window_width;
@@ -6938,6 +6940,10 @@ class Main {
             icon: external_path_default().join(__dirname, "..", "logo.png"),
             titleBarStyle: titleBarStyle,
             frame: !frameless,
+            trafficLightPosition: {
+                x: 14,
+                y: 12,
+            },
             autoHideMenuBar: true,
             fullscreen: false,
             show: false,
@@ -6947,7 +6953,6 @@ class Main {
             minHeight: minHeight,
             backgroundColor: "#151719",
             webPreferences: {
-                zoomFactor: zoomFactor,
                 devTools: true,
                 nodeIntegration: true,
                 contextIsolation: false,
