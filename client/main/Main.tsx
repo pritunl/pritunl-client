@@ -146,18 +146,14 @@ class Main {
 		let frameless = false
 		let titleBarStyle: string
 		let framelessClient = false
-		let width = 424
+		let width = 430
 		let height = 550
-		let minWidth = 385
-		let minHeight = 440
-		let maxWidth = 670
-		let maxHeight = 800
+		let minWidth = 430
+		let minHeight = 520
 
 		if (process.platform === "win32" || Config.frameless) {
 			frameless = true
 			framelessClient = true
-			width = 430
-			minWidth = 410
 
 			if (process.platform === "win32") {
 				frameless = false
@@ -182,8 +178,6 @@ class Main {
 			height = Math.round(height * zoomFactor)
 			minWidth = Math.round(minWidth * zoomFactor)
 			minHeight = Math.round(minHeight * zoomFactor)
-			maxWidth = Math.round(maxWidth * zoomFactor)
-			maxHeight = Math.round(maxHeight * zoomFactor)
 		}
 
 		this.window = new electron.BrowserWindow({
@@ -198,11 +192,8 @@ class Main {
 			height: height,
 			minWidth: minWidth,
 			minHeight: minHeight,
-			maxWidth: maxWidth,
-			maxHeight: maxHeight,
 			backgroundColor: "#151719",
 			webPreferences: {
-				zoomFactor: zoomFactor,
 				devTools: true,
 				nodeIntegration: true,
 				contextIsolation: false,
