@@ -132,24 +132,24 @@ export default class ConfigView extends React.Component<Props, State> {
 			<div className="layout horizontal">
 				<PageSwitch
 					disabled={this.state.disabled}
-					label="Disable DNS watch"
-					help="Disable automatic correction of DNS changes if configuration is lost from system network change."
-					checked={!!this.state.config.disable_dns_watch}
-					onToggle={(): void => {
-						this.set("disable_dns_watch",
-							!this.state.config.disable_dns_watch)
-					}}
-				/>
-			</div>
-			<div className="layout horizontal">
-				<PageSwitch
-					disabled={this.state.disabled}
 					label="Enable DNS refresh"
 					help="Automatically refresh DNS to fix issues with macOS DNS cache."
 					checked={!!this.state.config.enable_dns_refresh}
 					onToggle={(): void => {
 						this.set("enable_dns_refresh",
 							!this.state.config.enable_dns_refresh)
+					}}
+				/>
+			</div>
+			<div className="layout horizontal">
+				<PageSwitch
+					disabled={this.state.disabled}
+					label="Disable DNS watch"
+					help="Disable automatic correction of DNS changes if configuration is lost from system network change."
+					checked={!!this.state.config.disable_dns_watch}
+					onToggle={(): void => {
+						this.set("disable_dns_watch",
+							!this.state.config.disable_dns_watch)
 					}}
 				/>
 			</div>
