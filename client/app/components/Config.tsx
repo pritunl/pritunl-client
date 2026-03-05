@@ -7,6 +7,10 @@ import ConfigStore from "../stores/ConfigStore"
 import PageSwitch from "./PageSwitch"
 import PageNumInput from "./PageNumInput"
 
+interface Props {
+	onClose: () => void
+}
+
 interface State {
 	config: ConfigTypes.Config
 	safeStorage: boolean
@@ -25,12 +29,17 @@ const css = {
 		position: "relative",
 		margin: "8px",
 	} as React.CSSProperties,
+	buttonsTop: {
+		position: "absolute",
+		top: "5px",
+		right: "5px",
+	} as React.CSSProperties,
 	footer: {
 		margin: 0,
 	} as React.CSSProperties,
 }
 
-export default class ConfigView extends React.Component<{}, State> {
+export default class ConfigView extends React.Component<Props, State> {
 	constructor(props: any, context: any) {
 		super(props, context);
 		this.state = {
@@ -111,6 +120,12 @@ export default class ConfigView extends React.Component<{}, State> {
 		}
 
 		return <div className="bp5-card layout vertical flex" style={css.card}>
+			<div style={css.buttonsTop}>
+				<button
+					className="bp5-button bp5-minimal bp5-icon-cross"
+					onClick={this.props.onClose}
+				/>
+			</div>
 			<div className="layout horizontal">
 				<h3 style={css.header}>Advanced Settings</h3>
 			</div>
