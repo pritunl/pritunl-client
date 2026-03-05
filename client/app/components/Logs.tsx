@@ -8,6 +8,10 @@ import * as LogUtils from "../utils/LogUtils"
 import Editor from "./Editor"
 import ConfirmButton from "./ConfirmButton"
 
+interface Props {
+	onClose: () => void
+}
+
 interface State {
 	profiles: ProfileTypes.ProfilesRo
 	curProfile: ProfileTypes.Profile
@@ -47,7 +51,7 @@ const css = {
 	} as React.CSSProperties,
 	deleteButton: {
 	} as React.CSSProperties,
-	deleteButtonBox: {
+	buttonsTop: {
 		position: "absolute",
 		top: "5px",
 		right: "5px",
@@ -60,7 +64,7 @@ const css = {
 	} as React.CSSProperties,
 };
 
-export default class Logs extends React.Component<{}, State> {
+export default class Logs extends React.Component<Props, State> {
 	constructor(props: any, context: any) {
 		super(props, context);
 		this.state = {
@@ -201,7 +205,7 @@ export default class Logs extends React.Component<{}, State> {
 		})
 
 		return <div className="bp5-card layout vertical flex" style={css.card}>
-			<div style={css.deleteButtonBox}>
+			<div style={css.buttonsTop}>
 				<ConfirmButton
 					className="bp5-minimal bp5-intent-danger bp5-icon-trash"
 					style={css.deleteButton}
@@ -212,6 +216,10 @@ export default class Logs extends React.Component<{}, State> {
 					confirmMsg={"Confirm clearing " + label + " logs"}
 					disabled={this.state.disabled}
 					onConfirm={this.onDelete}
+				/>
+				<button
+					className="bp5-button bp5-minimal bp5-icon-cross"
+					onClick={this.props.onClose}
 				/>
 			</div>
 			<div className="layout horizontal">
