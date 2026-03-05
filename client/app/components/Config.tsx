@@ -192,6 +192,18 @@ export default class ConfigView extends React.Component<Props, State> {
 			<div className="layout horizontal">
 				<PageSwitch
 					disabled={this.state.disabled}
+					label="Disable browser open"
+					help="Disable automatic opening of browser for single sign-on authentication."
+					checked={!!this.state.config.disable_browser}
+					onToggle={(): void => {
+						this.set("disable_browser",
+							!this.state.config.disable_browser)
+					}}
+				/>
+			</div>
+			<div className="layout horizontal">
+				<PageSwitch
+					disabled={this.state.disabled}
 					label="Enable safe storage"
 					help="Enable encryption of profile keys with safe storage. May cause client to become unresponsive or connections to fail."
 					checked={!!safeStorage}
