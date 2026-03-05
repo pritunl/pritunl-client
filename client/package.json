@@ -4,7 +4,7 @@
   "main": "dist/static/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev-tools --no-shutdown --gtk-version=3"
+    "dev": "electron . --dev-tools --no-shutdown"
   },
   "build": {
     "appId": "com.pritunl.client",
