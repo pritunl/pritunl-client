@@ -76,8 +76,19 @@ const css = {
 	updateButton: {
 		marginTop: "7px",
 	} as React.CSSProperties,
-	controlButton: {
+	controlButtonFirst: {
+		marginLeft: '4px',
+	} as React.CSSProperties,
+	controlButtonFirstDarwin: {
 		borderRadius: "10px",
+		marginLeft: '4px',
+	} as React.CSSProperties,
+	controlButton: {
+		marginLeft: '3px',
+	} as React.CSSProperties,
+	controlButtonDarwin: {
+		borderRadius: "10px",
+		marginLeft: '3px',
 	} as React.CSSProperties,
 };
 
@@ -301,10 +312,8 @@ export default class Main extends React.Component<{}, State> {
 			version = " v" + Constants.state.version
 		}
 
-		let controlButtonStyle: React.CSSProperties
-		if (Constants.platform === "darwin") {
-			controlButtonStyle = css.controlButton
-		}
+		let controlButtonStyle = process.platform === "darwin" ?
+			css.controlButtonDarwin : css.controlButton
 
 		let menu: JSX.Element = <Blueprint.Menu>
 			<li className="bp5-menu-header">
