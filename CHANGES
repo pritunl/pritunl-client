@@ -5,6 +5,7 @@ Pritunl Client Changelog
 
 Add grid layout
 Fix DNS issues on macOS
+Fix issue with closing to tray on Windows
 
 Version 1.3.4554.60 2026-03-02
 ------------------------------
