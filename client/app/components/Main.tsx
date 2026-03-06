@@ -55,7 +55,15 @@ const css = {
 	} as React.CSSProperties,
 	heading: {
 		fontFamily: "'Fredoka One', cursive",
-		marginRight: '11px',
+		marginTop: '-3px',
+		marginRight: '2px',
+		fontSize: '26px',
+	} as React.CSSProperties,
+	headingDarwin: {
+		fontFamily: "'Fredoka One', cursive",
+		marginTop: '-3px',
+		marginLeft: '77px',
+		marginRight: '2px',
 		fontSize: '26px',
 	} as React.CSSProperties,
 	loading: {
@@ -500,7 +508,8 @@ export default class Main extends React.Component<{}, State> {
 				>
 					<div
 						className="bp5-navbar-heading"
-						style={css.heading}
+						style={process.platform === "darwin" ?
+							css.headingDarwin : css.heading}
 					>pritunl</div>
 				</div>
 				<div
