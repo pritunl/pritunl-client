@@ -999,7 +999,7 @@ function do_resolvconf {
     else
         echo "unsetting DNS using resolvconf"
         /sbin/resolvconf -d "$dev"
-        if resolvconf -l | grep -q "^nameserver"; then
+        if /sbin/resolvconf -l | grep -q "^nameserver"; then
             /sbin/resolvconf -u || true
         elif [ -f /run/pritunl.resolv.conf.bak ]; then
             cp /run/pritunl.resolv.conf.bak /etc/resolv.conf
