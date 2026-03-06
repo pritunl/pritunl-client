@@ -314,10 +314,24 @@ export default class Main extends React.Component<{}, State> {
 				page = <Profiles/>
 				break
 			case "/logs":
-				page = <Logs/>
+				page = <Logs
+					onClose={() => {
+							this.setState({
+								...this.state,
+								path: "/profiles",
+							})
+					}}
+				/>
 				break
 			case "/config":
-				page = <ConfigView/>
+				page = <ConfigView
+					onClose={() => {
+							this.setState({
+								...this.state,
+								path: "/profiles",
+							})
+					}}
+				/>
 				break
 		}
 
