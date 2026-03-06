@@ -69,6 +69,10 @@ const css = {
 	content: {
 		overflowY: 'auto',
 	} as React.CSSProperties,
+	contentLinux: {
+		overflowY: 'auto',
+		marginRight: '1px',
+	} as React.CSSProperties,
 	menuLabel: {
 		fontSize: '15px',
 		textAlign: 'center',
@@ -575,15 +579,17 @@ export default class Main extends React.Component<{}, State> {
 					<button
 						className="bp5-button bp5-minimal bp5-icon-cross close-button"
 						type="button"
-						hidden={!Constants.frameless}
+						hidden={!showControls}
 						style={controlButtonStyle}
 						onClick={(): void => {
-							Electron.ipcRenderer.send("control", "close")
+							window.close()
 						}}
 					/>
 				</div>
 			</nav>
-			<div className="layout vertical flex" style={css.content}>
+			<div className="layout vertical flex" style={
+					(process.platform === "linux" && Constants.frameless) ?
+					css.contentLinux : css.content}>
 				{page}
 			</div>
 		</div>
