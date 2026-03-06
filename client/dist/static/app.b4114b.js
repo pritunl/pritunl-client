@@ -25207,6 +25207,10 @@ const Main_css = {
     content: {
         overflowY: 'auto',
     },
+    contentLinux: {
+        overflowY: 'auto',
+        marginRight: '1px',
+    },
     menuLabel: {
         fontSize: '15px',
         textAlign: 'center',
@@ -25570,7 +25574,8 @@ class Main extends react.Component {
                     react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross close-button", type: "button", hidden: !showControls, style: controlButtonStyle, onClick: () => {
                             window.close();
                         } }))),
-            react.createElement("div", { className: "layout vertical flex", style: Main_css.content }, page));
+            react.createElement("div", { className: "layout vertical flex", style: (process.platform === "linux" && frameless) ?
+                    Main_css.contentLinux : Main_css.content }, page));
     }
 }
 

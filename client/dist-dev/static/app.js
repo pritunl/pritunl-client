@@ -5572,6 +5572,10 @@ const css = {
     content: {
         overflowY: 'auto',
     },
+    contentLinux: {
+        overflowY: 'auto',
+        marginRight: '1px',
+    },
     menuLabel: {
         fontSize: '15px',
         textAlign: 'center',
@@ -5935,7 +5939,8 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-cross close-button", type: "button", hidden: !showControls, style: controlButtonStyle, onClick: () => {
                             window.close();
                         } }))),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout vertical flex", style: css.content }, page));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout vertical flex", style: (process.platform === "linux" && _Constants__WEBPACK_IMPORTED_MODULE_4__.frameless) ?
+                    css.contentLinux : css.content }, page));
     }
 }
 
