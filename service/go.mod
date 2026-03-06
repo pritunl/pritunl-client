@@ -1,6 +1,6 @@
 module github.com/pritunl/pritunl-client/service
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/dropbox/godropbox v0.0.0-20230623171840-436d2007a9fd
@@ -11,8 +11,8 @@ require (
 	github.com/hectane/go-acl v0.0.0-20230122075934-ca0b05cb1adb
 	github.com/judwhite/go-svc v1.2.1
 	github.com/sirupsen/logrus v1.9.3
-	golang.org/x/crypto v0.45.0
-	golang.org/x/sys v0.38.0
+	golang.org/x/crypto v0.48.0
+	golang.org/x/sys v0.41.0
 )
 
 require (
@@ -45,8 +45,8 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.10.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/net v0.51.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
