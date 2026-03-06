@@ -976,8 +976,8 @@ function do_resolvconf {
     echo "dns-updown: do_resolvconf: selected server profile ${n}"
 
     if [ "$script_type" = "dns-up" ]; then
-        if [ ! -f /run/pritunl/resolv.conf.bak ]; then
-            cp /etc/resolv.conf /run/pritunl/resolv.conf.bak
+        if [ ! -f /run/pritunl.resolv.conf.bak ]; then
+            cp /etc/resolv.conf /run/pritunl.resolv.conf.bak
         fi
         echo "setting DNS using resolvconf"
         local domains=""
@@ -1001,9 +1001,9 @@ function do_resolvconf {
         /sbin/resolvconf -d "$dev"
         if resolvconf -l | grep -q "^nameserver"; then
             /sbin/resolvconf -u || true
-        elif [ -f /run/pritunl/resolv.conf.bak ]; then
-            cp /run/pritunl/resolv.conf.bak /etc/resolv.conf
-            rm /run/pritunl/resolv.conf.bak
+        elif [ -f /run/pritunl.resolv.conf.bak ]; then
+            cp /run/pritunl.resolv.conf.bak /etc/resolv.conf
+            rm /run/pritunl.resolv.conf.bak
         else
             /sbin/resolvconf -u || true
         fi
