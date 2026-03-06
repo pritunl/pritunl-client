@@ -185,6 +185,10 @@ class Main {
 			icon: path.join(__dirname, "..", "logo.png"),
 			titleBarStyle: titleBarStyle as any,
 			frame: !frameless,
+			trafficLightPosition: {
+				x: 14,
+				y: 12,
+			},
 			autoHideMenuBar: true,
 			fullscreen: false,
 			show: false,
