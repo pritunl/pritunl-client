@@ -3,6 +3,7 @@ Pritunl Client Changelog
 
 <%= version %>
 
+Interface improvements
 Add grid layout
 Fix DNS issues on macOS
 Fix issue with closing to tray on Windows
