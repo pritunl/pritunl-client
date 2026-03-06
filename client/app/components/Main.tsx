@@ -258,6 +258,8 @@ export default class Main extends React.Component<{}, State> {
 			}
 		}
 
+		let showControls = Constants.frameless && process.platform !== "darwin"
+
 		let themeLabel = ""
 		let themeIcon: Blueprint.IconName;
 		if (Theme.theme === "dark") {
@@ -571,7 +573,7 @@ export default class Main extends React.Component<{}, State> {
 						className="bp5-button bp5-minimal bp5-icon-minus"
 						type="button"
 						style={controlButtonStyle}
-						hidden={!Constants.frameless}
+						hidden={!showControls}
 						onClick={(): void => {
 							Electron.ipcRenderer.send("control", "minimize")
 						}}
