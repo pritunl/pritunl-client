@@ -33,7 +33,7 @@
     "react-transition-group": "4.4.5",
     "source-map": "0.7.4",
     "systemjs": "6.15.1",
-    "tar": "7.5.9",
+    "tar": "7.5.10",
     "terser-webpack-plugin": "5.3.14",
     "ws": "8.18.1"
   },
