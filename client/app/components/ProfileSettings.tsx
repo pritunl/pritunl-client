@@ -488,6 +488,15 @@ export default class ProfileSettings extends React.Component<Props, State> {
 						}}
 					/>
 					<PageSwitch
+						label="Data Channel Offload"
+						help="Enable Data Channel Offload for improved performance. Requires server support and configuration changes."
+						hidden={profile.restrict_client}
+						checked={!!profile.dco}
+						onToggle={(): void => {
+							this.set("dco", !profile.dco)
+						}}
+					/>
+					<PageSwitch
 						label="Force DNS configuration"
 						help="Configure only one DNS server to correct issues with macOS DNS server priority. This is not recommended unless required and will cause networking compatibility issues."
 						hidden={
