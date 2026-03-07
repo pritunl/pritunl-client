@@ -40,6 +40,15 @@ const css = {
 		width: "340px",
 		position: "absolute",
 	} as React.CSSProperties,
+	dialogBody: {
+		marginBottom: "0",
+	} as React.CSSProperties,
+	dialogFooter: {
+		marginTop: "10px",
+	} as React.CSSProperties,
+	info: {
+		marginBottom: "0",
+	} as React.CSSProperties,
 	label: {
 		width: "100%",
 		maxWidth: "220px",
@@ -393,7 +402,7 @@ export default class ProfileSettings extends React.Component<Props, State> {
 				portalContainer={document.body}
 				onClose={this.closeDialog}
 			>
-				<div className="bp5-dialog-body">
+				<div className="bp5-dialog-body" style={css.dialogBody}>
 					<PageInput
 						disabled={this.state.disabled}
 						label="Name"
@@ -488,6 +497,7 @@ export default class ProfileSettings extends React.Component<Props, State> {
 						}}
 					/>
 					<PageInfo
+						style={css.info}
 						fields={[
 							{
 								label: 'ID',
@@ -501,7 +511,7 @@ export default class ProfileSettings extends React.Component<Props, State> {
 					/>
 					{dataInfo}
 				</div>
-				<div className="bp5-dialog-footer">
+				<div className="bp5-dialog-footer" style={css.dialogFooter}>
 					<div className="bp5-dialog-footer-actions">
 						<button
 							className="bp5-button bp5-icon-console"
