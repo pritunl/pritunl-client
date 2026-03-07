@@ -20162,7 +20162,6 @@ class Profiles extends react.Component {
         sync();
         window.addEventListener('resize', this.onResize);
         this.interval = setInterval(() => {
-            sync(true);
         }, 1000);
     }
     componentWillUnmount() {
@@ -25474,7 +25473,7 @@ class Main extends react.Component {
                         this.onTrayIcon();
                     }
                 }, onClick: this.onTrayIcon }),
-            react.createElement(MenuItem, { text: frameLabel, icon: "application", hidden: platform === "win32", onKeyDown: (evt) => {
+            react.createElement(MenuItem, { text: frameLabel, icon: "application", hidden: platform !== "linux", onKeyDown: (evt) => {
                     if (evt.key === "Enter") {
                         this.onWindowFrame();
                     }

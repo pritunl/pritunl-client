@@ -5839,7 +5839,7 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                         this.onTrayIcon();
                     }
                 }, onClick: this.onTrayIcon }),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_16__.MenuItem, { text: frameLabel, icon: "application", hidden: _Constants__WEBPACK_IMPORTED_MODULE_4__.platform === "win32", onKeyDown: (evt) => {
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_16__.MenuItem, { text: frameLabel, icon: "application", hidden: _Constants__WEBPACK_IMPORTED_MODULE_4__.platform !== "linux", onKeyDown: (evt) => {
                     if (evt.key === "Enter") {
                         this.onWindowFrame();
                     }
@@ -7655,7 +7655,6 @@ class Profiles extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.sync();
         window.addEventListener('resize', this.onResize);
         this.interval = setInterval(() => {
-            _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.sync(true);
         }, 1000);
     }
     componentWillUnmount() {
