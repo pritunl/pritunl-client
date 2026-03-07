@@ -243,6 +243,10 @@ export default class ProfileSettings extends React.Component<Props, State> {
 				<PageInfo
 					fields={[
 						{
+							label: 'Configuration Sync Hosts',
+							value: syncHosts,
+						},
+						{
 							label: 'System',
 							value: profile.system,
 						},
@@ -333,6 +337,14 @@ export default class ProfileSettings extends React.Component<Props, State> {
 						{
 							label: 'Disable DNS',
 							value: profile.disable_dns,
+						},
+						{
+							label: 'Data Channel Offload',
+							value: profile.dco,
+						},
+						{
+							label: 'Debug Output',
+							value: profile.debug_output,
 						},
 						{
 							label: 'Force DNS',
@@ -480,10 +492,6 @@ export default class ProfileSettings extends React.Component<Props, State> {
 							{
 								label: 'ID',
 								value: profile.id || '-',
-							},
-							{
-								label: 'Configuration Sync Hosts',
-								value: syncHosts,
 							},
 							{
 								label: 'Last Configuration Sync',
