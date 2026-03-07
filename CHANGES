@@ -1,7 +1,8 @@
 Pritunl Client Changelog
 ========================
 
-<%= version %>
+Version 1.3.4559.86 2026-03-07
+------------------------------
 
 Fix openvpn dco on Windows
 
