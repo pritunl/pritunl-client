@@ -26,10 +26,8 @@ func TunTapGet(all bool) (adpaters []string, err error) {
 			continue
 		}
 
-		name := strings.ToLower(lines[1])
-
-		if !all && name != "ethernet" &&
-			name != "local" && name != "pritunl" {
+		if !all && !strings.Contains(
+			strings.ToLower(line), "pritunl") {
 
 			continue
 		}
