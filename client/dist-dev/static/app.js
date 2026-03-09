@@ -7655,6 +7655,7 @@ class Profiles extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.sync();
         window.addEventListener('resize', this.onResize);
         this.interval = setInterval(() => {
+            _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.sync(true);
         }, 1000);
     }
     componentWillUnmount() {

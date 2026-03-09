@@ -20162,6 +20162,7 @@ class Profiles extends react.Component {
         sync();
         window.addEventListener('resize', this.onResize);
         this.interval = setInterval(() => {
+            sync(true);
         }, 1000);
     }
     componentWillUnmount() {
