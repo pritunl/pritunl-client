@@ -465,7 +465,7 @@ if cmd == 'build' or cmd == 'build-test' or cmd == 'build-upload':
         )
 
 if cmd == 'upload' or cmd == 'upload-test' or cmd == 'build-upload':
-    pacur_path = TEST_PACUR_PATH if is_snapshot else STABLE_PACUR_PATH
+    pacur_path = STABLE_PACUR_PATH
 
     # Get release id
     release_id = None
