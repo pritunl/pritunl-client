@@ -8,9 +8,9 @@ Build test package
 sudo dnf -y install git-core podman
 
 sudo rm -rf /usr/local/go
-wget https://go.dev/dl/go1.25.4.linux-amd64.tar.gz
-echo "9fa5ffeda4170de60f67f3aa0f824e426421ba724c21e133c1e35d6159ca1bec go1.25.4.linux-amd64.tar.gz" | sha256sum -c - && sudo tar -C /usr/local -xf go1.25.4.linux-amd64.tar.gz
-rm -f go1.25.4.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.26.1.linux-amd64.tar.gz
+echo "031f088e5d955bab8657ede27ad4e3bc5b7c1ba281f05f245bcc304f327c987a go1.26.1.linux-amd64.tar.gz" | sha256sum -c - && sudo tar -C /usr/local -xf go1.26.1.linux-amd64.tar.gz
+rm -f go1.26.1.linux-amd64.tar.gz
 
 tee -a ~/.bashrc << EOF
 export GO111MODULE=on
