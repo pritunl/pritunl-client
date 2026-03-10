@@ -795,6 +795,8 @@ func Import(data string, remotes []Remote,
 
 	if debugOutput {
 		o.Verb = 6
+	} else {
+		o.Verb = max(o.Verb, 4)
 	}
 
 	if o.Dev == "" {
