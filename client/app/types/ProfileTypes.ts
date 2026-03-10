@@ -51,6 +51,7 @@ export interface Profile {
 	disable_gateway?: boolean
 	disable_dns?: boolean
 	dco?: boolean
+	debug_output?: boolean
 	force_dns?: boolean
 	sso_auth?: boolean
 	password_mode?: string
@@ -153,6 +154,7 @@ export interface ProfileData {
 	disable_gateway?: boolean
 	disable_dns?: boolean
 	dco?: boolean
+	debug_output?: boolean
 	restrict_client?: boolean
 	force_dns?: boolean
 	sso_auth?: boolean
@@ -455,6 +457,7 @@ export function New(self: Profile): Profile {
 			disable_gateway: this.disable_gateway,
 			disable_dns: this.disable_dns,
 			dco: this.dco,
+			debug_output: this.debug_output,
 			force_dns: this.force_dns,
 			sso_auth: this.sso_auth,
 			password_mode: this.password_mode,
@@ -495,6 +498,7 @@ export function New(self: Profile): Profile {
 		this.disable_gateway = data.disable_gateway
 		this.disable_dns = data.disable_dns
 		this.dco = data.dco
+		this.debug_output = data.debug_output
 		this.force_dns = data.force_dns
 		this.sso_auth = data.sso_auth
 		this.password_mode = data.password_mode
@@ -534,6 +538,7 @@ export function New(self: Profile): Profile {
 			disable_gateway: this.disable_gateway,
 			disable_dns: this.disable_dns,
 			dco: this.dco,
+			debug_output: this.debug_output,
 			force_dns: this.force_dns,
 			sso_auth: this.sso_auth,
 			password_mode: this.password_mode,
@@ -574,6 +579,7 @@ export function New(self: Profile): Profile {
 		this.disable_gateway = data.disable_gateway
 		this.disable_dns = data.disable_dns
 		this.dco = data.dco
+		this.debug_output = data.debug_output
 		this.sso_auth = data.sso_auth
 		this.password_mode = data.password_mode
 		this.token = data.token
