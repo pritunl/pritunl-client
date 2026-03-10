@@ -259,7 +259,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 
 	o.conn.Data.UpdateEvent()
 
-	verb := "2"
+	verb := "4"
 	if o.conn.Profile.DebugOutput {
 		verb = "6"
 	}
