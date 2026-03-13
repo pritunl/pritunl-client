@@ -54,6 +54,8 @@ type Ovpn struct {
 	stderr         io.ReadCloser
 	outputBuffer   chan string
 	outputWait     sync.WaitGroup
+	waitCmdOnce    sync.Once
+	waitCmdErr     error
 }
 
 type AuthData struct {
@@ -419,7 +421,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 
 	o.running = 1
 	go o.watchCmd()
-	go o.waitCmd()
+	go o.waitExit()
 
 	return
 }
@@ -921,6 +923,13 @@ func (o *Ovpn) Close() {
 	}
 }
 
+func (o *Ovpn) waitCmd() error {
+	o.waitCmdOnce.Do(func() {
+		o.waitCmdErr = o.cmd.Wait()
+	})
+	return o.waitCmdErr
+}
+
 func (o *Ovpn) killCmd() {
 	defer func() {
 		panc := recover()
@@ -974,7 +983,7 @@ func (o *Ovpn) killCmd() {
 				}).Error("utils: Kill command wait panic")
 			}
 		}()
-		cmd.Wait()
+		o.waitCmd()
 		exited = true
 		waiter <- true
 	}()
@@ -1386,7 +1395,8 @@ func (o *Ovpn) watchCmd() {
 	}
 }
 
-func (o *Ovpn) waitCmd() {
+func (o *Ovpn) waitExit() {
+	defer o.conn.State.Close()
 	defer func() {
 		panc := recover()
 		if panc != nil {
@@ -1397,7 +1407,7 @@ func (o *Ovpn) waitCmd() {
 		}
 	}()
 
-	o.cmd.Wait()
+	o.waitCmd()
 	o.outputWait.Wait()
 	o.running = -1
 
@@ -1409,6 +1419,4 @@ func (o *Ovpn) waitCmd() {
 			})).Error("profile: Failed to restore DNS")
 		}
 	}
-
-	o.conn.State.Close()
 }
