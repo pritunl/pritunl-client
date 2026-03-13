@@ -1137,7 +1137,7 @@ func (o *Ovpn) parseLine(line string) {
 
 		o.conn.Data.SendProfileEvent("timeout_error")
 	} else if strings.Contains(
-		line, "Can't assign requested address (code=49)") {
+		line, "Can't assign requested address") {
 
 		logrus.WithFields(o.conn.Fields(logrus.Fields{
 			"line": line,
