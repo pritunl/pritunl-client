@@ -1145,31 +1145,6 @@ func (o *Ovpn) parseLine(line string) {
 		strings.Contains(line, "Connection reset") {
 
 		o.conn.Data.SendProfileEvent("timeout_error")
-	} else if strings.Contains(
-		line, "Can't assign requested address") {
-
-		logrus.WithFields(o.conn.Fields(logrus.Fields{
-			"line": line,
-		})).Error("connection: Assign address error")
-
-		go func() {
-			defer func() {
-				panc := recover()
-				if panc != nil {
-					logrus.WithFields(o.conn.Fields(logrus.Fields{
-						"trace": string(debug.Stack()),
-						"panic": panc,
-					})).Error("profile: Kill profile panic")
-				}
-			}()
-
-			o.killCmd()
-
-			// // TODO Possibly restart all and reset network
-			// if !o.conn.State.IsStop() {
-			// 	go RestartProfiles()
-			// }
-		}()
 	} else if strings.Contains(line, "AUTH_FAILED") || strings.Contains(
 		line, "auth-failure") && !o.authFailed {
 
