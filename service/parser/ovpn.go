@@ -192,6 +192,9 @@ func (o *Ovpn) Export(chown string) string {
 		output += "pull-filter ignore \"comp-lzo\"\n"
 		output += "pull-filter ignore \"compress\"\n"
 		output += "pull-filter ignore \"fragment\"\n"
+	} else {
+		output += "ignore-unknown-option disable-dco\n"
+		output += "disable-dco\n"
 	}
 
 	if o.DataCiphers != "" {
