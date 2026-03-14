@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -186,7 +187,9 @@ func (o *Ovpn) Export(chown string) string {
 	}
 
 	output += "pull-filter ignore \"ping-restart\"\n"
-	output += "pull-filter ignore \"dhcp-option DOMAIN-ROUTE\"\n"
+	if runtime.GOOS != "linux" {
+		output += "pull-filter ignore \"dhcp-option DOMAIN-ROUTE\"\n"
+	}
 
 	if o.Dco {
 		output += "pull-filter ignore \"comp-lzo\"\n"
