@@ -33,4 +33,5 @@ func init() {
 	RootCmd.AddCommand(StartCmd)
 	RootCmd.AddCommand(StopCmd)
 	RootCmd.AddCommand(WatchCmd)
+	RootCmd.AddCommand(StatusCmd)
 }

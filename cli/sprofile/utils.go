@@ -283,6 +283,18 @@ func GetAll() (sprfls Sprofiles, err error) {
 	return
 }
 
+func Status(sprflId string) (string, error) {
+	sprfl, err := Match(sprflId)
+	if err != nil {
+		return "", err
+	}
+	_, status := sprfl.FormatedStatus()
+	if sprfl != nil && sprfl.State && sprfl.Profile != nil && sprfl.Profile.Status == "connected" {
+		return fmt.Sprintf("Connected (online for %s)", status), nil
+	}
+	return status, nil
+}
+
 func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	passModes := set.NewSet()
 
