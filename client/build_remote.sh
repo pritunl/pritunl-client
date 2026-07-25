@@ -7,6 +7,7 @@ ssh cloud@$NPM_SERVER "
 cd /home/cloud/pritunl-client-www/
 rm -rf node_modules
 npm install --min-release-age=3
+npm audit fix
 "
 
 scp $NPM_SERVER:/home/cloud/pritunl-client-www/package.json /home/cloud/git/pritunl-client/client/package.json
