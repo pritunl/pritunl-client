@@ -14,6 +14,7 @@ import PageInfo from './PageInfo';
 import PageSwitch from './PageSwitch';
 import ProfileConnect from "./ProfileConnect";
 import ProfileSettings from "./ProfileSettings";
+import MetricCharts from "./MetricCharts";
 
 interface Props {
 	profile: ProfileTypes.ProfileRo;
@@ -382,6 +383,10 @@ export default class Profile extends React.Component<Props, State> {
 				<div style={css.message} hidden={!this.state.message}>
 					{this.state.message}
 				</div>
+				<MetricCharts
+					profile={profile.id}
+					disabled={this.props.minimal && !open}
+				/>
 				<div className="layout horizontal">
 					<div style={css.buttons}>
 						<ProfileConnect profile={this.props.profile}/>
