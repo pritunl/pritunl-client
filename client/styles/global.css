@@ -290,6 +290,22 @@ body:not(.bp5-dark) .container-border .bp5-navbar {
   background-color:#2f343c;
 }
 
+.bp5-dark:not(.bp3-theme) .bp5-button:not([class*="bp5-intent-"]):not(.bp5-datepicker *) {
+  background-color: rgb(56, 62, 71);
+}
+
+.bp5-dark:not(.bp3-theme) .bp5-button:not([class*="bp5-intent-"]):not(.bp5-datepicker *):hover {
+  background-color: rgb(47, 52, 60);
+}
+
+.bp5-dark:not(.bp3-theme) .bp5-button.bp5-minimal:not([class*="bp5-intent-"]):not(.bp5-datepicker *) {
+  background: none;
+}
+
+.bp5-dark:not(.bp3-theme) .bp5-button.bp5-minimal:not([class*="bp5-intent-"]):not(.bp5-datepicker *):hover {
+  background: rgba(143, 153, 168, 0.15);
+}
+
 /*******************************
           Flex Layout
 *******************************/
