@@ -279,9 +279,11 @@ body:not(.bp5-dark) .container-border .bp5-navbar {
   height: 10px;
   border-width: 2px;
   border-style: solid;
-  top: 4px;
-  left: 3px;
+  box-sizing: border-box;
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 3px;
 }
 
 .bp5-dark:not(.bp3-theme) .bp5-card {
