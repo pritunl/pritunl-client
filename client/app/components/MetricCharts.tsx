@@ -107,14 +107,13 @@ export default class MetricCharts extends React.Component<Props, State> {
 		}
 
 		return <div ref={this.chartBoxRef}>
-			<div className="layout horizontal wrap">
+			<div className="layout horizontal wrap center-justified">
 				<div className="bp5-button-group" style={css.buttons}>
 					{this.periodButton('1 Hours', 60)}
 					{this.periodButton('12 Hours', 720)}
 					{this.periodButton('24 Hours', 1440)}
 					{this.periodButton('3 Days', 4320)}
 				</div>
-				<div className="flex"/>
 			</div>
 			<div className="layout horizontal wrap">
 				<div style={css.chartGroup}>
