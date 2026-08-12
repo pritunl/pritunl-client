@@ -1,4 +1,6 @@
 /// <reference path="References.d.ts"/>
+import 'chartjs-adapter-moment';
+import * as ChartJs from 'chart.js';
 import * as SourceMap from "source-map";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
@@ -12,6 +14,40 @@ import * as Constants from "./Constants";
 import Config from "./Config";
 import * as Errors from "./Errors";
 import * as Logger from "./Logger";
+
+ChartJs.Chart.register(ChartJs.LineController);
+ChartJs.Chart.register(ChartJs.CategoryScale);
+ChartJs.Chart.register(ChartJs.LinearScale);
+ChartJs.Chart.register(ChartJs.TimeScale);
+ChartJs.Chart.register(ChartJs.PointElement);
+ChartJs.Chart.register(ChartJs.LineElement);
+ChartJs.Chart.register(ChartJs.Title);
+ChartJs.Chart.register(ChartJs.Tooltip);
+ChartJs.Chart.register(ChartJs.Filler);
+
+class LineTracerController extends ChartJs.LineController {
+	draw(): void {
+		super.draw();
+
+		let chart = this.chart as any;
+		if (chart.tooltip._active && chart.tooltip._active.length) {
+			let ctx = this.chart.ctx;
+			let x = chart.tooltip.caretX;
+			let topY = chart.scales.y.top;
+			let bottomY = chart.scales.y.bottom;
+
+			ctx.save();
+			ctx.beginPath();
+			ctx.moveTo(x, topY);
+			ctx.lineTo(x, bottomY);
+			ctx.lineWidth = 0.7;
+			ctx.strokeStyle = Theme.chartColor3();
+			ctx.stroke();
+			ctx.restore();
+		}
+	}
+}
+(ChartJs.Chart as any).registry.controllers.items.line = LineTracerController;
 
 let sourceMap: SourceMap.RawSourceMap
 let sourceMapPath = (window as any).source_map as string
