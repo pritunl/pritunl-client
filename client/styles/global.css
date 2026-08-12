@@ -266,12 +266,12 @@ body:not(.bp5-dark) .container-border .bp5-navbar {
 
 #chartjs-tooltip td {
   font-size: 10px;
-  padding: 4px 4px 2px 6px;
+  padding: 2px 4px 2px 6px;
   position: relative;
 }
 
 #chartjs-tooltip td.line-box {
-  padding: 4px 4px 2px 17px;
+  padding: 2px 4px 2px 17px;
 }
 
 #chartjs-tooltip td span {
