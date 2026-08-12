@@ -106,8 +106,6 @@ export default class MetricCharts extends React.Component<Props, State> {
 			return <div/>;
 		}
 
-		let refreshDisabled = !!Object.entries(this.state.loading).length;
-
 		return <div ref={this.chartBoxRef}>
 			<div className="layout horizontal wrap">
 				<div className="bp5-button-group" style={css.buttons}>
