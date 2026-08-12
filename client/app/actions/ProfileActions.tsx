@@ -8,6 +8,7 @@ import * as Alert from '../Alert';
 import * as Paths from '../Paths';
 import Loader from '../Loader';
 import * as ProfileTypes from '../types/ProfileTypes';
+import * as ChartTypes from '../types/ChartTypes';
 import ProfilesStore from '../stores/ProfilesStore';
 import * as MiscUtils from '../utils/MiscUtils';
 import * as RequestUtils from '../utils/RequestUtils';
@@ -331,6 +332,35 @@ export function filter(filt: ProfileTypes.Filter): Promise<void> {
 	});
 
 	return sync();
+}
+
+export function chart(prflId: string, resource: string, period: number,
+		interval: number): Promise<ChartTypes.ProfileData> {
+
+	return new Promise<ChartTypes.ProfileData>((resolve, reject): void => {
+		RequestUtils
+			.get('/profile/' + prflId + '/chart?resource=' + resource +
+				'&period=' + period + '&interval=' + interval)
+			.set('Accept', 'application/json')
+			.end()
+			.then((resp: Request.Response) => {
+				if (resp.status !== 200) {
+					let err = new Errors.ReadError(
+						null, "Profiles: Failed to load profile chart",
+						{body: resp.data})
+					Logger.errorAlert2(err)
+					reject(err)
+					return
+				}
+				resolve(resp.json() as ChartTypes.ProfileData)
+			}, (err) => {
+				err = new Errors.RequestError(err,
+					"Profiles: Chart load error")
+				Logger.errorAlert2(err)
+				reject(err)
+				return
+			})
+	})
 }
 
 export function commit(prfl: ProfileTypes.Profile): Promise<void> {
