@@ -103,6 +103,27 @@ export function toggleVer(): void {
 	}
 }
 
+export function chartColor1(): string {
+	if (theme === 'light') {
+		return 'rgba(0, 0, 0, 0.9)';
+	}
+	return 'rgba(255, 255, 255, 0.9)';
+}
+
+export function chartColor2(): string {
+	if (theme === 'light') {
+		return 'rgba(0, 0, 0, 0.1)';
+	}
+	return 'rgba(255, 255, 255, 0.1)';
+}
+
+export function chartColor3(): string {
+	if (theme === 'light') {
+		return 'rgba(0, 0, 0, 0.4)';
+	}
+	return 'rgba(255, 255, 255, 0.4)';
+}
+
 export function getEditorTheme(): string {
 	if (!editorThemeName) {
 		if (theme === "light") {
