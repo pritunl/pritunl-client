@@ -73,6 +73,20 @@ export function formatAmount(amount: number): string {
 	return '$' + (amount / 100).toFixed(2);
 }
 
+export function formatBytes(bytes: number, decimals = 2): string {
+	if (!bytes) {
+		return '0B';
+	}
+
+	let k = 1024;
+	let dm = decimals < 0 ? 0 : decimals;
+	let sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+	let i = Math.floor(Math.log(bytes) / Math.log(k));
+
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+}
+
 export function formatDate(dateData: any): string {
 	if (!dateData || dateData === '0001-01-01T00:00:00Z') {
 		return '';
