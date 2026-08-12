@@ -86,7 +86,7 @@ export default class MetricCharts extends React.Component<Props, State> {
 
 	periodButton(label: string, period: number): JSX.Element {
 		return <button
-			className={'bp5-button' +
+			className={'bp5-button bp5-small' +
 				(this.state.period === period ? ' bp5-active' : '')}
 			type="button"
 			onClick={(): void => {
