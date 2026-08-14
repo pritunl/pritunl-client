@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -14,7 +17,21 @@ const (
 	certSha1      = "c088a20413edc0fdfe17f5905af624c68a33144c"
 	timestampUrl  = "http://timestamp.digicert.com"
 	innoSetupIscc = "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
+	changesPath   = "CHANGES"
+	changesVerTag = "<%= version %>"
 )
+
+var versionSources = []struct {
+	path string
+	expr string
+}{
+	{changesPath, `(?m)^Version (\S+)`},
+	{"client/package.json", `"version": *"(.*?)"`},
+	{"client/package-lock.json", `"version": *"(.*?)"`},
+	{"service/constants/constants.go", `Version = "(.*?)"`},
+	{"cli/constants/constants.go", `Version = "(.*?)"`},
+	{"resources_win/setup.iss", `MyAppVersion "(.*?)"`},
+}
 
 var signArgs = []string{
 	"sign",
@@ -110,7 +127,53 @@ func writeFuses(app string) {
 	}
 }
 
+func readVersion(path string, expr string) string {
+	data, err := os.ReadFile(filepath.FromSlash(path))
+	if err != nil {
+		panic(err)
+	}
+
+	match := regexp.MustCompile(expr).FindSubmatch(data)
+	if match == nil {
+		panic("build: unable to read version from " + path)
+	}
+
+	return string(match[1])
+}
+
+// The installer version comes from resources_win/setup.iss and the app version
+// from client/package.json, building before builder.py set-version stamps the
+// installer, the app and both Go binaries with the previous release version
+func checkVersion() {
+	changes, err := os.ReadFile(changesPath)
+	if err != nil {
+		panic(err)
+	}
+
+	if bytes.Contains(changes, []byte(changesVerTag)) {
+		panic("build: unreleased version placeholder in CHANGES, run " +
+			"tools/builder.py set-version before building")
+	}
+
+	version := ""
+	for _, source := range versionSources {
+		ver := readVersion(source.path, source.expr)
+
+		if version == "" {
+			version = ver
+		} else if ver != version {
+			panic("build: source tree version mismatch, expected " +
+				version + " but " + source.path + " has " + ver +
+				", run tools/builder.py set-version")
+		}
+	}
+
+	fmt.Println("Building version " + version)
+}
+
 func main() {
+	checkVersion()
+
 	err := os.RemoveAll("build")
 	if err != nil && !os.IsNotExist(err) {
 		panic(err)

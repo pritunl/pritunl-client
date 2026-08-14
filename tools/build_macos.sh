@@ -4,13 +4,46 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 cd ../
 
+# Version is read from the source tree, building before builder.py set-version
+# stamps the package and both Go binaries with the previous release version
+if grep -q "<%= version %>" CHANGES
+then
+    echo "ERROR: unreleased version placeholder in CHANGES, run" \
+        "tools/builder.py set-version before building" >&2
+    exit 1
+fi
+
+APP_VER="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' client/package.json | head -n1)"
+
+if [ -z "$APP_VER" ]
+then
+    echo "ERROR: unable to read version from client/package.json" >&2
+    exit 1
+fi
+
+for ver in \
+    "$(sed -n 's/^Version \([^ ]*\).*/\1/p' CHANGES | head -n1)" \
+    "$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' client/package-lock.json | head -n1)" \
+    "$(sed -n 's/.*Version = "\([^"]*\)".*/\1/p' service/constants/constants.go | head -n1)" \
+    "$(sed -n 's/.*Version = "\([^"]*\)".*/\1/p' cli/constants/constants.go | head -n1)" \
+    "$(sed -n 's/.*MyAppVersion "\([^"]*\)".*/\1/p' resources_win/setup.iss | head -n1)"
+do
+    if [ "$ver" != "$APP_VER" ]
+    then
+        echo "ERROR: source tree version mismatch, client/package.json has" \
+            "$APP_VER but found $ver, run tools/builder.py set-version" >&2
+        exit 1
+    fi
+done
+
+export APP_VER
+echo "Building version $APP_VER"
+
 rm -rf build
 mkdir -p build/resources
 go clean -cache
 
 node -e "fs=require('fs');f='client/package.json';c=fs.readFileSync(f,'utf8');fs.writeFileSync(f,c.replace(/,\s*\"scripts\": \{[^}]*\}/,''))"
-
-export APP_VER="$(cat client/package.json | grep version | cut -d '"' -f 4)"
 
 # Service
 cd service
