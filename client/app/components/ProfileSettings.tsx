@@ -348,6 +348,10 @@ export default class ProfileSettings extends React.Component<Props, State> {
 							value: profile.disable_dns,
 						},
 						{
+							label: 'Disable IPv6',
+							value: profile.disable_ipv6,
+						},
+						{
 							label: 'Data Channel Offload',
 							value: profile.dco,
 						},
@@ -485,6 +489,15 @@ export default class ProfileSettings extends React.Component<Props, State> {
 						checked={!!profile.disable_dns}
 						onToggle={(): void => {
 							this.set("disable_dns", !profile.disable_dns)
+						}}
+					/>
+					<PageSwitch
+						label="Disable IPv6"
+						help="Ignore the IPv6 configuration provided by the server on this profile. Use when the host has IPv6 disabled to prevent connection failures applying IPv6 addresses and routes."
+						hidden={profile.restrict_client}
+						checked={!!profile.disable_ipv6}
+						onToggle={(): void => {
+							this.set("disable_ipv6", !profile.disable_ipv6)
 						}}
 					/>
 					<PageSwitch

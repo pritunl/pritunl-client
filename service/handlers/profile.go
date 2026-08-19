@@ -36,6 +36,7 @@ type profileData struct {
 	DeviceAuth         bool                        `json:"device_auth"`
 	DisableGateway     bool                        `json:"disable_gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
+	DisableIpv6        bool                        `json:"disable_ipv6"`
 	Dco                bool                        `json:"dco"`
 	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
@@ -130,6 +131,7 @@ func profilePost(c *gin.Context) {
 		DeviceAuth:         data.DeviceAuth,
 		DisableGateway:     data.DisableGateway,
 		DisableDns:         data.DisableDns,
+		DisableIpv6:        data.DisableIpv6,
 		Dco:                data.Dco,
 		DebugOutput:        data.DebugOutput,
 		RestrictClient:     data.RestrictClient,

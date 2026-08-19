@@ -273,6 +273,7 @@ export default class ProfileConnect extends React.Component<Props, State> {
 			device_auth: prfl.device_auth,
 			disable_gateway: prfl.disable_gateway,
 			disable_dns: prfl.disable_dns,
+			disable_ipv6: prfl.disable_ipv6,
 			dco: prfl.dco,
 			debug_output: prfl.debug_output,
 			force_dns: prfl.force_dns,

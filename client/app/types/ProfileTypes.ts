@@ -50,6 +50,7 @@ export interface Profile {
 	device_auth?: boolean
 	disable_gateway?: boolean
 	disable_dns?: boolean
+	disable_ipv6?: boolean
 	dco?: boolean
 	debug_output?: boolean
 	force_dns?: boolean
@@ -154,6 +155,7 @@ export interface ProfileData {
 	device_auth?: boolean
 	disable_gateway?: boolean
 	disable_dns?: boolean
+	disable_ipv6?: boolean
 	dco?: boolean
 	debug_output?: boolean
 	restrict_client?: boolean
@@ -458,6 +460,7 @@ export function New(self: Profile): Profile {
 			disable_reconnect_local: this.disable_reconnect_local,
 			disable_gateway: this.disable_gateway,
 			disable_dns: this.disable_dns,
+			disable_ipv6: this.disable_ipv6,
 			dco: this.dco,
 			debug_output: this.debug_output,
 			force_dns: this.force_dns,
@@ -499,6 +502,7 @@ export function New(self: Profile): Profile {
 		this.disable_reconnect_local = data.disable_reconnect_local
 		this.disable_gateway = data.disable_gateway
 		this.disable_dns = data.disable_dns
+		this.disable_ipv6 = data.disable_ipv6
 		this.dco = data.dco
 		this.debug_output = data.debug_output
 		this.force_dns = data.force_dns
@@ -539,6 +543,7 @@ export function New(self: Profile): Profile {
 			device_auth: this.device_auth,
 			disable_gateway: this.disable_gateway,
 			disable_dns: this.disable_dns,
+			disable_ipv6: this.disable_ipv6,
 			dco: this.dco,
 			debug_output: this.debug_output,
 			force_dns: this.force_dns,
@@ -580,6 +585,7 @@ export function New(self: Profile): Profile {
 		this.disable_reconnect_local = data.disable_reconnect_local
 		this.disable_gateway = data.disable_gateway
 		this.disable_dns = data.disable_dns
+		this.disable_ipv6 = data.disable_ipv6
 		this.dco = data.dco
 		this.debug_output = data.debug_output
 		this.sso_auth = data.sso_auth

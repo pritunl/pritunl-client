@@ -141,6 +141,7 @@ func (s *State) SetConnecting() {
 		"device_auth":      s.conn.Profile.DeviceAuth,
 		"disable_gateway":  s.conn.Profile.DisableGateway,
 		"disable_dns":      s.conn.Profile.DisableDns,
+		"disable_ipv6":     s.conn.Profile.DisableIpv6,
 		"dco":              s.conn.Profile.Dco,
 		"debug_output":     s.conn.Profile.DebugOutput,
 		"geo_sort":         s.conn.Profile.GeoSort,
