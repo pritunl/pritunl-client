@@ -64,6 +64,7 @@ type Sprofile struct {
 	DeviceAuth         bool                        `json:"device_auth"`
 	DisableGateway     bool                        `json:"disable_gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
+	DisableIpv6        bool                        `json:"disable_ipv6"`
 	Dco                bool                        `json:"dco"`
 	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
@@ -108,6 +109,7 @@ type SprofileClient struct {
 	DeviceAuth         bool                        `json:"device_auth"`
 	DisableGateway     bool                        `json:"disable_Gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
+	DisableIpv6        bool                        `json:"disable_ipv6"`
 	Dco                bool                        `json:"dco"`
 	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
@@ -155,6 +157,7 @@ func (s *Sprofile) Client() (sprflc *SprofileClient) {
 		DeviceAuth:         s.DeviceAuth,
 		DisableGateway:     s.DisableGateway,
 		DisableDns:         s.DisableDns,
+		DisableIpv6:        s.DisableIpv6,
 		Dco:                s.Dco,
 		DebugOutput:        s.DebugOutput,
 		RestrictClient:     s.RestrictClient,
@@ -217,6 +220,7 @@ func (s *Sprofile) Copy() (sprfl *Sprofile) {
 		DeviceAuth:         s.DeviceAuth,
 		DisableGateway:     s.DisableGateway,
 		DisableDns:         s.DisableDns,
+		DisableIpv6:        s.DisableIpv6,
 		Dco:                s.Dco,
 		DebugOutput:        s.DebugOutput,
 		RestrictClient:     s.RestrictClient,
@@ -402,6 +406,7 @@ func (s *Sprofile) syncUpdate(data string) (updated bool, err error) {
 		s.DeviceAuth = confData.DeviceAuth
 		s.DisableGateway = confData.DisableGateway
 		s.DisableDns = confData.DisableDns
+		s.DisableIpv6 = confData.DisableIpv6
 		s.Dco = confData.Dco
 		s.DebugOutput = confData.DebugOutput
 		s.RestrictClient = confData.RestrictClient

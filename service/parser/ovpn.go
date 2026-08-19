@@ -72,6 +72,7 @@ type Ovpn struct {
 
 	DisableGateway bool
 	DisableDns     bool
+	DisableIpv6    bool
 	Dco            bool
 }
 
@@ -182,6 +183,14 @@ func (o *Ovpn) Export(chown string) string {
 		output += "pull-filter ignore \"route-ipv6 2000::/3\"\n"
 	}
 
+	if o.DisableIpv6 {
+		output += "pull-filter ignore \"ifconfig-ipv6\"\n"
+		output += "pull-filter ignore \"route-ipv6\"\n"
+		output += "pull-filter ignore \"redirect-gateway ipv6\"\n"
+		output += "pull-filter ignore \"redirect-gateway-ipv6\"\n"
+		output += "pull-filter ignore \"tun-ipv6\"\n"
+	}
+
 	if o.DisableDns {
 		output += "pull-filter ignore \"dhcp-option\"\n"
 	}
@@ -234,11 +243,12 @@ func (o *Ovpn) Export(chown string) string {
 }
 
 func Import(data string, remotes []Remote,
-	disableGateway, disableDns, dco, debugOutput bool) (o *Ovpn) {
+	disableGateway, disableDns, disableIpv6, dco, debugOutput bool) (o *Ovpn) {
 
 	o = &Ovpn{
 		DisableGateway: disableGateway,
 		DisableDns:     disableDns,
+		DisableIpv6:    disableIpv6,
 		Dco:            dco,
 	}
 

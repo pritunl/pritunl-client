@@ -30,6 +30,7 @@ type Profile struct {
 	DeviceAuth         bool                        `json:"device_auth"`
 	DisableGateway     bool                        `json:"disable_gateway"`
 	DisableDns         bool                        `json:"disable_dns"`
+	DisableIpv6        bool                        `json:"disable_ipv6"`
 	Dco                bool                        `json:"dco"`
 	DebugOutput        bool                        `json:"debug_output"`
 	RestrictClient     bool                        `json:"restrict_client"`
@@ -52,6 +53,7 @@ func (p *Profile) Fields() logrus.Fields {
 		"profile_device_auth":      p.DeviceAuth,
 		"profile_disable_gateway":  p.DisableGateway,
 		"profile_disable_dns":      p.DisableDns,
+		"profile_disable_ipv6":     p.DisableIpv6,
 		"profile_dco":              p.Dco,
 		"profile_geo_sort":         p.IsGeoSort(),
 		"profile_force_connect":    p.ForceConnect,
@@ -126,6 +128,7 @@ func (p *Profile) ImportSystemProfile(sprfl *sprofile.Sprofile) {
 	p.DeviceAuth = sprfl.DeviceAuth
 	p.DisableGateway = sprfl.DisableGateway
 	p.DisableDns = sprfl.DisableDns
+	p.DisableIpv6 = sprfl.DisableIpv6
 	p.Dco = sprfl.Dco
 	p.DebugOutput = sprfl.DebugOutput
 	p.RestrictClient = sprfl.RestrictClient

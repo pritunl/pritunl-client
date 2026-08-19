@@ -198,6 +198,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 		o.remotes,
 		o.conn.Profile.DisableGateway,
 		o.conn.Profile.DisableDns,
+		o.conn.Profile.DisableIpv6,
 		o.conn.Profile.Dco,
 		o.conn.Profile.DebugOutput,
 	)
