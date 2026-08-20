@@ -66,6 +66,7 @@ func Register(engine *gin.Engine) {
 	engine.POST("/reset_enclave", resetEnclave)
 	engine.GET("/profile", profilesGet)
 	engine.GET("/profile/:profile_id", profileGet)
+	engine.GET("/profile/:profile_id/chart", chartGet)
 	engine.POST("/profile", profilePost)
 	engine.DELETE("/profile", profileDel)
 	engine.DELETE("/profile/:profile_id", profileDel2)
