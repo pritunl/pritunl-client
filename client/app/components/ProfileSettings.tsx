@@ -494,7 +494,7 @@ export default class ProfileSettings extends React.Component<Props, State> {
 					<PageSwitch
 						label="Disable IPv6"
 						help="Ignore the IPv6 configuration provided by the server on this profile. Use when the host has IPv6 disabled to prevent connection failures applying IPv6 addresses and routes."
-						hidden={profile.restrict_client}
+						hidden={profile.restrict_client && !profile.disable_ipv6}
 						checked={!!profile.disable_ipv6}
 						onToggle={(): void => {
 							this.set("disable_ipv6", !profile.disable_ipv6)
