@@ -6676,588 +6676,6 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
 
 /***/ },
 
-/***/ "./app/components/MetricChart.js"
-/*!***************************************!*\
-  !*** ./app/components/MetricChart.js ***!
-  \***************************************/
-(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ MetricChart)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var chart_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! chart.js */ "./node_modules/chart.js/dist/chart.js");
-/* harmony import */ var _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/ProfileActions */ "./app/actions/ProfileActions.js");
-/* harmony import */ var _types_ChartTypes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../types/ChartTypes */ "./app/types/ChartTypes.js");
-/* harmony import */ var _utils_MiscUtils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/MiscUtils */ "./app/utils/MiscUtils.js");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./app/Theme.js");
-
-
-
-
-
-
-const baseColors = [
-    '#0091ea',
-    '#d50000',
-    '#00c853',
-    '#aa00ff',
-    '#ffab00',
-    '#c51162',
-    '#2962ff',
-    '#ff6d00',
-    '#00bfa5',
-    '#304ffe',
-    '#00b8d4',
-    '#6200ea',
-    '#ffd600',
-    '#dd2c00',
-    '#5d4037',
-    '#455a64',
-    '#64dd17',
-    '#aeea00',
-];
-const colors = [];
-for (let i = 0; i < 24; i++) {
-    colors.push(...baseColors);
-}
-class MetricChart extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
-    constructor(props, context) {
-        super(props, context);
-        this.ticks = (axis) => {
-            let ticks = axis.ticks;
-            let newTicks = [];
-            let dataset = Object.values(this.data)[0];
-            let tickMod = 3600000;
-            let len = dataset.length;
-            if (len) {
-                let first = dataset[0];
-                let last = dataset[len - 1];
-                let range = last.x - first.x;
-                if (range >= 2833920000) {
-                    tickMod = 604800000;
-                }
-                else if (range >= 1451520000) {
-                    tickMod = 172800000;
-                }
-                else if (range >= 611280000) {
-                    tickMod = 86400000;
-                }
-                else if (range >= 276480000) {
-                    tickMod = 43200000;
-                }
-                else if (range >= 89280000) {
-                    tickMod = 21600000;
-                }
-                else if (range >= 10800000) {
-                    tickMod = 3600000;
-                }
-                else {
-                    tickMod = 600000;
-                }
-            }
-            for (let i = 0; i < ticks.length; i++) {
-                let tick = ticks[i];
-                if (tick.value % tickMod === 0) {
-                    newTicks.push(tick);
-                }
-            }
-            axis.ticks = newTicks;
-        };
-        this.config = () => {
-            this.labels = _types_ChartTypes__WEBPACK_IMPORTED_MODULE_3__.getChartLabels(this.props.resource, this.data);
-            let self = this;
-            let config = {
-                type: 'line',
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            title: {
-                                display: true,
-                                text: 'Time',
-                                color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor1(),
-                                padding: 0,
-                                font: {
-                                    weight: 'bold',
-                                },
-                            },
-                            time: {
-                                unit: 'minute',
-                                displayFormats: {
-                                    minute: 'HH:mm',
-                                },
-                            },
-                            ticks: {
-                                stepSize: 1,
-                                count: 100,
-                                maxTicksLimit: 100,
-                                color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor1(),
-                                source: 'data',
-                            },
-                            grid: {
-                                color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor2(),
-                            },
-                            beforeTickToLabelConversion: this.ticks,
-                        },
-                        y: {
-                            min: this.labels.resource_min,
-                            max: this.labels.resource_max,
-                            offset: false,
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: this.labels.resource_label,
-                                color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor1(),
-                                padding: 0,
-                                font: {
-                                    weight: 'bold',
-                                },
-                            },
-                            ticks: {
-                                color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor1(),
-                                callback: (val) => {
-                                    switch (this.labels.resource_type) {
-                                        case 'bytes':
-                                            return _utils_MiscUtils__WEBPACK_IMPORTED_MODULE_4__.formatBytes(val, 0);
-                                        default:
-                                            return val;
-                                    }
-                                }
-                            },
-                            grid: {
-                                color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor2(),
-                            },
-                        },
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: this.labels.title,
-                            color: _Theme__WEBPACK_IMPORTED_MODULE_5__.chartColor1(),
-                            padding: 3,
-                            font: {
-                                size: 13,
-                            },
-                        },
-                        tooltip: {
-                            enabled: false,
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                            external: (context) => {
-                                let toolElm = document.getElementById('chartjs-tooltip');
-                                if (!toolElm) {
-                                    toolElm = document.createElement('div');
-                                    toolElm.id = 'chartjs-tooltip';
-                                    toolElm.className = 'bp5-card';
-                                    toolElm.innerHTML = '<table class="bp5-html-table ' +
-                                        'bp5-html-table-bordered bp5-html-table-striped ' +
-                                        'bp5-small"></table>';
-                                    document.body.appendChild(toolElm);
-                                }
-                                const model = context.tooltip;
-                                if (model.opacity === 0) {
-                                    toolElm.style.opacity = '0';
-                                    return;
-                                }
-                                function getBody(bodyItem) {
-                                    return bodyItem.lines;
-                                }
-                                let boxRect = this.props.getBoxRect();
-                                let boxBottom = boxRect.bottom + window.pageYOffset;
-                                let boxTop = boxRect.top + window.pageYOffset + 130;
-                                let rowCount = 0;
-                                let height = 0;
-                                if (model.body) {
-                                    const titleLines = model.title || [];
-                                    const bodyLines = model.body.map(getBody);
-                                    let innerHtml = '<thead>';
-                                    titleLines.forEach(function (title) {
-                                        innerHtml += '<tr><th colspan="2">' + title + '</th></tr>';
-                                    });
-                                    innerHtml += '</thead><tbody>';
-                                    let tableRows = [];
-                                    bodyLines.forEach(function (body, i) {
-                                        if (!body || !body.length) {
-                                            return;
-                                        }
-                                        let items = body[0].split(';');
-                                        if (items.length < 2) {
-                                            return;
-                                        }
-                                        const colors = model.labelColors[i];
-                                        let style = 'background:' + colors.backgroundColor;
-                                        style += '; border-color:' + colors.borderColor;
-                                        const span = '<span style="' + style + '"></span>';
-                                        tableRows.push('<td class="line-box">' + span + items[0] +
-                                            '</td><td>' + items[1] + '</td>');
-                                        rowCount += 1;
-                                    });
-                                    height = 26.33 + (rowCount * 17.33);
-                                    let double = false;
-                                    let curRow = '';
-                                    let curTime = Math.round(Date.now() / 1000);
-                                    if (curTime - this.lastDouble < 60 &&
-                                        height > (boxRect.height - 280)) {
-                                        double = true;
-                                        this.lastDouble = curTime;
-                                    }
-                                    else if (height > (boxRect.height - 130)) {
-                                        double = true;
-                                        this.lastDouble = curTime;
-                                    }
-                                    rowCount = 0;
-                                    tableRows.forEach(function (columns, i) {
-                                        if (double && !curRow) {
-                                            curRow = columns;
-                                        }
-                                        else {
-                                            innerHtml += '<tr>' + curRow + columns + '</tr>';
-                                            curRow = '';
-                                            rowCount += 1;
-                                        }
-                                    });
-                                    if (curRow) {
-                                        innerHtml += '<tr>' + curRow + '</tr>';
-                                        curRow = '';
-                                        rowCount += 1;
-                                    }
-                                    height = 26.33 + (rowCount * 17.33);
-                                    innerHtml += '</tbody>';
-                                    let tableRoot = toolElm.querySelector('table');
-                                    tableRoot.innerHTML = innerHtml;
-                                }
-                                toolElm = document.getElementById('chartjs-tooltip');
-                                const position = context.chart.canvas.getBoundingClientRect();
-                                toolElm.style.opacity = '1';
-                                toolElm.style.position = 'absolute';
-                                if (this.props.left) {
-                                    toolElm.style.right = "";
-                                    toolElm.style.left = (document.body.offsetWidth -
-                                        position.right + window.pageXOffset - 18) + 'px';
-                                }
-                                else {
-                                    toolElm.style.left = "";
-                                    toolElm.style.right = (document.body.offsetWidth -
-                                        position.left + window.pageXOffset + 3) + 'px';
-                                }
-                                let toolTop = Math.round(position.top + (position.height / 2) -
-                                    (height / 2) + window.pageYOffset);
-                                if (height > (boxRect.height - 130)) {
-                                    toolTop = Math.round(boxRect.top + (boxRect.height / 2) -
-                                        (height / 2) + window.pageYOffset);
-                                }
-                                else if (toolTop < boxTop) {
-                                    toolTop = boxTop;
-                                }
-                                else if ((toolTop + height) > boxBottom) {
-                                    toolTop = boxBottom - height;
-                                }
-                                toolElm.style.top = toolTop + 'px';
-                                toolElm.style.pointerEvents = 'none';
-                            },
-                            callbacks: {
-                                label(item) {
-                                    let raw = item.raw;
-                                    if (self.labels.hide_zero && !raw.y) {
-                                        return '';
-                                    }
-                                    let val = '';
-                                    if (raw) {
-                                        switch (self.labels.resource_type) {
-                                            case 'bytes':
-                                                val = _utils_MiscUtils__WEBPACK_IMPORTED_MODULE_4__.formatBytes(raw.y, self.labels.resource_fixed);
-                                                break;
-                                            case 'float':
-                                                val = raw.y.toFixed(self.labels.resource_fixed);
-                                                break;
-                                            default:
-                                                val = raw.y;
-                                        }
-                                    }
-                                    let dataset = item.dataset;
-                                    return dataset.label + ';' + val +
-                                        self.labels.resource_suffix;
-                                },
-                            },
-                        },
-                    },
-                },
-                data: {
-                    datasets: [],
-                },
-            };
-            let data = _types_ChartTypes__WEBPACK_IMPORTED_MODULE_3__.getChartData(this.props.resource, this.data);
-            for (let i = 0; i < this.labels.datasets.length; i++) {
-                let datasetLabels = this.labels.datasets[i];
-                config.data.datasets.push({
-                    label: datasetLabels.label,
-                    data: data[i],
-                    fill: 'origin',
-                    pointRadius: 0,
-                    backgroundColor: colors[i] + '15',
-                    borderColor: colors[i],
-                    borderWidth: 2,
-                });
-            }
-            return config;
-        };
-        this.state = {
-            hidden: false,
-            disabled: false,
-        };
-        this.chartRef = react__WEBPACK_IMPORTED_MODULE_0__.createRef();
-    }
-    loadChart() {
-        return _actions_ProfileActions__WEBPACK_IMPORTED_MODULE_2__.chart(this.props.profile, this.props.resource, this.period, this.interval);
-    }
-    update(sync, period, interval) {
-        this.sync = sync;
-        this.period = period;
-        this.interval = interval;
-        let loading = true;
-        this.props.onLoading();
-        this.loadChart().then((data) => {
-            if (loading) {
-                loading = false;
-                this.props.onLoaded();
-            }
-            if (data && data.has_data && data.data) {
-                if (this.state.hidden) {
-                    this.setState({
-                        ...this.state,
-                        hidden: false,
-                    });
-                }
-                this.data = data.data;
-                if (this.chart) {
-                    this.updateChart();
-                }
-                else {
-                    this.chart = new chart_js__WEBPACK_IMPORTED_MODULE_1__.Chart(this.chartRef.current, this.config());
-                }
-            }
-            else {
-                if (!this.state.hidden) {
-                    this.setState({
-                        ...this.state,
-                        hidden: true,
-                    });
-                }
-            }
-        }).catch(() => {
-            if (loading) {
-                loading = false;
-                this.props.onLoaded();
-            }
-        });
-    }
-    updateChart() {
-        try {
-            this.labels = _types_ChartTypes__WEBPACK_IMPORTED_MODULE_3__.getChartLabels(this.props.resource, this.data);
-            let data = _types_ChartTypes__WEBPACK_IMPORTED_MODULE_3__.getChartData(this.props.resource, this.data);
-            let dataLen = data.length;
-            let datasetsLen = this.chart.data.datasets.length;
-            for (let i = 0; i < Math.min(dataLen, datasetsLen); i++) {
-                this.chart.data.datasets[i].label = this.labels.datasets[i].label;
-                this.chart.data.datasets[i].data = data[i];
-            }
-            if (dataLen > datasetsLen) {
-                for (let i = datasetsLen; i < dataLen; i++) {
-                    this.chart.data.datasets.push({
-                        label: this.labels.datasets[i].label,
-                        data: data[i],
-                        fill: 'origin',
-                        pointRadius: 0,
-                        backgroundColor: colors[i] + '15',
-                        borderColor: colors[i],
-                        borderWidth: 2,
-                    });
-                }
-            }
-            else if (datasetsLen > dataLen) {
-                for (let i = 0; i < datasetsLen - dataLen; i++) {
-                    this.chart.data.datasets.pop();
-                }
-            }
-            this.chart.update();
-        }
-        catch (error) {
-            console.error(error);
-        }
-    }
-    componentDidMount() {
-        this.sync = this.props.sync;
-        this.period = this.props.period;
-        this.interval = this.props.interval;
-        let loading = true;
-        this.props.onLoading();
-        this.loadChart().then((data) => {
-            if (loading) {
-                loading = false;
-                this.props.onLoaded();
-            }
-            if (data && data.has_data && data.data) {
-                if (this.state.hidden) {
-                    this.setState({
-                        ...this.state,
-                        hidden: false,
-                    });
-                }
-                this.data = data.data;
-                this.chart = new chart_js__WEBPACK_IMPORTED_MODULE_1__.Chart(this.chartRef.current, this.config());
-            }
-            else {
-                if (!this.state.hidden) {
-                    this.setState({
-                        ...this.state,
-                        hidden: true,
-                    });
-                }
-            }
-        }).catch(() => {
-            if (loading) {
-                loading = false;
-                this.props.onLoaded();
-            }
-        });
-    }
-    componentWillUnmount() {
-        if (this.chart) {
-            this.chart.destroy();
-        }
-    }
-    render() {
-        if ((this.sync !== undefined && this.period !== undefined &&
-            this.interval !== undefined) &&
-            (this.props.sync !== this.sync ||
-                this.props.period !== this.period ||
-                this.props.interval !== this.interval)) {
-            this.update(this.props.sync, this.props.period, this.props.interval);
-        }
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("canvas", { hidden: this.state.hidden, ref: this.chartRef });
-    }
-}
-
-
-/***/ },
-
-/***/ "./app/components/MetricCharts.js"
-/*!****************************************!*\
-  !*** ./app/components/MetricCharts.js ***!
-  \****************************************/
-(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ MetricCharts)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _MetricChart__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MetricChart */ "./app/components/MetricChart.js");
-
-
-const css = {
-    buttons: {
-        marginTop: '8px',
-    },
-    button: {
-        margin: '8px 0 0 8px',
-    },
-    chartGroup: {
-        flex: 1,
-        minWidth: '250px',
-        margin: '0 10px',
-        marginBottom: '5px',
-        marginTop: '10px',
-    },
-};
-class MetricCharts extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            sync: 0,
-            period: 1440,
-            interval: 30,
-            loading: {},
-        };
-        this.chartBoxRef = react__WEBPACK_IMPORTED_MODULE_0__.createRef();
-    }
-    getDefaultInterval(period) {
-        switch (period) {
-            case 60:
-                return 1;
-            case 720:
-                return 15;
-            case 1440:
-                return 30;
-            case 4320:
-                return 60;
-            default:
-                return 30;
-        }
-    }
-    setLoading(resource) {
-        let loading = {
-            ...this.state.loading,
-        };
-        loading[resource] = true;
-        this.setState({
-            ...this.state,
-            loading: loading,
-        });
-    }
-    setLoaded(resource) {
-        let loading = {
-            ...this.state.loading,
-        };
-        delete loading[resource];
-        this.setState({
-            ...this.state,
-            loading: loading,
-        });
-    }
-    periodButton(label, period) {
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: 'bp5-button bp5-small' +
-                (this.state.period === period ? ' bp5-active' : ''), type: "button", onClick: () => {
-                this.setState({
-                    ...this.state,
-                    period: period,
-                    interval: this.getDefaultInterval(period),
-                });
-            } }, label);
-    }
-    render() {
-        if (this.props.disabled) {
-            return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null);
-        }
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { ref: this.chartBoxRef },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal wrap center-justified" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-button-group", style: css.buttons },
-                    this.periodButton('1 Hours', 60),
-                    this.periodButton('12 Hours', 720),
-                    this.periodButton('24 Hours', 1440),
-                    this.periodButton('3 Days', 4320))),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal wrap" },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.chartGroup },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_MetricChart__WEBPACK_IMPORTED_MODULE_1__["default"], { profile: this.props.profile, resource: 'bandwidth', sync: this.state.sync, period: this.state.period, interval: this.state.interval, left: true, onLoading: () => {
-                            this.setLoading('bandwidth');
-                        }, onLoaded: () => {
-                            this.setLoaded('bandwidth');
-                        }, getBoxRect: () => {
-                            return this.chartBoxRef.current.getBoundingClientRect();
-                        } }))));
-    }
-}
-
-
-/***/ },
-
 /***/ "./app/components/PageInfo.js"
 /*!************************************!*\
   !*** ./app/components/PageInfo.js ***!
@@ -7595,8 +7013,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PageInfo */ "./app/components/PageInfo.js");
 /* harmony import */ var _ProfileConnect__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ProfileConnect */ "./app/components/ProfileConnect.js");
 /* harmony import */ var _ProfileSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ProfileSettings */ "./app/components/ProfileSettings.js");
-/* harmony import */ var _MetricCharts__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./MetricCharts */ "./app/components/MetricCharts.js");
-
 
 
 
@@ -7856,7 +7272,6 @@ class Profile extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInfo__WEBPACK_IMPORTED_MODULE_4__["default"], { style: css.label, fields: fieldsRight })),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageInfo__WEBPACK_IMPORTED_MODULE_4__["default"], { style: css.labelLast, hidden: !longIp, fields: fieldsLong }),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.message, hidden: !this.state.message }, this.state.message),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_MetricCharts__WEBPACK_IMPORTED_MODULE_7__["default"], { profile: profile.id, disabled: this.props.minimal && !open }),
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.buttons },
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ProfileConnect__WEBPACK_IMPORTED_MODULE_5__["default"], { profile: this.props.profile }),
@@ -8172,6 +7587,7 @@ class ProfileConnect extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             device_auth: prfl.device_auth,
             disable_gateway: prfl.disable_gateway,
             disable_dns: prfl.disable_dns,
+            disable_ipv6: prfl.disable_ipv6,
             dco: prfl.dco,
             debug_output: prfl.debug_output,
             force_dns: prfl.force_dns,
@@ -8970,6 +8386,10 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                             value: profile.disable_dns,
                         },
                         {
+                            label: 'Disable IPv6',
+                            value: profile.disable_ipv6,
+                        },
+                        {
                             label: 'Data Channel Offload',
                             value: profile.dco,
                         },
@@ -9051,6 +8471,9 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                         } }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Disable DNS", help: "Disable configuring the DNS configuration provided by the server on this profile.", hidden: profile.restrict_client, checked: !!profile.disable_dns, onToggle: () => {
                             this.set("disable_dns", !profile.disable_dns);
+                        } }),
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Disable IPv6", help: "Ignore the IPv6 configuration provided by the server on this profile. Use when the host has IPv6 disabled to prevent connection failures applying IPv6 addresses and routes.", hidden: profile.restrict_client && !profile.disable_ipv6, checked: !!profile.disable_ipv6, onToggle: () => {
+                            this.set("disable_ipv6", !profile.disable_ipv6);
                         } }),
                     react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Data Channel Offload", help: "Enable Data Channel Offload for improved performance. Requires server support and configuration changes.", hidden: profile.restrict_client, checked: !!profile.dco, onToggle: () => {
                             this.set("dco", !profile.dco);
@@ -9979,68 +9402,6 @@ class ZerosStore extends _EventEmitter__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
 /***/ },
 
-/***/ "./app/types/ChartTypes.js"
-/*!*********************************!*\
-  !*** ./app/types/ChartTypes.js ***!
-  \*********************************/
-(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   getChartData: () => (/* binding */ getChartData),
-/* harmony export */   getChartLabels: () => (/* binding */ getChartLabels)
-/* harmony export */ });
-function getChartLabels(resource, data) {
-    switch (resource) {
-        case 'bandwidth':
-            let bandwidthData = data;
-            let bandwidthDatasets = [];
-            for (let key of Object.keys(bandwidthData).sort()) {
-                let label = '';
-                switch (key) {
-                    case 'bs':
-                        label = 'Transmitted';
-                        break;
-                    case 'br':
-                        label = 'Received';
-                        break;
-                    default:
-                        label = 'Unknown';
-                }
-                bandwidthDatasets.push({
-                    label: label,
-                });
-            }
-            return {
-                title: 'Bandwidth',
-                resource_label: 'Traffic',
-                resource_type: 'bytes',
-                resource_suffix: '',
-                resource_fixed: 2,
-                resource_min: 0,
-                hide_zero: true,
-                datasets: bandwidthDatasets,
-            };
-    }
-    return undefined;
-}
-function getChartData(resource, data) {
-    switch (resource) {
-        case 'bandwidth':
-            let bandwidthData = data;
-            let bandwidthChart = [];
-            for (let key of Object.keys(bandwidthData).sort()) {
-                bandwidthChart.push(bandwidthData[key]);
-            }
-            return bandwidthChart;
-    }
-    return undefined;
-}
-
-
-/***/ },
-
 /***/ "./app/types/ConfigTypes.js"
 /*!**********************************!*\
   !*** ./app/types/ConfigTypes.js ***!
@@ -10376,6 +9737,7 @@ function New(self) {
             disable_reconnect_local: this.disable_reconnect_local,
             disable_gateway: this.disable_gateway,
             disable_dns: this.disable_dns,
+            disable_ipv6: this.disable_ipv6,
             dco: this.dco,
             debug_output: this.debug_output,
             force_dns: this.force_dns,
@@ -10416,6 +9778,7 @@ function New(self) {
         this.disable_reconnect_local = data.disable_reconnect_local;
         this.disable_gateway = data.disable_gateway;
         this.disable_dns = data.disable_dns;
+        this.disable_ipv6 = data.disable_ipv6;
         this.dco = data.dco;
         this.debug_output = data.debug_output;
         this.force_dns = data.force_dns;
@@ -10455,6 +9818,7 @@ function New(self) {
             device_auth: this.device_auth,
             disable_gateway: this.disable_gateway,
             disable_dns: this.disable_dns,
+            disable_ipv6: this.disable_ipv6,
             dco: this.dco,
             debug_output: this.debug_output,
             force_dns: this.force_dns,
@@ -10495,6 +9859,7 @@ function New(self) {
         this.disable_reconnect_local = data.disable_reconnect_local;
         this.disable_gateway = data.disable_gateway;
         this.disable_dns = data.disable_dns;
+        this.disable_ipv6 = data.disable_ipv6;
         this.dco = data.dco;
         this.debug_output = data.debug_output;
         this.sso_auth = data.sso_auth;
