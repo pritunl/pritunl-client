@@ -14,6 +14,7 @@ sudo launchctl bootout system/com.pritunl.service &> /dev/null || true
 
 # Pritunl
 sudo rm -rf /Applications/Pritunl.app
+sudo rm -rf /Library/PrivilegedHelperTools/pritunl-client
 sudo rm -f /Library/LaunchAgents/com.pritunl.client.plist
 sudo rm -f /Library/LaunchDaemons/com.pritunl.service.plist
 sudo rm -f /private/var/db/receipts/com.pritunl.pkg.Pritunl.bom

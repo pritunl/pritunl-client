@@ -76,6 +76,14 @@ rm -rf build/macos/Applications/Pritunl-darwin-universal
 mkdir -p build/macos/Library/LaunchDaemons
 cp service_macos/com.pritunl.service.plist build/macos/Library/LaunchDaemons
 
+# Privileged Helper Tools
+HELPER_DIR=build/macos/Library/PrivilegedHelperTools/pritunl-client
+mkdir -p "$HELPER_DIR"
+for f in pritunl-service pritunl-openvpn bash wg wg-quick wireguard-go; do
+  cp "build/resources/$f" "$HELPER_DIR/$f"
+  chmod 0755 "$HELPER_DIR/$f"
+done
+
 # Preinstall
 echo "###################################################"
 echo "Preinstall: Stopping pritunl service..."
@@ -91,6 +99,11 @@ echo "Installing..."
 echo "###################################################"
 sudo rm -rf /Applications/Pritunl.app
 sudo cp -r build/macos/Applications/Pritunl.app /Applications
+sudo rm -rf /Library/PrivilegedHelperTools/pritunl-client
+sudo mkdir -p /Library/PrivilegedHelperTools
+sudo cp -r build/macos/Library/PrivilegedHelperTools/pritunl-client /Library/PrivilegedHelperTools/pritunl-client
+sudo chown -R root:wheel /Library/PrivilegedHelperTools/pritunl-client
+sudo chmod 0755 /Library/PrivilegedHelperTools /Library/PrivilegedHelperTools/pritunl-client
 sudo cp -f build/macos/Library/LaunchDaemons/com.pritunl.service.plist /Library/LaunchDaemons/com.pritunl.service.plist
 
 # Postinstall
