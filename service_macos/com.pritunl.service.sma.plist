@@ -4,16 +4,16 @@
 <dict>
 	<key>Label</key>
 	<string>com.pritunl.service</string>
-	<key>BundleProgram</key>
-	<string>Contents/Resources/pritunl-service</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Library/PrivilegedHelperTools/pritunl-client/pritunl-service</string>
+	</array>
 	<key>AssociatedBundleIdentifiers</key>
 	<array>
 		<string>com.electron.pritunl</string>
 	</array>
 	<key>KeepAlive</key>
 	<true/>
-	<key>Umask</key>
-	<integer>0</integer>
 	<key>ExitTimeOut</key>
 	<integer>10</integer>
 </dict>

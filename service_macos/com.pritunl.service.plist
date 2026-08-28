@@ -6,12 +6,10 @@
 	<string>com.pritunl.service</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Applications/Pritunl.app/Contents/Resources/pritunl-service</string>
+		<string>/Library/PrivilegedHelperTools/pritunl-client/pritunl-service</string>
 	</array>
 	<key>KeepAlive</key>
 	<true/>
-	<key>Umask</key>
-	<integer>0</integer>
 	<key>ExitTimeOut</key>
 	<integer>10</integer>
 </dict>
