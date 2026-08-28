@@ -20,8 +20,7 @@ func GetBashPath() string {
 				"wireguard_macos", "bash")
 		}
 
-		return filepath.Join(string(os.PathSeparator), "Applications",
-			"Pritunl.app", "Contents", "Resources", "bash")
+		return filepath.Join(constants.MacosHelperDir, "bash")
 	case "linux":
 		break
 	case "windows":
@@ -43,8 +42,7 @@ func GetWgPath() string {
 				"wireguard_macos", "wg")
 		}
 
-		return filepath.Join(string(os.PathSeparator), "Applications",
-			"Pritunl.app", "Contents", "Resources", "wg")
+		return filepath.Join(constants.MacosHelperDir, "wg")
 	case "linux":
 		path, _ := exec.LookPath("wg")
 		if path != "" {
@@ -69,8 +67,7 @@ func GetWgQuickPath() string {
 				"wireguard_macos", "wg-quick")
 		}
 
-		return filepath.Join(string(os.PathSeparator), "Applications",
-			"Pritunl.app", "Contents", "Resources", "wg-quick")
+		return filepath.Join(constants.MacosHelperDir, "wg-quick")
 	case "linux":
 		path := filepath.Join(string(os.PathSeparator),
 			"usr", "bin", "wg-quick")
@@ -233,11 +230,9 @@ func GetOvpnPath() (pth string) {
 		break
 	case "darwin":
 		if constants.Macos10 {
-			pth = filepath.Join(string(os.PathSeparator), "Applications",
-				"Pritunl.app", "Contents", "Resources", "pritunl-openvpn10")
+			pth = filepath.Join(constants.MacosHelperDir, "pritunl-openvpn10")
 		} else {
-			pth = filepath.Join(string(os.PathSeparator), "Applications",
-				"Pritunl.app", "Contents", "Resources", "pritunl-openvpn")
+			pth = filepath.Join(constants.MacosHelperDir, "pritunl-openvpn")
 		}
 		break
 	case "linux":
