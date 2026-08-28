@@ -41,7 +41,7 @@ die() {
 
 [[ ${BASH_VERSINFO[0]} -ge 4 ]] || die "Version mismatch: bash ${BASH_VERSINFO[0]} detected, when bash 4+ required"
 
-CONFIG_SEARCH_PATHS=( /etc/wireguard /usr/local/etc/wireguard )
+CONFIG_SEARCH_PATHS=( /etc/wireguard )
 
 parse_options() {
 	local interface_section=0 line key value stripped path v
