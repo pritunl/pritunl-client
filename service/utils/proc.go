@@ -380,6 +380,63 @@ func ExecCombinedOutputLogged(ignores []string, name string, arg ...string) (
 	return
 }
 
+func ExecCombinedOutputEnv(env []string, name string, arg ...string) (
+	output string, err error) {
+
+	cmd := command.Command(name, arg...)
+	cmd.Env = env
+
+	outputByt, err := cmd.CombinedOutput()
+	if outputByt != nil {
+		output = string(outputByt)
+	}
+	if err != nil {
+		err = &errortypes.ExecError{
+			errors.Wrapf(err, "utils: Failed to exec '%s'", name),
+		}
+		return
+	}
+
+	return
+}
+
+func ExecCombinedOutputLoggedEnv(ignores []string, env []string,
+	name string, arg ...string) (output string, err error) {
+
+	cmd := command.Command(name, arg...)
+	cmd.Env = env
+
+	outputByt, err := cmd.CombinedOutput()
+	if outputByt != nil {
+		output = string(outputByt)
+	}
+
+	if err != nil && ignores != nil {
+		for _, ignore := range ignores {
+			if strings.Contains(output, ignore) {
+				err = nil
+				output = ""
+				break
+			}
+		}
+	}
+	if err != nil {
+		err = &errortypes.ExecError{
+			errors.Wrapf(err, "utils: Failed to exec '%s'", name),
+		}
+
+		logrus.WithFields(logrus.Fields{
+			"output": output,
+			"cmd":    name,
+			"arg":    arg,
+			"error":  err,
+		}).Error("utils: Process exec error")
+		return
+	}
+
+	return
+}
+
 func ExecWaitTimeout(proc *os.Process, timeout time.Duration) {
 	defer func() {
 		panc := recover()
