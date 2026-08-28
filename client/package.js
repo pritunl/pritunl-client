@@ -16,14 +16,7 @@ async function packageApp() {
       icon: './www/img/pritunl.icns',
       darwinDarkModeSupport: true,
       extraResource: [
-        '../build/resources/pritunl-service',
         '../build/resources/pritunl-client',
-        '../build/resources/pritunl-openvpn',
-        '../build/resources/pritunl-openvpn10',
-        '../build/resources/bash',
-        '../build/resources/wg',
-        '../build/resources/wg-quick',
-        '../build/resources/wireguard-go',
         '../build/resources/Pritunl Device Authentication',
       ],
       osxUniversal: {
