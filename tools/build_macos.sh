@@ -96,6 +96,14 @@ npx @electron/fuses read --app build/macos/Applications/Pritunl.app
 mkdir -p build/macos/Library/LaunchDaemons
 cp service_macos/com.pritunl.service.plist build/macos/Library/LaunchDaemons
 
+HELPER_DIR=build/macos/Library/PrivilegedHelperTools/pritunl-client
+mkdir -p "$HELPER_DIR"
+for f in pritunl-service pritunl-openvpn pritunl-openvpn10 bash wg wg-quick wireguard-go; do
+  cp "build/resources/$f" "$HELPER_DIR/$f"
+  chmod 0755 "$HELPER_DIR/$f"
+done
+chmod 0755 build/macos/Library/PrivilegedHelperTools "$HELPER_DIR"
+
 # Package
 find build/macos -type f -exec xattr -c {} \;
 xattr -c resources_macos/scripts/postinstall
@@ -103,7 +111,25 @@ chmod +x resources_macos/scripts/postinstall
 xattr -c resources_macos/scripts/preinstall
 chmod +x resources_macos/scripts/preinstall
 cd build
-pkgbuild --root macos --scripts ../resources_macos/scripts --sign "Developer ID Installer: Pritunl, Inc. (U22BLATN63)" --identifier com.pritunl.pkg.Pritunl --version $APP_VER --ownership recommended --install-location / Build.pkg
+pkgbuild --analyze --root macos component.plist
+plutil -convert xml1 component.plist
+sed -i '' -E 's#(<key>BundleIsRelocatable</key>[[:space:]]*)<true/>#\1<false/>#g' component.plist
+if grep -A1 BundleIsRelocatable component.plist | grep -q '<true/>'; then
+  echo "component.plist still has relocatable bundles" >&2
+  exit 1
+fi
+pkgbuild --root macos --component-plist component.plist --scripts ../resources_macos/scripts --sign "Developer ID Installer: Pritunl, Inc. (U22BLATN63)" --identifier com.pritunl.pkg.Pritunl --version $APP_VER --ownership recommended --install-location / Build.pkg
+
+rm -rf pkg_check
+mkdir pkg_check
+xar -xf Build.pkg -C pkg_check
+lsbom -p fMUG pkg_check/Bom | grep 'PrivilegedHelperTools' > helper_bom.txt
+cat helper_bom.txt
+if grep -vE '^\./Library/PrivilegedHelperTools(/pritunl-client(/[^[:space:]]+)?)?[[:space:]]+(drwxr-xr-x|-rwxr-xr-x)[[:space:]]+0[[:space:]]+0$' helper_bom.txt; then
+  echo "PrivilegedHelperTools entries are not 0755 root:wheel" >&2
+  exit 1
+fi
+rm -rf pkg_check helper_bom.txt
 productbuild --resources ../resources_macos --distribution ../resources_macos/distribution.xml --sign "Developer ID Installer: Pritunl, Inc. (U22BLATN63)" --version $APP_VER Pritunl.pkg
 zip Pritunl.pkg.zip Pritunl.pkg
 rm -f Build.pkg
