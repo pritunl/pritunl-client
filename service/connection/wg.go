@@ -16,6 +16,7 @@ import (
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/constants"
 	"github.com/pritunl/pritunl-client/service/errortypes"
 	"github.com/pritunl/pritunl-client/service/network"
 	"github.com/pritunl/pritunl-client/service/platform"
@@ -684,14 +685,34 @@ func (w *Wg) confWgLinux() (err error) {
 	return
 }
 
+func wgQuickMacEnv() []string {
+	return []string{
+		"PATH=" + constants.MacosHelperDir +
+			":/usr/bin:/bin:/usr/sbin:/sbin",
+		"HOME=/var/root",
+	}
+}
+
+func (w *Wg) wgQuickMacConfPath() string {
+	if w.wgConfPath != "" {
+		return w.wgConfPath
+	}
+
+	confDir, _, _ := GetWgConfDir()
+	return filepath.Join(confDir, w.conn.Data.Iface+".conf")
+}
+
 func (w *Wg) confWgMac() (err error) {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
+	confPath := w.wgQuickMacConfPath()
+
 	output := ""
 	for i := 0; i < 3; i++ {
-		_, _ = utils.ExecCombinedOutput(
-			w.bashPath, w.wgQuickPath, "down", w.conn.Data.Iface,
+		_, _ = utils.ExecCombinedOutputEnv(
+			wgQuickMacEnv(),
+			w.bashPath, w.wgQuickPath, "down", confPath,
 		)
 
 		if i == 0 {
@@ -700,11 +721,12 @@ func (w *Wg) confWgMac() (err error) {
 			time.Sleep(500 * time.Millisecond)
 		}
 
-		output, err = utils.ExecCombinedOutputLogged(
+		output, err = utils.ExecCombinedOutputLoggedEnv(
 			nil,
+			wgQuickMacEnv(),
 			w.bashPath,
 			w.wgQuickPath,
-			"up", w.conn.Data.Iface,
+			"up", confPath,
 		)
 		if err == nil {
 			break
@@ -937,13 +959,14 @@ func (w *Wg) clearWgMac() {
 	defer w.lock.Unlock()
 
 	if w.conn.Data.Iface != "" {
-		utils.ExecCombinedOutputLogged(
+		utils.ExecCombinedOutputLoggedEnv(
 			[]string{
 				"is not a",
 			},
+			wgQuickMacEnv(),
 			w.bashPath,
 			w.wgQuickPath,
-			"down", w.conn.Data.Iface,
+			"down", w.wgQuickMacConfPath(),
 		)
 	}
 }
