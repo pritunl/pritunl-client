@@ -11,6 +11,7 @@ import (
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/service/command"
+	"github.com/pritunl/pritunl-client/service/constants"
 	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
 )
@@ -36,6 +37,7 @@ func clean() (err error) {
 			"com.pritunl.client.plist"),
 		filepath.Join(pathSep, "Library", "LaunchDaemons",
 			"com.pritunl.service.plist"),
+		constants.MacosHelperDir,
 	}
 
 	for _, path := range paths {
@@ -56,8 +58,7 @@ func CheckAndClean() (err error) {
 	defer cleanLock.Unlock()
 
 	root := utils.GetRootDir()
-	if runtime.GOOS != "darwin" ||
-		root != "/Applications/Pritunl.app/Contents/Resources" {
+	if runtime.GOOS != "darwin" || root != constants.MacosHelperDir {
 
 		return
 	}
@@ -80,8 +81,7 @@ func CheckAndClean() (err error) {
 // Watch for Pritunl.app removal for next 10 minutes and uninstall if missing
 func CheckAndCleanWatch() {
 	root := utils.GetRootDir()
-	if runtime.GOOS != "darwin" ||
-		root != "/Applications/Pritunl.app/Contents/Resources" {
+	if runtime.GOOS != "darwin" || root != constants.MacosHelperDir {
 
 		return
 	}
