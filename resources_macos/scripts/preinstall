@@ -3,6 +3,7 @@ pkill -2 -f Pritunl.app 2>/dev/null || true
 launchctl bootout system/com.pritunl.service || true
 sleep 0.2
 rm -f /Library/LaunchDaemons/com.pritunl.service.plist || true
+rm -rf /Library/PrivilegedHelperTools/pritunl-client || true
 
 rm -rf /var/lib/pritunl || true
 rm -f /var/log/pritunl.log || true
