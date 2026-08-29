@@ -6,20 +6,25 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	DialogCancel = -1
+	DialogOk     = 1
+)
+
 var (
 	dialogBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#3B82F6")).
-			Padding(1, 2).
-			BorderTop(true).
-			BorderLeft(true).
-			BorderRight(true).
-			BorderBottom(true)
+			Padding(1, 2)
 
 	dialogTitleStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#3B82F6")).
 				Bold(true).
 				PaddingBottom(1)
+
+	dialogHelpStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#6B7280")).
+			PaddingTop(1)
 )
 
 type DialogKeyMap struct {
@@ -32,24 +37,26 @@ type DialogKeyMap struct {
 	Tab      key.Binding
 	ShiftTab key.Binding
 	Space    key.Binding
+	Quit     key.Binding
+	Close    key.Binding
 }
 
 var dialogKeys = DialogKeyMap{
 	Left: key.NewBinding(
-		key.WithKeys("left", "h"),
-		key.WithHelp("←/h", "left"),
+		key.WithKeys("left"),
+		key.WithHelp("←", "left"),
 	),
 	Right: key.NewBinding(
-		key.WithKeys("right", "l"),
-		key.WithHelp("→/l", "right"),
+		key.WithKeys("right"),
+		key.WithHelp("→", "right"),
 	),
 	Up: key.NewBinding(
-		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "up"),
+		key.WithKeys("up"),
+		key.WithHelp("↑", "up"),
 	),
 	Down: key.NewBinding(
-		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "down"),
+		key.WithKeys("down"),
+		key.WithHelp("↓", "down"),
 	),
 	Enter: key.NewBinding(
 		key.WithKeys("enter"),
@@ -61,85 +68,207 @@ var dialogKeys = DialogKeyMap{
 	),
 	Tab: key.NewBinding(
 		key.WithKeys("tab"),
-		key.WithHelp("tab", "next field"),
+		key.WithHelp("tab", "next"),
 	),
 	ShiftTab: key.NewBinding(
 		key.WithKeys("shift+tab"),
-		key.WithHelp("shift+tab", "previous field"),
+		key.WithHelp("shift+tab", "previous"),
 	),
 	Space: key.NewBinding(
-		key.WithKeys("space"),
+		key.WithKeys(" "),
 		key.WithHelp("space", "toggle"),
 	),
+	Quit: key.NewBinding(
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
+	),
+	Close: key.NewBinding(
+		key.WithKeys("q"),
+		key.WithHelp("q", "close"),
+	),
+}
+
+type DialogCloseMsg struct {
+	Return int
 }
 
 type Dialog struct {
 	title   string
 	message string
 	width   int
-	height  int
 	options []Option
 }
 
-type DialogResult struct {
-	Return int
-}
-
 func NewDialog(title, message string, opts ...Option) Dialog {
-	for _, opt := range opts {
-		opt.Init()
-	}
-
-	return Dialog{
+	d := Dialog{
 		title:   title,
 		message: message,
 		width:   60,
-		height:  30,
 		options: opts,
+	}
+
+	d.init()
+
+	return d
+}
+
+func (d *Dialog) init() {
+	contentWidth := d.contentWidth()
+
+	for _, opt := range d.options {
+		opt.Init(contentWidth)
+	}
+
+	if d.activeIndex() == -1 {
+		d.focusIndex(0)
 	}
 }
 
-func (d *Dialog) GetActiveOption() Option {
+func (d *Dialog) contentWidth() int {
+	frameX, _ := dialogBoxStyle.GetFrameSize()
+	return max(d.width-frameX, 10)
+}
+
+func (d *Dialog) SetSize(width, height int) {
+	if d.width == width {
+		return
+	}
+	d.width = max(width, 20)
+
+	contentWidth := d.contentWidth()
 	for _, opt := range d.options {
-		if opt.Interactive() && opt.Focused() {
-			return opt
+		if txt, ok := opt.(*OptionText); ok {
+			txt.model.Width = max(contentWidth-4, 10)
+		}
+	}
+}
+
+func (d *Dialog) activeIndex() int {
+	for i, opt := range d.options {
+		if opt.Focused() {
+			return i
+		}
+	}
+	return -1
+}
+
+func (d *Dialog) GetActiveOption() Option {
+	i := d.activeIndex()
+	if i == -1 {
+		return nil
+	}
+	return d.options[i]
+}
+
+func (d *Dialog) focusIndex(index int) tea.Cmd {
+	if len(d.options) == 0 {
+		return nil
+	}
+
+	index = ((index % len(d.options)) + len(d.options)) % len(d.options)
+
+	var cmd tea.Cmd
+	for i, opt := range d.options {
+		if i == index {
+			cmd = opt.Focus()
+		} else if opt.Focused() {
+			opt.Unfocus()
 		}
 	}
 
-	for _, opt := range d.options {
-		if opt.Interactive() {
-			return opt
+	return cmd
+}
+
+func (d *Dialog) focusNext() tea.Cmd {
+	return d.focusIndex(d.activeIndex() + 1)
+}
+
+func (d *Dialog) focusPrev() tea.Cmd {
+	cur := d.activeIndex()
+	if cur == -1 {
+		cur = len(d.options)
+	}
+	return d.focusIndex(cur - 1)
+}
+
+func (d *Dialog) focusFooter(dir int) tea.Cmd {
+	cur := d.activeIndex()
+	if cur == -1 || !d.options[cur].Footer() {
+		return nil
+	}
+
+	for i := cur + dir; i >= 0 && i < len(d.options); i += dir {
+		if d.options[i].Footer() {
+			return d.focusIndex(i)
 		}
 	}
 
 	return nil
 }
 
-func (d *Dialog) SetSize(width, height int) {
-	d.width = width
-	d.height = height
+func (d *Dialog) defaultReturn() (int, bool) {
+	for i := len(d.options) - 1; i >= 0; i-- {
+		if btn, ok := d.options[i].(*OptionButton); ok {
+			return btn.Return, true
+		}
+	}
+	return 0, false
+}
+
+func closeDialog(ret int) tea.Cmd {
+	return func() tea.Msg {
+		return DialogCloseMsg{
+			Return: ret,
+		}
+	}
 }
 
 func (d Dialog) View() string {
-	title := dialogTitleStyle.Render(d.title)
+	contentWidth := d.contentWidth()
 
 	fields := []string{
-		title,
-		d.message,
-		"",
+		dialogTitleStyle.Render(d.title),
 	}
-	footerFields := []string{}
 
+	if d.message != "" {
+		fields = append(fields,
+			lipgloss.NewStyle().Width(contentWidth).Render(d.message),
+			"",
+		)
+	}
+
+	footerFields := []string{}
+	hasToggle := false
+
+	prevToggle := false
 	for _, opt := range d.options {
 		if opt.Footer() {
 			footerFields = append(footerFields, opt.View())
-		} else {
-			fields = append(fields, opt.View(), "")
+			continue
 		}
+
+		_, isToggle := opt.(*OptionToggle)
+		if isToggle {
+			hasToggle = true
+			if prevToggle {
+				fields = fields[:len(fields)-1]
+			}
+		}
+		fields = append(fields, opt.View(), "")
+		prevToggle = isToggle
 	}
 
-	fields = append(fields, lipgloss.JoinHorizontal(
-		lipgloss.Top, footerFields...))
+	if len(footerFields) > 0 {
+		fields = append(fields, lipgloss.JoinHorizontal(
+			lipgloss.Top, footerFields...))
+	}
+
+	helpText := "tab/↑↓: move  enter: select  esc: close"
+	if hasToggle {
+		helpText = "tab/↑↓: move  space: toggle  enter: select  esc: close"
+	}
+	fields = append(fields, dialogHelpStyle.Width(contentWidth).Render(
+		helpText))
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -150,217 +279,65 @@ func (d Dialog) View() string {
 }
 
 func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, key.NewBinding(
-			key.WithKeys("q", "ctrl+c"),
-			key.WithHelp("q", "quit"),
-		)):
-			return d, tea.Quit
-		case key.Matches(msg, dialogKeys.Tab),
-			key.Matches(msg, dialogKeys.Down):
-
-			focusNext := false
-			hasFocus := false
-
-			for _, opt := range d.options {
-				if !opt.Interactive() || opt.Footer() {
-					continue
-				}
-
-				if focusNext {
-					opt.Focus()
-					focusNext = false
-					hasFocus = true
-					continue
-				}
-
-				if opt.Focused() {
-					opt.Unfocus()
-					focusNext = true
-				}
-			}
-
-			for _, opt := range d.options {
-				if !opt.Interactive() || !opt.Footer() {
-					continue
-				}
-
-				if focusNext {
-					opt.Focus()
-					focusNext = false
-					hasFocus = true
-					continue
-				}
-
-				if opt.Focused() {
-					opt.Unfocus()
-					focusNext = true
-				}
-			}
-
-			if !hasFocus {
-				for _, opt := range d.options {
-					if opt.Interactive() || opt.Footer() {
-						opt.Focus()
-						hasFocus = true
-						break
-					}
-				}
-
-				if !hasFocus {
-					for _, opt := range d.options {
-						if opt.Interactive() || !opt.Footer() {
-							opt.Focus()
-							break
-						}
-					}
-				}
-			}
-		case key.Matches(msg, dialogKeys.Up):
-			focusNext := false
-			hasFocus := false
-
-			for i := len(d.options) - 1; i >= 0; i-- {
-				opt := d.options[i]
-				if !opt.Interactive() || !opt.Footer() {
-					continue
-				}
-
-				if focusNext {
-					opt.Focus()
-					focusNext = false
-					hasFocus = true
-					continue
-				}
-
-				if opt.Focused() {
-					opt.Unfocus()
-					focusNext = true
-				}
-			}
-
-			for i := len(d.options) - 1; i >= 0; i-- {
-				opt := d.options[i]
-				if !opt.Interactive() || opt.Footer() {
-					continue
-				}
-
-				if focusNext {
-					opt.Focus()
-					focusNext = false
-					hasFocus = true
-					continue
-				}
-
-				if opt.Focused() {
-					opt.Unfocus()
-					focusNext = true
-				}
-			}
-
-			if !hasFocus {
-				for i := len(d.options) - 1; i >= 0; i-- {
-					opt := d.options[i]
-					if opt.Interactive() || !opt.Footer() {
-						opt.Focus()
-						break
-					}
-				}
-
-				if !hasFocus {
-					for i := len(d.options) - 1; i >= 0; i-- {
-						opt := d.options[i]
-						if opt.Interactive() || opt.Footer() {
-							opt.Focus()
-							hasFocus = true
-							break
-						}
-					}
-				}
-			}
-		case key.Matches(msg, dialogKeys.Space):
-			d.GetActiveOption().OnSpace()
-		case key.Matches(msg, dialogKeys.Left):
-			activeOpt := d.GetActiveOption()
-			if activeOpt != nil && activeOpt.Footer() {
-				focusNext := false
-				for _, opt := range d.options {
-					if !opt.Interactive() || !opt.Footer() {
-						continue
-					}
-
-					if focusNext {
-						opt.Focus()
-						focusNext = false
-						continue
-					}
-
-					if opt.Focused() {
-						opt.Unfocus()
-						focusNext = true
-					}
-				}
-			}
-		case key.Matches(msg, dialogKeys.Right):
-			activeOpt := d.GetActiveOption()
-			if activeOpt != nil && activeOpt.Footer() {
-				focusNext := false
-				for i := len(d.options) - 1; i >= 0; i-- {
-					opt := d.options[i]
-
-					if !opt.Interactive() || !opt.Footer() {
-						continue
-					}
-
-					if focusNext {
-						opt.Focus()
-						focusNext = false
-						continue
-					}
-
-					if opt.Focused() {
-						opt.Unfocus()
-						focusNext = true
-					}
-				}
-			}
-		case key.Matches(msg, dialogKeys.Enter):
-			activeOpt := d.GetActiveOption()
-			if activeOpt != nil {
-				choice := activeOpt.OnEnter()
-				if choice != -1 {
-					return d, func() tea.Msg {
-						return DialogCloseMsg{
-							Return: choice,
-						}
-					}
-				}
-			}
-		case key.Matches(msg, dialogKeys.Esc):
-			return d, func() tea.Msg {
-				return DialogCloseMsg{
-					Return: -1,
-				}
-			}
+	keyMsg, ok := msg.(tea.KeyMsg)
+	if !ok {
+		active := d.GetActiveOption()
+		if active != nil {
+			return d, active.Update(msg)
 		}
+		return d, nil
 	}
 
-	for _, opt := range d.options {
-		if opt.Focused() {
-			cmd = opt.Update(msg)
-			return d, cmd
+	active := d.GetActiveOption()
+
+	switch {
+	case key.Matches(keyMsg, dialogKeys.Quit):
+		return d, tea.Quit
+	case key.Matches(keyMsg, dialogKeys.Esc):
+		return d, closeDialog(DialogCancel)
+	case key.Matches(keyMsg, dialogKeys.Close):
+		if _, isText := active.(*OptionText); !isText {
+			return d, closeDialog(DialogCancel)
 		}
+	case key.Matches(keyMsg, dialogKeys.Tab),
+		key.Matches(keyMsg, dialogKeys.Down):
+		return d, d.focusNext()
+	case key.Matches(keyMsg, dialogKeys.ShiftTab),
+		key.Matches(keyMsg, dialogKeys.Up):
+		return d, d.focusPrev()
+	case key.Matches(keyMsg, dialogKeys.Left):
+		if active != nil && active.Footer() {
+			return d, d.focusFooter(-1)
+		}
+	case key.Matches(keyMsg, dialogKeys.Right):
+		if active != nil && active.Footer() {
+			return d, d.focusFooter(1)
+		}
+	case key.Matches(keyMsg, dialogKeys.Space):
+		if active != nil && active.OnSpace() {
+			return d, nil
+		}
+	case key.Matches(keyMsg, dialogKeys.Enter):
+		if active != nil {
+			ret, close, handled := active.OnEnter()
+			if handled {
+				if close {
+					return d, closeDialog(ret)
+				}
+				return d, nil
+			}
+		}
+
+		ret, ok := d.defaultReturn()
+		if ok {
+			return d, closeDialog(ret)
+		}
+		return d, closeDialog(DialogOk)
+	}
+
+	if active != nil {
+		return d, active.Update(msg)
 	}
 
 	return d, nil
-}
-
-type DialogCloseMsg struct {
-	Return      int
-	TextValue   string
-	ToggleValue bool
 }
