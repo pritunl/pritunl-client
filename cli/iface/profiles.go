@@ -7,37 +7,39 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pritunl/pritunl-client/cli/sprofile"
 )
 
 type Profile struct {
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	User            string `json:"user"`
-	Organization    string `json:"organization"`
-	Server          string `json:"server"`
-	Wg              bool   `json:"wg"`
-	Active          bool   `json:"active"`
-	State           string `json:"state"`
-	RunState        string `json:"run_state"`
-	RegistrationKey string `json:"registration_key"`
-	Connected       bool   `json:"connected"`
-	Uptime          int64  `json:"uptime"`
-	StatusLabel     string `json:"status_label"`
-	Status          string `json:"status"`
-	ServerAddress   string `json:"server_address"`
-	ClientAddress   string `json:"client_address"`
+	Id              string
+	Name            string
+	User            string
+	Organization    string
+	Server          string
+	Wg              bool
+	Active          bool
+	State           string
+	RunState        string
+	RegistrationKey string
+	Connected       bool
+	Uptime          int64
+	StatusLabel     string
+	Status          string
+	ServerAddress   string
+	ClientAddress   string
 }
 
 var (
 	itemStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#361da3")).
-			Padding(0, 1)
-
+			Padding(0, 1).
+			MarginLeft(1)
 	itemSelectedStyle = lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder()).
 				BorderForeground(lipgloss.Color("#a1cdff")).
-				Padding(0, 1)
+				Padding(0, 1).
+				MarginLeft(1)
 	itemColStyle = lipgloss.NewStyle().
 			Align(lipgloss.Left)
 	itemTitleStyle = lipgloss.NewStyle().
@@ -52,11 +54,47 @@ var (
 )
 
 type ListItem struct {
+	sprfl   *sprofile.Sprofile
 	profile Profile
+}
+
+func NewListItem(sprfl *sprofile.Sprofile) ListItem {
+	statusLabel, status := sprfl.FormatedStatus()
+
+	prfl := Profile{
+		Id:              sprfl.Id,
+		Name:            sprfl.FormatedName(),
+		User:            sprfl.User,
+		Organization:    sprfl.Organization,
+		Server:          sprfl.Server,
+		Wg:              sprfl.Wg,
+		Active:          sprfl.State,
+		State:           sprfl.FormatedState(),
+		RunState:        sprfl.FormatedRunState(),
+		RegistrationKey: sprfl.RegistrationKey,
+		StatusLabel:     statusLabel,
+		Status:          status,
+	}
+
+	if sprfl.Profile != nil {
+		prfl.Connected = sprfl.Profile.ClientAddr != ""
+		prfl.Uptime = sprfl.Profile.Uptime()
+		prfl.ServerAddress = sprfl.Profile.ServerAddr
+		prfl.ClientAddress = sprfl.Profile.ClientAddr
+	}
+
+	return ListItem{
+		sprfl:   sprfl,
+		profile: prfl,
+	}
 }
 
 func (i ListItem) Profile() Profile {
 	return i.profile
+}
+
+func (i ListItem) Sprofile() *sprofile.Sprofile {
+	return i.sprfl
 }
 
 func (i ListItem) FilterValue() string {
@@ -70,29 +108,16 @@ func (i ListItem) Title() string {
 func (i ListItem) Body(width int) string {
 	rows := []string{}
 
-	colWidth := width - 5
+	colWidth := width - 6
 	style := itemColStyle.Width(colWidth)
 
 	row := style.Render(renderCol(colWidth, "User: %s", i.profile.User))
 	rows = append(rows, row)
 
-	var statusStyle lipgloss.Style
-	if i.profile.Active {
-		statusStyle = greenStyle
-	} else {
-		statusStyle = redStyle
-	}
-
-	row = style.Render(fmt.Sprintf(
-		"%s: %s",
-		i.profile.StatusLabel,
-		statusStyle.Render(renderCol(colWidth-12, i.profile.Status)),
-	))
-
+	row = style.Render(i.statusRow(colWidth))
 	rows = append(rows, row)
 
-	row = style.Render(renderCol(colWidth, "Server: %s",
-		i.profile.ServerAddress))
+	row = style.Render(renderCol(colWidth, "Server: %s", i.profile.Server))
 	rows = append(rows, row)
 	row = renderCol(colWidth, "Organization: %s", i.profile.Organization)
 	rows = append(rows, row)
@@ -119,48 +144,24 @@ func (i ListItem) Body(width int) string {
 	))
 	rows = append(rows, row)
 
-	if i.profile.RegistrationKey != "" {
-		row = style.Render(yellowSytle.Render(renderCol(
-			colWidth,
-			"Device Registration Required",
-		)))
-		rows = append(rows, row)
-		row = style.Render(yellowSytle.Render(renderCol(
-			colWidth,
-			"Device Registration Key: %s",
-			i.profile.RegistrationKey,
-		)))
-		rows = append(rows, row)
-	}
-
 	return strings.Join(rows, "\n")
 }
 
 func (i ListItem) BodySplit(width int) string {
 	rows := []string{}
 
-	colWidth := min((width-5)/2, 60)
+	colWidth := min((width-6)/2, 60)
 	style := itemColStyle.Width(colWidth)
 
-	left := style.Render(renderCol(colWidth, "User: %s", i.profile.User))
+	leftWidth := colWidth - 1
 
-	var statusStyle lipgloss.Style
-	if i.profile.Active {
-		statusStyle = greenStyle
-	} else {
-		statusStyle = redStyle
-	}
+	left := style.Render(renderCol(leftWidth, "User: %s", i.profile.User))
 
-	right := style.Render(fmt.Sprintf(
-		"%s: %s",
-		i.profile.StatusLabel,
-		statusStyle.Render(
-			renderCol(colWidth-12, i.profile.Status)),
-	))
+	right := style.Render(i.statusRow(colWidth))
 
 	rows = append(rows, lipgloss.JoinHorizontal(lipgloss.Left, left, right))
 
-	left = style.Render(renderCol(colWidth, "Server: %s", i.profile.Server))
+	left = style.Render(renderCol(leftWidth, "Server: %s", i.profile.Server))
 	right = renderCol(colWidth, "Organization: %s", i.profile.Organization)
 	rows = append(rows, lipgloss.JoinHorizontal(lipgloss.Left, left, right))
 
@@ -174,7 +175,7 @@ func (i ListItem) BodySplit(width int) string {
 	}
 
 	left = style.Render(renderCol(
-		colWidth,
+		leftWidth,
 		"Server Address: %s",
 		serverAddr,
 	))
@@ -185,20 +186,6 @@ func (i ListItem) BodySplit(width int) string {
 	))
 	rows = append(rows, lipgloss.JoinHorizontal(
 		lipgloss.Left, left, right))
-
-	if i.profile.RegistrationKey != "" {
-		left = style.Render(yellowSytle.Render(renderCol(
-			colWidth,
-			"Device Registration Required",
-		)))
-		right = style.Render(yellowSytle.Render(renderCol(
-			colWidth,
-			"Device Registration Key: %s",
-			i.profile.RegistrationKey,
-		)))
-		rows = append(rows, lipgloss.JoinHorizontal(
-			lipgloss.Left, left, right))
-	}
 
 	return strings.Join(rows, "\n")
 }
@@ -253,4 +240,33 @@ func (d ListDelegate) Render(w io.Writer, model list.Model,
 	)
 
 	fmt.Fprint(w, style.Render(content))
+}
+
+func (i ListItem) statusRow(colWidth int) string {
+	if i.profile.RegistrationKey != "" && !i.profile.Connected {
+		label := "Registration Required"
+		return fmt.Sprintf(
+			"%s: %s",
+			yellowSytle.Render(label),
+			yellowSytle.Bold(true).Render(renderCol(
+				colWidth-len(label)-2, "%s", i.profile.RegistrationKey)),
+		)
+	}
+
+	return fmt.Sprintf(
+		"%s: %s",
+		i.profile.StatusLabel,
+		i.statusStyle().Render(renderCol(
+			colWidth-len(i.profile.StatusLabel)-2, "%s", i.profile.Status)),
+	)
+}
+
+func (i ListItem) statusStyle() lipgloss.Style {
+	if !i.profile.Active {
+		return redStyle
+	}
+	if i.profile.Connected && i.profile.StatusLabel == "Online For" {
+		return greenStyle
+	}
+	return yellowSytle
 }
