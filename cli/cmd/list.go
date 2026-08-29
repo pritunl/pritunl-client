@@ -118,7 +118,7 @@ var ListCmd = &cobra.Command{
 						sprfl.FormatedName(),
 						sprfl.FormatedRunState(),
 						sprfl.FormatedState(),
-						sprfl.Profile.FormatedTime(),
+						sprfl.Profile.FormatedTimeShort(),
 						sprfl.Profile.ServerAddr,
 						sprfl.Profile.ClientAddr,
 					}
