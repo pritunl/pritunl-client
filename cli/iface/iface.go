@@ -2,23 +2,25 @@ package iface
 
 import (
 	"os"
+	"path/filepath"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/cli/errortypes"
+	"github.com/pritunl/pritunl-client/cli/event"
 	"github.com/pritunl/tools/logger"
 )
 
 func LoggerFile() (err error) {
 	file, err := os.OpenFile(
-		"./pritunl-client.log",
+		filepath.Join(os.TempDir(), "pritunl-client-cli.log"),
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0644,
 	)
 	if err != nil {
 		err = &errortypes.WriteError{
-			errors.Wrap(err, "agent: Failed to create log file"),
+			errors.Wrap(err, "iface: Failed to create log file"),
 		}
 		return
 	}
@@ -42,7 +44,10 @@ func Iface() (err error) {
 		return
 	}
 
-	model := NewModel()
+	listener := event.NewListener()
+	defer listener.Close()
+
+	model := NewModel(listener)
 
 	prog := tea.NewProgram(
 		model,
