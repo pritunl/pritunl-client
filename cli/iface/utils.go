@@ -5,12 +5,15 @@ import (
 )
 
 func renderCol(width int, format string, args ...interface{}) string {
-	data := fmt.Sprintf(format, args...)
+	data := []rune(fmt.Sprintf(format, args...))
+	if width <= 0 {
+		return ""
+	}
 	if len(data) <= width {
-		return data
+		return string(data)
 	}
 	if width < 4 {
-		return data[:width]
+		return string(data[:width])
 	}
-	return data[:width-3] + "..."
+	return string(data[:width-3]) + "..."
 }
