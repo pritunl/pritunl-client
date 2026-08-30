@@ -33,7 +33,7 @@ func Get(prflId string) (prfl *Profile, err error) {
 	req.Header.Set("User-Agent", "pritunl")
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := service.GetClient().Do(req)
+	resp, err := service.GetPollClient().Do(req)
 	if err != nil {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "profile: Request failed"),
@@ -82,7 +82,7 @@ func GetAll() (prfls map[string]*Profile, err error) {
 	req.Header.Set("User-Agent", "pritunl")
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := service.GetClient().Do(req)
+	resp, err := service.GetPollClient().Do(req)
 	if err != nil {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "profile: Request failed"),
