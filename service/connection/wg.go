@@ -485,7 +485,7 @@ func (w *Wg) ping() (data *PingData, final bool, err error) {
 }
 
 func (w *Wg) writeWgConf(data *WgConf) (err error) {
-	allowedIps := []string{}
+	routes := []*Route{}
 	if data.Routes != nil {
 		for _, route := range data.Routes {
 			if w.conn.Profile.DisableGateway && route.Network == "0.0.0.0/0" {
@@ -496,10 +496,11 @@ func (w *Wg) writeWgConf(data *WgConf) (err error) {
 				// TODO wireguard exclude
 				//allowedIps = append(allowedIps, "!"+route.Network)
 			} else {
-				allowedIps = append(allowedIps, route.Network)
+				routes = append(routes, route)
 			}
 		}
 	}
+	routes6 := []*Route{}
 	if data.Routes6 != nil {
 		for _, route := range data.Routes6 {
 			if w.conn.Profile.DisableGateway && route.Network == "::/0" {
@@ -510,10 +511,12 @@ func (w *Wg) writeWgConf(data *WgConf) (err error) {
 				// TODO wireguard exclude
 				//allowedIps = append(allowedIps, "!"+route.Network)
 			} else {
-				allowedIps = append(allowedIps, route.Network)
+				routes6 = append(routes6, route)
 			}
 		}
 	}
+
+	allowedIps := GlobalRoutes.Claim(w, routes, routes6)
 
 	addr := data.Address
 	if data.Address6 != "" {
@@ -1004,8 +1007,105 @@ func (w *Wg) clearWg() {
 	network.InterfaceRelease(w.conn.Data.Iface)
 }
 
+func (w *Wg) addAllowedIp(route *Route, ipv6 bool, allowedIps []string) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	iface := w.conn.Data.Iface
+	if iface == "" || w.serverPubKey == "" {
+		return
+	}
+
+	wgIface := iface
+	if runtime.GOOS == "darwin" {
+		wgIface = w.conn.Data.WgTunIface
+		if wgIface == "" {
+			return
+		}
+	}
+
+	_, err := utils.ExecCombinedOutputLogged(
+		nil,
+		w.wgPath, "set", wgIface,
+		"peer", w.serverPubKey,
+		"allowed-ips", strings.Join(allowedIps, ","),
+	)
+	if err != nil {
+		logrus.WithFields(w.conn.Fields(logrus.Fields{
+			"network": route.Network,
+			"error":   err,
+		})).Warn("connection: Failed to update allowed ips")
+		return
+	}
+
+	switch runtime.GOOS {
+	case "linux":
+		family := "-4"
+		if ipv6 {
+			family = "-6"
+		}
+
+		args := []string{
+			"ip", family, "route", "add",
+			route.Network, "dev", iface,
+		}
+		if route.Metric != 0 {
+			args = append(args, "metric", strconv.Itoa(route.Metric))
+		}
+
+		_, err = utils.ExecCombinedOutputLogged(
+			[]string{"File exists"},
+			args[0], args[1:]...,
+		)
+		break
+	case "darwin":
+		family := "-inet"
+		if ipv6 {
+			family = "-inet6"
+		}
+
+		_, err = utils.ExecCombinedOutputLogged(
+			[]string{"File exists"},
+			"route", "-q", "-n", "add", family,
+			route.Network, "-interface", wgIface,
+		)
+		break
+	case "windows":
+		family := "ipv4"
+		if ipv6 {
+			family = "ipv6"
+		}
+
+		args := []string{
+			"netsh", "interface", family, "add", "route",
+			route.Network, iface,
+		}
+		if route.Metric != 0 {
+			args = append(args, fmt.Sprintf("metric=%d", route.Metric))
+		}
+
+		_, err = utils.ExecCombinedOutputLogged(
+			[]string{"already exists"},
+			args[0], args[1:]...,
+		)
+		break
+	}
+	if err != nil {
+		logrus.WithFields(w.conn.Fields(logrus.Fields{
+			"network": route.Network,
+			"error":   err,
+		})).Warn("connection: Failed to add released route")
+		return
+	}
+
+	logrus.WithFields(w.conn.Fields(logrus.Fields{
+		"network": route.Network,
+	})).Info("connection: Added released route")
+}
+
 func (w *Wg) Disconnect() {
 	w.clearWg()
+	GlobalRoutes.Release(w)
 
 	return
 }
