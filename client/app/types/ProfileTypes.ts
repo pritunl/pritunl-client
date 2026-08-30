@@ -582,12 +582,6 @@ export function New(self: Profile): Profile {
 		this.geo_sort = data.geo_sort
 		this.force_connect = data.force_connect
 		this.device_auth = data.device_auth
-		this.disable_reconnect_local = data.disable_reconnect_local
-		this.disable_gateway = data.disable_gateway
-		this.disable_dns = data.disable_dns
-		this.disable_ipv6 = data.disable_ipv6
-		this.dco = data.dco
-		this.debug_output = data.debug_output
 		this.sso_auth = data.sso_auth
 		this.password_mode = data.password_mode
 		this.token = data.token
