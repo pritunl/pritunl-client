@@ -107,58 +107,7 @@ func Stop(sprflId string) (err error) {
 		return
 	}
 
-	reqUrl := service.GetAddress() + "/profile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	data, err := json.Marshal(&SprofileData{
-		Id: sprfl.Id,
-	})
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("DELETE", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Delete request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Wrapf(err, "sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
+	return sprfl.Disconnect()
 }
 
 func Delete(sprflId string) (err error) {
@@ -167,58 +116,7 @@ func Delete(sprflId string) (err error) {
 		return
 	}
 
-	reqUrl := service.GetAddress() + "/sprofile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	data, err := json.Marshal(&SprofileData{
-		Id: sprfl.Id,
-	})
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("DELETE", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Delete request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Wrapf(err, "sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
+	return sprfl.Remove()
 }
 
 func GetAll() (sprfls Sprofiles, err error) {
@@ -243,7 +141,7 @@ func GetAll() (sprfls Sprofiles, err error) {
 	req.Header.Set("Auth-Key", authKey)
 	req.Header.Set("User-Agent", "pritunl")
 
-	resp, err := service.GetClient().Do(req)
+	resp, err := service.GetPollClient().Do(req)
 	if err != nil {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "sprofile: Request failed"),
@@ -430,29 +328,6 @@ func Start(sprflId, mode, password string, passwordPrompt bool) (err error) {
 		return
 	}
 
-	if mode == "" {
-		if sprfl.HideOvpn {
-			mode = "wg"
-		} else {
-			mode = sprfl.LastMode
-			if mode == "" {
-				mode = "ovpn"
-			}
-		}
-	}
-
-	switch mode {
-	case "ovpn", "wg":
-		break
-	default:
-		err = errortypes.NotFoundError{
-			errors.New("sprofile: Invalid profile mode"),
-		}
-		return
-	}
-
-	reqUrl := service.GetAddress() + "/profile"
-
 	if passwordPrompt {
 		password, err = PasswordPrompt(sprfl)
 		if err != nil {
@@ -460,54 +335,8 @@ func Start(sprflId, mode, password string, passwordPrompt bool) (err error) {
 		}
 	}
 
-	authKey, err := service.GetAuthKey()
+	err = sprfl.Connect(mode, password)
 	if err != nil {
-		return
-	}
-
-	data, err := json.Marshal(&SprofileData{
-		Id:       sprfl.Id,
-		Mode:     mode,
-		Password: password,
-	})
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("POST", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Post request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Wrapf(err, "sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
 		return
 	}
 
@@ -532,8 +361,6 @@ func Start(sprflId, mode, password string, passwordPrompt bool) (err error) {
 	return
 }
 
-type Callback func(prompts []Prompt, callback func(PromptValues), err error)
-
 type Prompt struct {
 	Key         string
 	Type        int
@@ -543,23 +370,38 @@ type Prompt struct {
 }
 
 var PromptInput = 1
-var PromptLink = 2
 
 type PromptValues map[string]string
 
-func StartCallback(sprflId, mode string, callback Callback) {
-	sprfl, err := Match(sprflId)
-	if err != nil {
-		callback(nil, nil, err)
-		return
+// BuildPassword joins prompt values in the order expected by the server.
+func BuildPassword(values PromptValues) (password string) {
+	for _, key := range []string{
+		"pin", "duo", "onelogin", "okta", "otp", "yubikey", "password",
+	} {
+		password += values[key]
 	}
+	return
+}
 
+// ResolveMode returns the mode to connect with when none is specified.
+func (s *Sprofile) ResolveMode(mode string) string {
 	if mode == "" {
-		mode = sprfl.LastMode
-		if mode == "" {
-			mode = "ovpn"
+		if s.HideOvpn {
+			mode = "wg"
+		} else {
+			mode = s.LastMode
+			if mode == "" {
+				mode = "ovpn"
+			}
 		}
 	}
+	return mode
+}
+
+// Connect sends the connect request for the profile, prompts must
+// already be resolved into password.
+func (s *Sprofile) Connect(mode, password string) (err error) {
+	mode = s.ResolveMode(mode)
 
 	switch mode {
 	case "ovpn", "wg":
@@ -568,50 +410,6 @@ func StartCallback(sprflId, mode string, callback Callback) {
 		err = errortypes.NotFoundError{
 			errors.New("sprofile: Invalid profile mode"),
 		}
-		callback(nil, nil, err)
-		return
-	}
-
-	prompts := PasswordPrompts(sprfl)
-	if len(prompts) > 0 {
-		callback(prompts, func(values PromptValues) {
-			password := ""
-
-			if values["pin"] != "" {
-				password += values["pin"]
-			}
-			if values["duo"] != "" {
-				password += values["duo"]
-			}
-			if values["onelogin"] != "" {
-				password += values["onelogin"]
-			}
-			if values["okta"] != "" {
-				password += values["okta"]
-			}
-			if values["otp"] != "" {
-				password += values["otp"]
-			}
-			if values["yubikey"] != "" {
-				password += values["yubikey"]
-			}
-			if values["password"] != "" {
-				password += values["password"]
-			}
-
-			startCallback2(sprflId, mode, password, callback)
-		}, nil)
-		return
-	}
-
-	startCallback2(sprflId, mode, "", callback)
-	return
-}
-
-func startCallback2(sprflId, mode, password string, callback Callback) {
-	sprfl, err := Match(sprflId)
-	if err != nil {
-		callback(nil, nil, err)
 		return
 	}
 
@@ -619,12 +417,11 @@ func startCallback2(sprflId, mode, password string, callback Callback) {
 
 	authKey, err := service.GetAuthKey()
 	if err != nil {
-		callback(nil, nil, err)
 		return
 	}
 
 	data, err := json.Marshal(&SprofileData{
-		Id:       sprfl.Id,
+		Id:       s.Id,
 		Mode:     mode,
 		Password: password,
 	})
@@ -632,7 +429,6 @@ func startCallback2(sprflId, mode, password string, callback Callback) {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "sprofile: Json marshal error"),
 		}
-		callback(nil, nil, err)
 		return
 	}
 
@@ -643,7 +439,6 @@ func startCallback2(sprflId, mode, password string, callback Callback) {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "sprofile: Post request failed"),
 		}
-		callback(nil, nil, err)
 		return
 	}
 
@@ -659,57 +454,141 @@ func startCallback2(sprflId, mode, password string, callback Callback) {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "sprofile: Request failed"),
 		}
-		callback(nil, nil, err)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		err = errortypes.RequestError{
-			errors.Wrapf(err, "sprofile: Unknown request error %d",
+			errors.Newf("sprofile: Unknown request error %d",
 				resp.StatusCode),
 		}
-		callback(nil, nil, err)
 		return
 	}
 
-	if sprfl.SsoAuth {
-		for i := 0; i < 50; i++ {
-			prfl, e := profile.Get(sprfl.Id)
-			if e != nil {
-				break
-			}
-
-			if prfl != nil && prfl.SsoUrl != "" {
-				prompts := []Prompt{{
-					Type:  PromptLink,
-					Label: "Single sign-on authentication required:",
-					Value: prfl.SsoUrl,
-				}}
-
-				callback(prompts, nil, nil)
-				break
-			}
-
-			time.Sleep(100 * time.Millisecond)
-		}
-	}
+	return
 }
 
-func SetState(sprflId string, state bool) (err error) {
-	sprfl, err := Match(sprflId)
+// Disconnect stops the running profile.
+func (s *Sprofile) Disconnect() (err error) {
+	reqUrl := service.GetAddress() + "/profile"
+
+	authKey, err := service.GetAuthKey()
 	if err != nil {
 		return
 	}
 
-	if sprfl.ForceConnect && !state {
+	data, err := json.Marshal(&SprofileData{
+		Id: s.Id,
+	})
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Json marshal error"),
+		}
+		return
+	}
+
+	body := bytes.NewBuffer(data)
+
+	req, err := http.NewRequest("DELETE", reqUrl, body)
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Delete request failed"),
+		}
+		return
+	}
+
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		req.Host = "unix"
+	}
+	req.Header.Set("Auth-Key", authKey)
+	req.Header.Set("User-Agent", "pritunl")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := service.GetClient().Do(req)
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Request failed"),
+		}
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		err = errortypes.RequestError{
+			errors.Newf("sprofile: Unknown request error %d",
+				resp.StatusCode),
+		}
+		return
+	}
+
+	return
+}
+
+// Remove deletes the profile from the service.
+func (s *Sprofile) Remove() (err error) {
+	reqUrl := service.GetAddress() + "/sprofile"
+
+	authKey, err := service.GetAuthKey()
+	if err != nil {
+		return
+	}
+
+	data, err := json.Marshal(&SprofileData{
+		Id: s.Id,
+	})
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Json marshal error"),
+		}
+		return
+	}
+
+	body := bytes.NewBuffer(data)
+
+	req, err := http.NewRequest("DELETE", reqUrl, body)
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Delete request failed"),
+		}
+		return
+	}
+
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		req.Host = "unix"
+	}
+	req.Header.Set("Auth-Key", authKey)
+	req.Header.Set("User-Agent", "pritunl")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := service.GetClient().Do(req)
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Request failed"),
+		}
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		err = errortypes.RequestError{
+			errors.Newf("sprofile: Unknown request error %d",
+				resp.StatusCode),
+		}
+		return
+	}
+
+	return
+}
+
+// Commit saves the profile settings to the service.
+func (s *Sprofile) Commit() (err error) {
+	if s.ForceConnect && s.Disabled {
 		err = errortypes.ParseError{
 			errors.New("sprofile: Autostart enforced by server"),
 		}
 		return
 	}
-
-	sprfl.Disabled = !state
 
 	reqUrl := service.GetAddress() + "/sprofile"
 
@@ -718,7 +597,7 @@ func SetState(sprflId string, state bool) (err error) {
 		return
 	}
 
-	data, err := json.Marshal(sprfl)
+	data, err := json.Marshal(s)
 	if err != nil {
 		err = errortypes.RequestError{
 			errors.Wrap(err, "sprofile: Json marshal error"),
@@ -731,7 +610,7 @@ func SetState(sprflId string, state bool) (err error) {
 	req, err := http.NewRequest("PUT", reqUrl, body)
 	if err != nil {
 		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Post request failed"),
+			errors.Wrap(err, "sprofile: Put request failed"),
 		}
 		return
 	}
@@ -754,13 +633,67 @@ func SetState(sprflId string, state bool) (err error) {
 
 	if resp.StatusCode != 200 {
 		err = errortypes.RequestError{
-			errors.Wrapf(err, "sprofile: Unknown request error %d",
+			errors.Newf("sprofile: Unknown request error %d",
 				resp.StatusCode),
 		}
 		return
 	}
 
 	return
+}
+
+// ClearLogs clears the profile log output.
+func (s *Sprofile) ClearLogs() (err error) {
+	reqUrl := service.GetAddress() + "/sprofile/" + s.Id + "/log"
+
+	authKey, err := service.GetAuthKey()
+	if err != nil {
+		return
+	}
+
+	req, err := http.NewRequest("DELETE", reqUrl, nil)
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Delete request failed"),
+		}
+		return
+	}
+
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		req.Host = "unix"
+	}
+	req.Header.Set("Auth-Key", authKey)
+	req.Header.Set("User-Agent", "pritunl")
+
+	resp, err := service.GetClient().Do(req)
+	if err != nil {
+		err = errortypes.RequestError{
+			errors.Wrap(err, "sprofile: Request failed"),
+		}
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		err = errortypes.RequestError{
+			errors.Newf("sprofile: Unknown request error %d",
+				resp.StatusCode),
+		}
+		return
+	}
+
+	return
+}
+
+func SetState(sprflId string, state bool) (err error) {
+	sprfl, err := Match(sprflId)
+	if err != nil {
+		return
+	}
+
+	sprfl.Disabled = !state
+
+	return sprfl.Commit()
 }
 
 func Import(data string) (err error) {
@@ -864,11 +797,42 @@ func Import(data string) (err error) {
 	return
 }
 
+// ImportPath imports a profile from a URI, a .tar archive of profiles or
+// a single .ovpn profile file.
+func ImportPath(path string) (err error) {
+	if strings.HasPrefix(path, "http://") ||
+		strings.HasPrefix(path, "https://") ||
+		strings.HasPrefix(path, "pritunl://") ||
+		strings.HasPrefix(path, "pritunls://") {
+
+		return ImportUri(path)
+	}
+
+	if strings.HasSuffix(strings.ToLower(path), ".tar") {
+		return ImportTar(path)
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		err = errortypes.ReadError{
+			errors.Wrapf(err, "sprofile: Failed to read profile '%s'", path),
+		}
+		return
+	}
+
+	// Detect tar archives without the extension
+	if len(data) > 262 && string(data[257:262]) == "ustar" {
+		return ImportTar(path)
+	}
+
+	return Import(string(data))
+}
+
 func ImportTar(filename string) (err error) {
 	tarFile, err := os.Open(filename)
 	if err != nil {
 		err = errortypes.ReadError{
-			errors.Wrapf(err, "sprofile: Failed to open tar '%s'", tarFile),
+			errors.Wrapf(err, "sprofile: Failed to open tar '%s'", filename),
 		}
 		return
 	}
