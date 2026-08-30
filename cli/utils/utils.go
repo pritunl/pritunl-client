@@ -44,6 +44,30 @@ func GetRootDir() (pth string) {
 	return
 }
 
+func GetDataPath() (pth string) {
+	switch runtime.GOOS {
+	case "windows":
+		base := os.Getenv("APPDATA")
+		if base == "" {
+			home, _ := os.UserHomeDir()
+			base = filepath.Join(home, "AppData", "Roaming")
+		}
+		pth = filepath.Join(base, "pritunl")
+	case "darwin":
+		home, _ := os.UserHomeDir()
+		pth = filepath.Join(home, "Library", "Application Support", "pritunl")
+	default:
+		base := os.Getenv("XDG_CONFIG_HOME")
+		if base == "" {
+			home, _ := os.UserHomeDir()
+			base = filepath.Join(home, ".config")
+		}
+		pth = filepath.Join(base, "pritunl")
+	}
+
+	return
+}
+
 func GetAuthPath() (pth string) {
 	switch runtime.GOOS {
 	case "windows":
