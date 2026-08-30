@@ -45,6 +45,7 @@ type Sprofile struct {
 	Token              bool                  `json:"token"`
 	TokenTtl           int                   `json:"token_ttl"`
 	Disabled           bool                  `json:"disabled"`
+	SyncTime           int64                 `json:"sync_time"`
 	SyncHosts          []string              `json:"sync_hosts"`
 	SyncHash           string                `json:"sync_hash"`
 	SyncSecret         string                `json:"sync_secret"`
@@ -114,43 +115,29 @@ func (s *Sprofile) FormatedStatus() (label, status string) {
 		uptime := s.Profile.Uptime()
 		unitItems := []string{}
 
-		if uptime > 86400 {
+		if uptime >= 86400 {
 			units := int64(math.Floor(float64(uptime) / 86400))
 			uptime -= units * 86400
-			unitStr := fmt.Sprintf("%d day", units)
-			if units > 1 {
-				unitStr += "s"
-			}
+			unitStr := fmt.Sprintf("%dd", units)
 			unitItems = append(unitItems, unitStr)
 		}
 
-		if uptime > 3600 {
+		if uptime >= 3600 || len(unitItems) > 0 {
 			units := int64(math.Floor(float64(uptime) / 3600))
 			uptime -= units * 3600
-			unitStr := fmt.Sprintf("%d hour", units)
-			if units > 1 {
-				unitStr += "s"
-			}
+			unitStr := fmt.Sprintf("%dh", units)
 			unitItems = append(unitItems, unitStr)
 		}
 
-		if uptime > 60 {
+		if uptime >= 60 || len(unitItems) > 0 {
 			units := int64(math.Floor(float64(uptime) / 60))
 			uptime -= units * 60
-			unitStr := fmt.Sprintf("%d min", units)
-			if units > 1 {
-				unitStr += "s"
-			}
+			unitStr := fmt.Sprintf("%dm", units)
 			unitItems = append(unitItems, unitStr)
 		}
 
-		if uptime > 0 {
-			unitStr := fmt.Sprintf("%d sec", uptime)
-			if uptime > 1 {
-				unitStr += "s"
-			}
-			unitItems = append(unitItems, unitStr)
-		}
+		unitStr := fmt.Sprintf("%ds", uptime)
+		unitItems = append(unitItems, unitStr)
 
 		return "Online For", strings.Join(unitItems, " ")
 	case "connecting":
