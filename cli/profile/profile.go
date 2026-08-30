@@ -86,3 +86,32 @@ func (p *Profile) FormatedTime() string {
 
 	return strings.Join(unitItems, " ")
 }
+
+func (p *Profile) FormatedTimeShort() string {
+	if p.Timestamp == 0 {
+		return "Connecting"
+	}
+
+	uptime := p.Uptime()
+	if uptime < 0 {
+		uptime = 0
+	}
+
+	days := uptime / 86400
+	uptime -= days * 86400
+	hours := uptime / 3600
+	uptime -= hours * 3600
+	mins := uptime / 60
+	secs := uptime - mins*60
+
+	if days > 0 {
+		return fmt.Sprintf("%dd %dh %dm %ds", days, hours, mins, secs)
+	}
+	if hours > 0 {
+		return fmt.Sprintf("%dh %dm %ds", hours, mins, secs)
+	}
+	if mins > 0 {
+		return fmt.Sprintf("%dm %ds", mins, secs)
+	}
+	return fmt.Sprintf("%ds", secs)
+}
