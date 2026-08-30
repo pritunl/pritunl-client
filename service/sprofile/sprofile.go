@@ -389,7 +389,9 @@ func (s *Sprofile) syncUpdate(data string) (updated bool, err error) {
 			return
 		}
 
-		s.Name = confData.Name
+		if confData.Name != "" {
+			s.Name = confData.Name
+		}
 		s.Wg = confData.Wg
 		s.OrganizationId = confData.OrganizationId
 		s.Organization = confData.Organization
@@ -404,18 +406,11 @@ func (s *Sprofile) syncUpdate(data string) (updated bool, err error) {
 		s.GeoSort = confData.GeoSort
 		s.ForceConnect = confData.ForceConnect
 		s.DeviceAuth = confData.DeviceAuth
-		s.DisableGateway = confData.DisableGateway
-		s.DisableDns = confData.DisableDns
-		s.DisableIpv6 = confData.DisableIpv6
-		s.Dco = confData.Dco
-		s.DebugOutput = confData.DebugOutput
 		s.RestrictClient = confData.RestrictClient
-		s.ForceDns = confData.ForceDns
 		s.SsoAuth = confData.SsoAuth
 		s.PasswordMode = confData.PasswordMode
 		s.Token = confData.Token
 		s.TokenTtl = confData.TokenTtl
-		s.Disabled = confData.Disabled
 		s.SyncTime = time.Now().Unix()
 		s.SyncHosts = confData.SyncHosts
 		s.SyncHash = confData.SyncHash
