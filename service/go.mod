@@ -5,6 +5,7 @@ go 1.26.7
 require (
 	github.com/dropbox/godropbox v0.0.0-20230623171840-436d2007a9fd
 	github.com/gin-gonic/gin v1.10.0
+	github.com/godbus/dbus/v5 v5.2.2
 	github.com/google/go-tpm v0.9.1
 	github.com/google/go-tpm-tools v0.4.4
 	github.com/gorilla/websocket v1.5.3
