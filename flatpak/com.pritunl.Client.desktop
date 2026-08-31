@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Pritunl Client
+Comment=Pritunl VPN client
+Exec=pritunl-client-flatpak %U
+Terminal=false
+Type=Application
+StartupNotify=false
+Icon=com.pritunl.Client
+Categories=Network;
+Keywords=VPN;WireGuard;Pritunl;
+StartupWMClass=pritunl
