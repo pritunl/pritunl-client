@@ -11,6 +11,8 @@
 is an open source openvpn client. Documentation and more information can be
 found at the home page [client.pritunl.com](https://client.pritunl.com)
 
+[![pritunl](client/logo_code.png)](https://docs.pritunl.com/kb/vpn)
+
 ## Install from Source (macOS)
 
 If the Pritunl package is currently installed run the uninstall command
