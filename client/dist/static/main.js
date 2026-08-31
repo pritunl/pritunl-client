@@ -5442,9 +5442,7 @@ var external_os_default = /*#__PURE__*/__webpack_require__.n(external_os_namespa
 
 
 let unix = false;
-const unixPath = "/var/run/pritunl.sock";
 const webHost = "http://127.0.0.1:9770";
-const unixWsHost = "ws+unix://" + external_path_default().join((external_path_default()).sep, "var", "run", "pritunl.sock") + ":";
 const webWsHost = "ws://127.0.0.1:9770";
 const platform = external_os_default().platform();
 const hostname = external_os_default().hostname();
@@ -5453,6 +5451,17 @@ const logPath = external_path_default().join(external_electron_default().app.get
 let mainWindow;
 let production = (external_process_default().argv.indexOf("--dev") === -1);
 let devTools = (external_process_default().argv.indexOf("--dev-tools") !== -1);
+let flatpak = (external_process_default()).env.FLATPAK_MODE === "true";
+const flatpakId = (external_process_default()).env.FLATPAK_ID || "com.pritunl.Client";
+const flatpakRunDir = external_path_default().join((external_process_default()).env.XDG_RUNTIME_DIR || "", "app", flatpakId);
+let flatpakError = "";
+if (flatpak && !(external_process_default()).env.XDG_RUNTIME_DIR) {
+    flatpakError = "XDG_RUNTIME_DIR not defined in flatpak mode";
+}
+const unixPath = flatpak ?
+    external_path_default().join(flatpakRunDir, "pritunl.sock") :
+    external_path_default().join((external_path_default()).sep, "var", "run", "pritunl.sock");
+const unixWsHost = "ws+unix://" + unixPath + ":";
 let winDrive = "C:\\";
 let systemDrv = (external_process_default()).env.SYSTEMDRIVE;
 if (systemDrv) {
@@ -5460,6 +5469,16 @@ if (systemDrv) {
 }
 if ((external_process_default()).platform === "linux" || (external_process_default()).platform === "darwin") {
     unix = true;
+}
+let authPath = "";
+if ((external_process_default()).platform === "win32") {
+    authPath = external_path_default().join(winDrive, "ProgramData", "Pritunl", "auth");
+}
+else if (flatpak) {
+    authPath = external_path_default().join(flatpakRunDir, "pritunl.auth");
+}
+else {
+    authPath = external_path_default().join((external_path_default()).sep, "var", "run", "pritunl.auth");
 }
 function setMainWindow(mainWin) {
     mainWindow = mainWin;
@@ -5544,25 +5563,9 @@ var websocket_server = __webpack_require__(164);
 ;// ./main/Auth.js
 
 
-
-
 let token = '';
-let Auth_unix = false;
-const Auth_unixPath = "/var/run/pritunl.sock";
-const Auth_webHost = "http://127.0.0.1:9770";
-if ((external_process_default()).platform === "linux" || (external_process_default()).platform === "darwin") {
-    Auth_unix = true;
-}
-function getAuthPath() {
-    if ((external_process_default()).platform === "win32") {
-        return external_path_default().join(Service_winDrive, "ProgramData", "Pritunl", "auth");
-    }
-    else {
-        return external_path_default().join((external_path_default()).sep, "var", "run", "pritunl.auth");
-    }
-}
 function _load() {
-    external_fs_default().readFile(getAuthPath(), 'utf-8', (err, data) => {
+    external_fs_default().readFile(authPath, 'utf-8', (err, data) => {
         if (err || !data) {
             setTimeout(() => {
                 _load();
@@ -5577,7 +5580,7 @@ function _load() {
 }
 function load() {
     return new Promise((resolve, reject) => {
-        external_fs_default().readFile(getAuthPath(), 'utf-8', (err, data) => {
+        external_fs_default().readFile(authPath, 'utf-8', (err, data) => {
             if (err || !data) {
                 setTimeout(() => {
                     _load();
@@ -5787,15 +5790,17 @@ class Request {
 ;// ./main/RequestUtils.js
 /* unused harmony import specifier */ var Auth;
 /* unused harmony import specifier */ var RequestUtils_Request;
+/* unused harmony import specifier */ var Constants;
+
 
 
 function get(path) {
     let req = new Request();
-    if (Auth_unix) {
-        req.unix(Auth_unixPath);
+    if (unix) {
+        req.unix(unixPath);
     }
     else {
-        req.tcp(Auth_webHost);
+        req.tcp(webHost);
     }
     req.get(path)
         .set("Auth-Token", token)
@@ -5804,11 +5809,11 @@ function get(path) {
 }
 function put(path) {
     let req = new RequestUtils_Request.Request();
-    if (Auth.unix) {
-        req.unix(Auth.unixPath);
+    if (Constants.unix) {
+        req.unix(Constants.unixPath);
     }
     else {
-        req.tcp(Auth.webHost);
+        req.tcp(Constants.webHost);
     }
     req.put(path)
         .set("Auth-Token", Auth.token)
@@ -5817,11 +5822,11 @@ function put(path) {
 }
 function post(path) {
     let req = new Request();
-    if (Auth_unix) {
-        req.unix(Auth_unixPath);
+    if (unix) {
+        req.unix(unixPath);
     }
     else {
-        req.tcp(Auth_webHost);
+        req.tcp(webHost);
     }
     req.post(path)
         .set("Auth-Token", token)
@@ -5830,11 +5835,11 @@ function post(path) {
 }
 function del(path) {
     let req = new RequestUtils_Request.Request();
-    if (Auth.unix) {
-        req.unix(Auth.unixPath);
+    if (Constants.unix) {
+        req.unix(Constants.unixPath);
     }
     else {
-        req.tcp(Auth.webHost);
+        req.tcp(Constants.webHost);
     }
     req.delete(path)
         .set("Auth-Token", Auth.token)
@@ -7421,11 +7426,6 @@ function New(self) {
         this.geo_sort = data.geo_sort;
         this.force_connect = data.force_connect;
         this.device_auth = data.device_auth;
-        this.disable_reconnect_local = data.disable_reconnect_local;
-        this.disable_gateway = data.disable_gateway;
-        this.disable_dns = data.disable_dns;
-        this.dco = data.dco;
-        this.debug_output = data.debug_output;
         this.sso_auth = data.sso_auth;
         this.password_mode = data.password_mode;
         this.token = data.token;
@@ -7798,6 +7798,20 @@ external_process_default().on("unhandledRejection", function (error) {
         external_electron_default().app.quit();
     });
 });
+if (flatpakError) {
+    readyError = flatpakError;
+}
+if (!external_electron_default().app.requestSingleInstanceLock()) {
+    external_electron_default().app.quit();
+}
+else {
+    external_electron_default().app.on("second-instance", () => {
+        if (ready) {
+            let main = new Main();
+            main.run();
+        }
+    });
+}
 external_electron_default().ipcMain.handle("processing", (evt, msg, data) => {
     if (msg === "encrypt") {
         let encData = external_electron_default().safeStorage.encryptString(data).toString("base64");
@@ -7986,6 +8000,9 @@ class Main {
         }, 800);
         let indexUrl = "file://" + external_path_default().join(__dirname, "..", "index.html");
         indexUrl += "?dev=" + (!production ? "true" : "false");
+        indexUrl += "&flatpak=" + (flatpak ? "true" : "false");
+        indexUrl += "&flatpakId=" + encodeURIComponent(flatpakId);
+        indexUrl += "&flatpakRunDir=" + encodeURIComponent(flatpakRunDir);
         indexUrl += "&dataPath=" + encodeURIComponent(external_electron_default().app.getPath("userData"));
         indexUrl += "&frameless=" + (framelessClient ? "true" : "false");
         this.window.loadURL(indexUrl, {

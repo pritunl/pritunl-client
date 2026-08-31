@@ -48802,14 +48802,13 @@ var external_process_default = /*#__PURE__*/__webpack_require__.n(external_proce
 
 const loadDelay = 700;
 let unix = false;
-const unixPath = "/var/run/pritunl.sock";
 const webHost = 'http://127.0.0.1:9770';
-const unixWsHost = 'ws+unix://' + external_path_default().join((external_path_default()).sep, 'var', 'run', 'pritunl.sock') + ':';
 const webWsHost = 'ws://127.0.0.1:9770';
 const platform = external_os_default().platform();
 const hostname = external_os_default().hostname();
 const args = new Map();
 let production = true;
+let flatpak = false;
 let authPath = '';
 let deviceAuthPath = '';
 let frameless = false;
@@ -48834,8 +48833,20 @@ for (let item of queryVals) {
 if (args.get('dev') === 'true') {
     production = false;
 }
+if (args.get("flatpak") === "true") {
+    flatpak = true;
+}
+const flatpakId = args.get("flatpakId");
+const flatpakRunDir = args.get("flatpakRunDir");
+const unixPath = flatpak ?
+    external_path_default().join(flatpakRunDir, 'pritunl.sock') :
+    external_path_default().join((external_path_default()).sep, 'var', 'run', 'pritunl.sock');
+const unixWsHost = 'ws+unix://' + unixPath + ':';
 if ((external_process_default()).platform === 'win32') {
     authPath = external_path_default().join(winDrive, 'ProgramData', 'Pritunl', 'auth');
+}
+else if (flatpak) {
+    authPath = external_path_default().join(flatpakRunDir, 'pritunl.auth');
 }
 else {
     authPath = external_path_default().join((external_path_default()).sep, 'var', 'run', 'pritunl.auth');
@@ -53137,12 +53148,6 @@ function New(self) {
         this.geo_sort = data.geo_sort;
         this.force_connect = data.force_connect;
         this.device_auth = data.device_auth;
-        this.disable_reconnect_local = data.disable_reconnect_local;
-        this.disable_gateway = data.disable_gateway;
-        this.disable_dns = data.disable_dns;
-        this.disable_ipv6 = data.disable_ipv6;
-        this.dco = data.dco;
-        this.debug_output = data.debug_output;
         this.sso_auth = data.sso_auth;
         this.password_mode = data.password_mode;
         this.token = data.token;
@@ -54393,6 +54398,8 @@ function ZeroTypes_New(self) {
 
 
 
+
+
 const SSH_DIR = "~/.ssh";
 class RenewController {
     constructor() {
@@ -54655,6 +54662,96 @@ async function getSmartCard() {
         };
     }
     return null;
+}
+function parseFlatpakFilesystems() {
+    let info;
+    try {
+        info = external_fs_default().readFileSync("/.flatpak-info", "utf8");
+    }
+    catch (err) {
+        return null;
+    }
+    let match = info.match(/^\[Context\][\s\S]*?^filesystems=(.*)$/m);
+    if (!match) {
+        return [];
+    }
+    let grants = [];
+    for (let entry of match[1].split(";")) {
+        entry = entry.trim();
+        if (!entry) {
+            continue;
+        }
+        let negated = false;
+        if (entry.startsWith("!")) {
+            negated = true;
+            entry = entry.substring(1);
+        }
+        let mode = "rw";
+        let idx = entry.lastIndexOf(":");
+        if (idx !== -1) {
+            let suffix = entry.substring(idx + 1);
+            if (suffix === "ro" || suffix === "rw" || suffix === "create") {
+                mode = suffix;
+                entry = entry.substring(0, idx);
+            }
+        }
+        grants.push({
+            path: entry,
+            mode: mode,
+            negated: negated,
+        });
+    }
+    return grants;
+}
+function hasSshDirGrant() {
+    let grants = parseFlatpakFilesystems();
+    if (grants === null) {
+        return true;
+    }
+    let home = external_os_default().homedir();
+    let target = external_path_default().join(home, ".ssh");
+    let granted = false;
+    for (let grant of grants) {
+        let covers = false;
+        if (grant.path === "host" || grant.path === "home" ||
+            grant.path === "~") {
+            covers = true;
+        }
+        else {
+            let resolved = grant.path;
+            if (resolved.startsWith("~")) {
+                resolved = home + resolved.substring(1);
+            }
+            resolved = resolved.replace(/\/+$/, "");
+            if (resolved === target ||
+                target.startsWith(resolved + "/")) {
+                covers = true;
+            }
+        }
+        if (!covers) {
+            continue;
+        }
+        if (grant.negated) {
+            granted = false;
+        }
+        else if (grant.mode !== "ro") {
+            granted = true;
+        }
+    }
+    return granted;
+}
+function sshDirAvailable() {
+    if (!flatpak) {
+        return Promise.resolve(true);
+    }
+    if (!hasSshDirGrant()) {
+        return Promise.resolve(false);
+    }
+    return new Promise((resolve) => {
+        external_fs_default().access(expandPath(SSH_DIR), (external_fs_default()).constants.R_OK | (external_fs_default()).constants.W_OK, (err) => {
+            resolve(!err);
+        });
+    });
 }
 async function listSshKeys() {
     let sshDirPath = expandPath(SSH_DIR);
@@ -56115,6 +56212,7 @@ async function importUri(prflUri) {
 
 
 
+
 const ProfileImport_css = {
     box: {
         display: "inline-block"
@@ -56281,6 +56379,15 @@ class ProfileImport extends react.Component {
             if (this.state.mode === "zero" && !this.state.zeroKeysLoaded) {
                 this.loadZeroKeys();
             }
+            if (flatpak) {
+                sshDirAvailable().then((available) => {
+                    this.setState({
+                        ...this.state,
+                        zeroAvailable: available,
+                        mode: available ? this.state.mode : "vpn",
+                    });
+                });
+            }
         };
         this.closeDialog = () => {
             this.setState({
@@ -56292,6 +56399,7 @@ class ProfileImport extends react.Component {
             disabled: false,
             changed: false,
             dialog: false,
+            zeroAvailable: !flatpak,
             mode: "vpn",
             uri: "",
             path: "",
@@ -56306,7 +56414,7 @@ class ProfileImport extends react.Component {
         };
     }
     render() {
-        let zeroMode = this.state.mode === "zero";
+        let zeroMode = this.state.mode === "zero" && this.state.zeroAvailable;
         let importDisabled = this.state.disabled;
         if (zeroMode) {
             importDisabled = importDisabled || !this.state.zeroServer;
@@ -56328,7 +56436,8 @@ class ProfileImport extends react.Component {
             react.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-import", style: this.props.style, type: "button", disabled: this.state.disabled, onClick: this.openDialog }, "Import"),
             react.createElement(Dialog, { title: "Import Profile", style: ProfileImport_css.dialog, isOpen: this.state.dialog, usePortal: true, portalContainer: document.body, onClose: this.closeDialog },
                 react.createElement("div", { className: "bp5-dialog-body" },
-                    react.createElement("div", { className: "bp5-button-group bp5-fill", style: ProfileImport_css.group, hidden: process.platform === 'win32' },
+                    react.createElement("div", { className: "bp5-button-group bp5-fill", style: ProfileImport_css.group, hidden: process.platform === 'win32' ||
+                            !this.state.zeroAvailable },
                         react.createElement("button", { className: "bp5-button bp5-icon-globe-network" +
                                 (!zeroMode ? " bp5-active" : ""), type: "button", disabled: this.state.disabled, onClick: () => {
                                 this.setMode("vpn");
@@ -60798,8 +60907,9 @@ class ProfileConnect extends react.Component {
     }
     render() {
         let connected = this.connected();
-        let hasWg = state.wg && this.props.profile.wg;
-        let hideOvpn = this.props.profile.hide_ovpn;
+        let hasWg = (state.wg &&
+            this.props.profile.wg) || flatpak;
+        let hideOvpn = this.props.profile.hide_ovpn || flatpak;
         let buttonClass = "";
         let buttonLabel = "";
         if (connected) {

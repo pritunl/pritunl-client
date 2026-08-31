@@ -693,6 +693,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   authPath: () => (/* binding */ authPath),
 /* harmony export */   dataPath: () => (/* binding */ dataPath),
 /* harmony export */   deviceAuthPath: () => (/* binding */ deviceAuthPath),
+/* harmony export */   flatpak: () => (/* binding */ flatpak),
+/* harmony export */   flatpakId: () => (/* binding */ flatpakId),
+/* harmony export */   flatpakRunDir: () => (/* binding */ flatpakRunDir),
 /* harmony export */   frameless: () => (/* binding */ frameless),
 /* harmony export */   hostname: () => (/* binding */ hostname),
 /* harmony export */   load: () => (/* binding */ load),
@@ -728,14 +731,13 @@ __webpack_require__.r(__webpack_exports__);
 
 const loadDelay = 700;
 let unix = false;
-const unixPath = "/var/run/pritunl.sock";
 const webHost = 'http://127.0.0.1:9770';
-const unixWsHost = 'ws+unix://' + path__WEBPACK_IMPORTED_MODULE_4___default().join((path__WEBPACK_IMPORTED_MODULE_4___default().sep), 'var', 'run', 'pritunl.sock') + ':';
 const webWsHost = 'ws://127.0.0.1:9770';
 const platform = os__WEBPACK_IMPORTED_MODULE_6___default().platform();
 const hostname = os__WEBPACK_IMPORTED_MODULE_6___default().hostname();
 const args = new Map();
 let production = true;
+let flatpak = false;
 let authPath = '';
 let deviceAuthPath = '';
 let frameless = false;
@@ -760,8 +762,20 @@ for (let item of queryVals) {
 if (args.get('dev') === 'true') {
     production = false;
 }
+if (args.get("flatpak") === "true") {
+    flatpak = true;
+}
+const flatpakId = args.get("flatpakId");
+const flatpakRunDir = args.get("flatpakRunDir");
+const unixPath = flatpak ?
+    path__WEBPACK_IMPORTED_MODULE_4___default().join(flatpakRunDir, 'pritunl.sock') :
+    path__WEBPACK_IMPORTED_MODULE_4___default().join((path__WEBPACK_IMPORTED_MODULE_4___default().sep), 'var', 'run', 'pritunl.sock');
+const unixWsHost = 'ws+unix://' + unixPath + ':';
 if ((process__WEBPACK_IMPORTED_MODULE_5___default().platform) === 'win32') {
     authPath = path__WEBPACK_IMPORTED_MODULE_4___default().join(winDrive, 'ProgramData', 'Pritunl', 'auth');
+}
+else if (flatpak) {
+    authPath = path__WEBPACK_IMPORTED_MODULE_4___default().join(flatpakRunDir, 'pritunl.auth');
 }
 else {
     authPath = path__WEBPACK_IMPORTED_MODULE_4___default().join((path__WEBPACK_IMPORTED_MODULE_4___default().sep), 'var', 'run', 'pritunl.auth');
@@ -7617,8 +7631,9 @@ class ProfileConnect extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     }
     render() {
         let connected = this.connected();
-        let hasWg = _Constants__WEBPACK_IMPORTED_MODULE_3__.state.wg && this.props.profile.wg;
-        let hideOvpn = this.props.profile.hide_ovpn;
+        let hasWg = (_Constants__WEBPACK_IMPORTED_MODULE_3__.state.wg &&
+            this.props.profile.wg) || _Constants__WEBPACK_IMPORTED_MODULE_3__.flatpak;
+        let hideOvpn = this.props.profile.hide_ovpn || _Constants__WEBPACK_IMPORTED_MODULE_3__.flatpak;
         let buttonClass = "";
         let buttonLabel = "";
         if (connected) {
@@ -7767,8 +7782,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageInput__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PageInput */ "./app/components/PageInput.js");
 /* harmony import */ var _PageInputFile__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PageInputFile */ "./app/components/PageInputFile.js");
 /* harmony import */ var _utils_Importer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Importer */ "./app/utils/Importer.js");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _Constants__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Constants */ "./app/Constants.js");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_10__);
+
 
 
 
@@ -7945,6 +7962,15 @@ class ProfileImport extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             if (this.state.mode === "zero" && !this.state.zeroKeysLoaded) {
                 this.loadZeroKeys();
             }
+            if (_Constants__WEBPACK_IMPORTED_MODULE_9__.flatpak) {
+                _utils_ZeroUtils__WEBPACK_IMPORTED_MODULE_2__.sshDirAvailable().then((available) => {
+                    this.setState({
+                        ...this.state,
+                        zeroAvailable: available,
+                        mode: available ? this.state.mode : "vpn",
+                    });
+                });
+            }
         };
         this.closeDialog = () => {
             this.setState({
@@ -7956,6 +7982,7 @@ class ProfileImport extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             disabled: false,
             changed: false,
             dialog: false,
+            zeroAvailable: !_Constants__WEBPACK_IMPORTED_MODULE_9__.flatpak,
             mode: "vpn",
             uri: "",
             path: "",
@@ -7970,7 +7997,7 @@ class ProfileImport extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         };
     }
     render() {
-        let zeroMode = this.state.mode === "zero";
+        let zeroMode = this.state.mode === "zero" && this.state.zeroAvailable;
         let importDisabled = this.state.disabled;
         if (zeroMode) {
             importDisabled = importDisabled || !this.state.zeroServer;
@@ -7992,7 +8019,8 @@ class ProfileImport extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-minimal bp5-icon-import", style: this.props.style, type: "button", disabled: this.state.disabled, onClick: this.openDialog }, "Import"),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__.Dialog, { title: "Import Profile", style: css.dialog, isOpen: this.state.dialog, usePortal: true, portalContainer: document.body, onClose: this.closeDialog },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-dialog-body" },
-                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-button-group bp5-fill", style: css.group, hidden: process.platform === 'win32' },
+                    react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-button-group bp5-fill", style: css.group, hidden: process.platform === 'win32' ||
+                            !this.state.zeroAvailable },
                         react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "bp5-button bp5-icon-globe-network" +
                                 (!zeroMode ? " bp5-active" : ""), type: "button", disabled: this.state.disabled, onClick: () => {
                                 this.setMode("vpn");
@@ -8016,7 +8044,7 @@ class ProfileImport extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                                     ...this.state,
                                     changed: true,
                                     uri: "",
-                                    path: path__WEBPACK_IMPORTED_MODULE_9___default().basename(val),
+                                    path: path__WEBPACK_IMPORTED_MODULE_10___default().basename(val),
                                     fullPath: val,
                                 });
                             } })),
@@ -9856,12 +9884,6 @@ function New(self) {
         this.geo_sort = data.geo_sort;
         this.force_connect = data.force_connect;
         this.device_auth = data.device_auth;
-        this.disable_reconnect_local = data.disable_reconnect_local;
-        this.disable_gateway = data.disable_gateway;
-        this.disable_dns = data.disable_dns;
-        this.disable_ipv6 = data.disable_ipv6;
-        this.dco = data.dco;
-        this.debug_output = data.debug_output;
         this.sso_auth = data.sso_auth;
         this.password_mode = data.password_mode;
         this.token = data.token;
@@ -11651,6 +11673,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   sanitizeHost: () => (/* binding */ sanitizeHost),
 /* harmony export */   sanitizeHostPattern: () => (/* binding */ sanitizeHostPattern),
 /* harmony export */   sanitizeProxyHost: () => (/* binding */ sanitizeProxyHost),
+/* harmony export */   sshDirAvailable: () => (/* binding */ sshDirAvailable),
 /* harmony export */   syncSshState: () => (/* binding */ syncSshState)
 /* harmony export */ });
 /* harmony import */ var _Constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Constants */ "./app/Constants.js");
@@ -11661,6 +11684,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Logger__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Logger */ "./app/Logger.js");
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! path */ "path");
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! os */ "os");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_8__);
+
+
 
 
 
@@ -11930,6 +11959,96 @@ async function getSmartCard() {
         };
     }
     return null;
+}
+function parseFlatpakFilesystems() {
+    let info;
+    try {
+        info = fs__WEBPACK_IMPORTED_MODULE_7___default().readFileSync("/.flatpak-info", "utf8");
+    }
+    catch (err) {
+        return null;
+    }
+    let match = info.match(/^\[Context\][\s\S]*?^filesystems=(.*)$/m);
+    if (!match) {
+        return [];
+    }
+    let grants = [];
+    for (let entry of match[1].split(";")) {
+        entry = entry.trim();
+        if (!entry) {
+            continue;
+        }
+        let negated = false;
+        if (entry.startsWith("!")) {
+            negated = true;
+            entry = entry.substring(1);
+        }
+        let mode = "rw";
+        let idx = entry.lastIndexOf(":");
+        if (idx !== -1) {
+            let suffix = entry.substring(idx + 1);
+            if (suffix === "ro" || suffix === "rw" || suffix === "create") {
+                mode = suffix;
+                entry = entry.substring(0, idx);
+            }
+        }
+        grants.push({
+            path: entry,
+            mode: mode,
+            negated: negated,
+        });
+    }
+    return grants;
+}
+function hasSshDirGrant() {
+    let grants = parseFlatpakFilesystems();
+    if (grants === null) {
+        return true;
+    }
+    let home = os__WEBPACK_IMPORTED_MODULE_8___default().homedir();
+    let target = path__WEBPACK_IMPORTED_MODULE_6___default().join(home, ".ssh");
+    let granted = false;
+    for (let grant of grants) {
+        let covers = false;
+        if (grant.path === "host" || grant.path === "home" ||
+            grant.path === "~") {
+            covers = true;
+        }
+        else {
+            let resolved = grant.path;
+            if (resolved.startsWith("~")) {
+                resolved = home + resolved.substring(1);
+            }
+            resolved = resolved.replace(/\/+$/, "");
+            if (resolved === target ||
+                target.startsWith(resolved + "/")) {
+                covers = true;
+            }
+        }
+        if (!covers) {
+            continue;
+        }
+        if (grant.negated) {
+            granted = false;
+        }
+        else if (grant.mode !== "ro") {
+            granted = true;
+        }
+    }
+    return granted;
+}
+function sshDirAvailable() {
+    if (!_Constants__WEBPACK_IMPORTED_MODULE_0__.flatpak) {
+        return Promise.resolve(true);
+    }
+    if (!hasSshDirGrant()) {
+        return Promise.resolve(false);
+    }
+    return new Promise((resolve) => {
+        fs__WEBPACK_IMPORTED_MODULE_7___default().access(_MiscUtils__WEBPACK_IMPORTED_MODULE_1__.expandPath(SSH_DIR), (fs__WEBPACK_IMPORTED_MODULE_7___default().constants).R_OK | (fs__WEBPACK_IMPORTED_MODULE_7___default().constants).W_OK, (err) => {
+            resolve(!err);
+        });
+    });
 }
 async function listSshKeys() {
     let sshDirPath = _MiscUtils__WEBPACK_IMPORTED_MODULE_1__.expandPath(SSH_DIR);
