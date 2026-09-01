@@ -7,10 +7,17 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pritunl/pritunl-client/cli/logs"
 	"github.com/pritunl/pritunl-client/cli/sprofile"
 )
 
-// LogsMsg carries a profile log fetch result.
+const (
+	LogsService = "service"
+	LogsClient  = "client"
+)
+
+// LogsMsg carries a log fetch result, Id is the profile id or one of
+// LogsService and LogsClient.
 type LogsMsg struct {
 	Id   string
 	Data string
@@ -20,13 +27,60 @@ type LogsMsg struct {
 // LogsCloseMsg is emitted when the log view is dismissed.
 type LogsCloseMsg struct{}
 
-// LogsClearMsg requests confirmation before clearing the profile log.
+// LogsClearMsg requests confirmation before clearing the current log.
 type LogsClearMsg struct {
-	Sprofile *sprofile.Sprofile
+	Source LogsSource
+}
+
+// LogsSource is a selectable log in the log viewer mirroring the desktop
+// client log viewer sources of service, client and each profile.
+type LogsSource struct {
+	Id    string
+	Name  string
+	Sprfl *sprofile.Sprofile
+}
+
+func (s LogsSource) Get() (string, error) {
+	switch s.Id {
+	case LogsService:
+		return logs.GetServiceLog()
+	case LogsClient:
+		return logs.GetClientLog()
+	default:
+		return s.Sprfl.GetLogs()
+	}
+}
+
+func (s LogsSource) Clear() error {
+	switch s.Id {
+	case LogsService:
+		return logs.ClearServiceLog()
+	case LogsClient:
+		return logs.ClearClientLog()
+	default:
+		return s.Sprfl.ClearLogs()
+	}
+}
+
+// LogsSources builds the log viewer sources from the current profiles.
+func LogsSources(sprfls []*sprofile.Sprofile) []LogsSource {
+	sources := []LogsSource{
+		{Id: LogsService, Name: "Service"},
+		{Id: LogsClient, Name: "Client"},
+	}
+	for _, sprfl := range sprfls {
+		sources = append(sources, LogsSource{
+			Id:    sprfl.Id,
+			Name:  sprfl.FormatedName(),
+			Sprfl: sprfl,
+		})
+	}
+	return sources
 }
 
 type LogsView struct {
-	sprfl    *sprofile.Sprofile
+	sources  []LogsSource
+	index    int
 	viewport viewport.Model
 	data     string
 	follow   bool
@@ -35,16 +89,56 @@ type LogsView struct {
 	height   int
 }
 
-func NewLogsView(sprfl *sprofile.Sprofile, width, height int) LogsView {
+func NewLogsView(sources []LogsSource, id string,
+	width, height int) LogsView {
+
 	l := LogsView{
-		sprfl:   sprfl,
+		sources: sources,
 		follow:  true,
 		loading: true,
 	}
 	l.viewport = viewport.New(width, max(height-2, 1))
 	l.viewport.SetContent("Loading...")
 	l.SetSize(width, height)
+	l.setSource(id)
 	return l
+}
+
+func (l *LogsView) Source() LogsSource {
+	if l.index < 0 || l.index >= len(l.sources) {
+		return LogsSource{Id: LogsService, Name: "Service"}
+	}
+	return l.sources[l.index]
+}
+
+func (l *LogsView) setSource(id string) {
+	for i, src := range l.sources {
+		if src.Id == id {
+			l.index = i
+			return
+		}
+	}
+	l.index = 0
+}
+
+// SetSources refreshes the profile sources after a sync keeping the
+// current selection, falling back to the service log when the profile is
+// removed.
+func (l *LogsView) SetSources(sources []LogsSource) {
+	id := l.Source().Id
+	l.sources = sources
+	l.setSource(id)
+}
+
+func (l *LogsView) cycle(dir int) {
+	if len(l.sources) == 0 {
+		return
+	}
+	n := len(l.sources)
+	l.index = ((l.index+dir)%n + n) % n
+	l.loading = true
+	l.follow = true
+	l.viewport.SetContent("Loading...")
 }
 
 func (l *LogsView) SetSize(width, height int) {
@@ -78,20 +172,20 @@ func (l *LogsView) SetData(data string) {
 	}
 }
 
-func fetchLogsCmd(sprfl *sprofile.Sprofile) tea.Cmd {
+func fetchLogsCmd(src LogsSource) tea.Cmd {
 	return func() tea.Msg {
-		data, err := sprfl.GetLogs()
+		data, err := src.Get()
 		return LogsMsg{
-			Id:   sprfl.Id,
+			Id:   src.Id,
 			Data: data,
 			Err:  err,
 		}
 	}
 }
 
-func clearLogsCmd(sprfl *sprofile.Sprofile) tea.Cmd {
+func clearLogsCmd(src LogsSource) tea.Cmd {
 	return func() tea.Msg {
-		err := sprfl.ClearLogs()
+		err := src.Clear()
 		if err != nil {
 			return ActionDoneMsg{
 				Action: "Clear logs",
@@ -99,7 +193,7 @@ func clearLogsCmd(sprfl *sprofile.Sprofile) tea.Cmd {
 			}
 		}
 		return LogsMsg{
-			Id:   sprfl.Id,
+			Id:   src.Id,
 			Data: "",
 		}
 	}
@@ -116,11 +210,18 @@ func (l LogsView) Update(msg tea.Msg) (LogsView, tea.Cmd) {
 				return LogsCloseMsg{}
 			}
 		case key.Matches(msg, logsKeys.Clear):
+			src := l.Source()
 			return l, func() tea.Msg {
 				return LogsClearMsg{
-					Sprofile: l.sprfl,
+					Source: src,
 				}
 			}
+		case key.Matches(msg, logsKeys.Next):
+			l.cycle(1)
+			return l, fetchLogsCmd(l.Source())
+		case key.Matches(msg, logsKeys.Prev):
+			l.cycle(-1)
+			return l, fetchLogsCmd(l.Source())
 		case key.Matches(msg, logsKeys.Top):
 			l.follow = false
 			l.viewport.GotoTop()
@@ -131,7 +232,7 @@ func (l LogsView) Update(msg tea.Msg) (LogsView, tea.Cmd) {
 			return l, nil
 		}
 	case LogsMsg:
-		if msg.Id != l.sprfl.Id {
+		if msg.Id != l.Source().Id {
 			return l, nil
 		}
 		if msg.Err == nil {
@@ -149,16 +250,16 @@ func (l LogsView) Update(msg tea.Msg) (LogsView, tea.Cmd) {
 
 func (l LogsView) View() string {
 	title := menuBarStyle.Width(l.width).Render(
-		" Pritunl Client - Logs: " + l.sprfl.FormatedName())
+		" Pritunl Client - Logs: " + l.Source().Name)
 
 	menu := renderMenuBar(l.width, []MenuItem{
 		{Title: "Back", Key: "esc"},
-		{Title: "Scroll", Key: "↑↓"},
+		{Title: "Change Log", Key: "←/→"},
+		{Title: "Scroll", Key: "↑/↓"},
 		{Title: "Page", Key: "pgup/pgdn"},
 		{Title: "Top", Key: "home"},
 		{Title: "End", Key: "end"},
 		{Title: "Clear", Key: "c"},
-		{Title: "Quit", Key: "ctrl+c"},
 	})
 
 	return lipgloss.JoinVertical(
