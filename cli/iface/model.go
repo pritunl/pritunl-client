@@ -2,6 +2,8 @@ package iface
 
 import (
 	"fmt"
+	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -9,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pritunl/pritunl-client/cli/config"
 	"github.com/pritunl/pritunl-client/cli/constants"
 	"github.com/pritunl/pritunl-client/cli/event"
 	"github.com/pritunl/pritunl-client/cli/sprofile"
@@ -368,16 +371,31 @@ func (m *Model) Import() {
 	})
 }
 
+// logsSources returns the log viewer sources for the current profile list.
+func (m *Model) logsSources() []LogsSource {
+	sprfls := []*sprofile.Sprofile{}
+	for _, itemInf := range m.profiles.Items() {
+		item, ok := itemInf.(ListItem)
+		if ok {
+			sprfls = append(sprfls, item.Sprofile())
+		}
+	}
+	return LogsSources(sprfls)
+}
+
+// Logs opens the log viewer on the selected profile log, or the service
+// log when no profile is selected.
 func (m *Model) Logs() tea.Cmd {
+	id := LogsService
 	sprfl := m.selectedProfile()
-	if sprfl == nil {
-		return nil
+	if sprfl != nil {
+		id = sprfl.Id
 	}
 
-	m.logs = NewLogsView(sprfl, m.winWidth, m.winHeight)
+	m.logs = NewLogsView(m.logsSources(), id, m.winWidth, m.winHeight)
 	m.showLogs = true
 
-	return fetchLogsCmd(sprfl)
+	return fetchLogsCmd(m.logs.Source())
 }
 
 func (m *Model) Settings() {
@@ -425,17 +443,20 @@ func (m *Model) Settings() {
 		message = "Autostart is enforced by the server"
 	}
 
-	m.openDialog(NewDialog(
-		"Settings "+sprfl.FormatedName(),
-		message,
-		nameOpt,
-		autostartOpt,
-		gatewayOpt,
-		dnsOpt,
-		ipv6Opt,
-		dcoOpt,
-		debugOpt,
-		forceDnsOpt,
+	opts := []Option{nameOpt, autostartOpt}
+	if !sprfl.RestrictClient {
+		opts = append(opts, gatewayOpt, dnsOpt)
+	}
+	if !sprfl.RestrictClient || sprfl.DisableIpv6 {
+		opts = append(opts, ipv6Opt)
+	}
+	if !sprfl.RestrictClient {
+		opts = append(opts, dcoOpt, debugOpt)
+	}
+	if runtime.GOOS == "darwin" || sprfl.ForceDns {
+		opts = append(opts, forceDnsOpt)
+	}
+	opts = append(opts,
 		&OptionButton{
 			Label:  "Cancel",
 			Return: DialogCancel,
@@ -444,6 +465,12 @@ func (m *Model) Settings() {
 			Label:  "Save",
 			Return: DialogOk,
 		},
+	)
+
+	m.openDialog(NewDialog(
+		"Settings "+sprfl.FormatedName(),
+		message,
+		opts...,
 	), func(m *Model, ret int) tea.Cmd {
 		if ret != DialogOk {
 			return nil
@@ -463,6 +490,129 @@ func (m *Model) Settings() {
 			m.setStatus("Autostart enforced by server", true)
 			return nil
 		}
+
+		m.setStatus("Saving settings", false)
+
+		return actionCmd("Save Settings", "Settings saved", func() error {
+			return updated.Commit()
+		})
+	})
+}
+
+// ConfigMsg carries the result of a background global settings fetch.
+type ConfigMsg struct {
+	Config *config.Config
+	Err    error
+}
+
+func configCmd() tea.Cmd {
+	return func() tea.Msg {
+		conf, err := config.Get()
+		return ConfigMsg{
+			Config: conf,
+			Err:    err,
+		}
+	}
+}
+
+// Config loads the global advanced settings then opens the settings
+// dialog once the service responds.
+func (m *Model) Config() tea.Cmd {
+	m.setStatus("Loading settings", false)
+	return configCmd()
+}
+
+// openConfig shows the global advanced settings dialog, these mirror the
+// desktop client advanced settings with platform specific options hidden.
+func (m *Model) openConfig(conf *config.Config) {
+	dnsRefreshOpt := &OptionToggle{
+		Label: "Enable DNS Refresh",
+		Value: conf.EnableDnsRefresh,
+	}
+	dnsWatchOpt := &OptionToggle{
+		Label: "Disable DNS Watch",
+		Value: conf.DisableDnsWatch,
+	}
+	wgDnsOpt := &OptionToggle{
+		Label: "Disable WireGuard DNS Watch",
+		Value: conf.DisableWgDns,
+	}
+	wakeWatchOpt := &OptionToggle{
+		Label: "Disable Device Wake Watch",
+		Value: conf.DisableWakeWatch,
+	}
+	netCleanOpt := &OptionToggle{
+		Label: "Disable Network Clean",
+		Value: conf.DisableNetClean,
+	}
+	browserOpt := &OptionToggle{
+		Label: "Disable Browser Open",
+		Value: conf.DisableBrowser,
+	}
+	metricOpt := &OptionText{
+		Label:       "Interface Metric (0 to leave unmodified)",
+		Placeholder: "0",
+		Value:       strconv.Itoa(conf.InterfaceMetric),
+	}
+
+	opts := []Option{}
+	if runtime.GOOS == "darwin" || conf.EnableDnsRefresh {
+		opts = append(opts, dnsRefreshOpt)
+	}
+	opts = append(opts, dnsWatchOpt)
+	if runtime.GOOS == "darwin" || conf.DisableWgDns {
+		opts = append(opts, wgDnsOpt)
+	}
+	opts = append(opts, wakeWatchOpt)
+	if runtime.GOOS == "windows" || conf.DisableNetClean {
+		opts = append(opts, netCleanOpt)
+	}
+	opts = append(opts, browserOpt)
+	if runtime.GOOS == "windows" || conf.InterfaceMetric != 0 {
+		opts = append(opts, metricOpt)
+	}
+	opts = append(opts,
+		&OptionButton{
+			Label:  "Cancel",
+			Return: DialogCancel,
+		},
+		&OptionButton{
+			Label:  "Save",
+			Return: DialogOk,
+		},
+	)
+
+	m.openDialog(NewDialog(
+		"Advanced Settings",
+		"",
+		opts...,
+	), func(m *Model, ret int) tea.Cmd {
+		if ret != DialogOk {
+			return nil
+		}
+
+		metricStr := strings.TrimSpace(metricOpt.GetValue())
+		metric := 0
+		if metricStr != "" {
+			var err error
+			metric, err = strconv.Atoi(metricStr)
+			if err != nil || metric < 0 || metric > 9999 {
+				m.setStatus(
+					"Interface metric must be a number from 0 to 9999",
+					true,
+				)
+				return nil
+			}
+		}
+
+		updated := *conf
+		updated.EnableDnsRefresh = dnsRefreshOpt.GetValue()
+		updated.DisableDnsWatch = dnsWatchOpt.GetValue()
+		updated.DisableWgDns = wgDnsOpt.GetValue()
+		updated.DisableWakeWatch = wakeWatchOpt.GetValue()
+		updated.DisableNetClean = netCleanOpt.GetValue()
+		updated.DisableBrowser = browserOpt.GetValue()
+		updated.InterfaceMetric = metric
 
 		m.setStatus("Saving settings", false)
 
@@ -515,7 +665,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, syncCmd())
 		}
 		if m.showLogs {
-			cmds = append(cmds, fetchLogsCmd(m.logs.sprfl))
+			cmds = append(cmds, fetchLogsCmd(m.logs.Source()))
 		}
 		return m, tea.Batch(cmds...)
 
@@ -525,6 +675,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case EventMsg:
 		return m.updateEvent(msg.Event)
+
+	case ConfigMsg:
+		if msg.Err != nil {
+			m.setStatus("Load settings failed", true)
+			m.openError("Load Settings", msg.Err)
+			return m, nil
+		}
+		m.setStatus("", false)
+		m.openConfig(msg.Config)
+		return m, nil
 
 	case ActionDoneMsg:
 		if msg.Err != nil {
@@ -552,11 +712,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case LogsClearMsg:
-		sprfl := msg.Sprofile
+		src := msg.Source
 		m.openDialog(NewDialog(
 			"Clear Logs",
-			fmt.Sprintf("Clear the log output for %s?",
-				sprfl.FormatedName()),
+			fmt.Sprintf("Clear the %s log output?", src.Name),
 			&OptionButton{
 				Label:  "Cancel",
 				Return: DialogCancel,
@@ -569,7 +728,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if ret != DialogOk {
 				return nil
 			}
-			return clearLogsCmd(sprfl)
+			return clearLogsCmd(src)
 		})
 		return m, nil
 
@@ -615,6 +774,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(keyMsg, m.bindings.Remove):
 			m.Remove()
 			return m, nil
+		case key.Matches(keyMsg, m.bindings.Config):
+			return m, m.Config()
 		case key.Matches(keyMsg, m.bindings.Refresh):
 			return m, m.resync()
 		}
@@ -779,6 +940,10 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 		m.profiles.Select(len(items) - 1)
 	}
 
+	if m.showLogs {
+		m.logs.SetSources(LogsSources(msg.Profiles))
+	}
+
 	if m.showDialog {
 		return m, nil
 	}
@@ -832,7 +997,7 @@ func (m Model) menuItems() []MenuItem {
 		if sprfl.State {
 			menu = append(menu, MenuItem{Title: "Disconnect", Key: "d"})
 		} else {
-			if sprfl.HideOvpn {
+			if sprfl.HideOvpn || constants.Flatpak {
 				menu = append(menu,
 					MenuItem{Title: "Connect WireGuard", Key: "c"})
 			} else {
@@ -849,10 +1014,13 @@ func (m Model) menuItems() []MenuItem {
 			MenuItem{Title: "Settings", Key: "s"},
 			MenuItem{Title: "Remove", Key: "r"},
 		)
+	} else {
+		menu = append(menu, MenuItem{Title: "Logs", Key: "l"})
 	}
 
 	menu = append(menu,
 		MenuItem{Title: "Import", Key: "i"},
+		MenuItem{Title: "Advanced", Key: "a"},
 		MenuItem{Title: "Quit", Key: "q"},
 	)
 
