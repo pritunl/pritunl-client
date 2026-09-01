@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/pritunl/pritunl-client/cli/iface"
+	"github.com/pritunl/pritunl-client/cli/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +20,7 @@ var RootCmd = &cobra.Command{
 }
 
 func Execute() {
+	cobra.CheckErr(utils.FlatpakInit())
 	cobra.CheckErr(RootCmd.Execute())
 }
 
