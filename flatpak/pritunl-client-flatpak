@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+export FLATPAK_MODE=true
+export ELECTRON_OZONE_PLATFORM_HINT="${ELECTRON_OZONE_PLATFORM_HINT:-auto}"
+
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+    echo "pritunl-client: XDG_RUNTIME_DIR not defined" >&2
+    exit 1
+fi
+
+/app/bin/pritunl-client-service &
+
+exec zypak-wrapper /app/pritunl-client-electron/Pritunl "$@"
