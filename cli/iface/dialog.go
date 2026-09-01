@@ -80,7 +80,6 @@ var dialogKeys = DialogKeyMap{
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
-		key.WithHelp("ctrl+c", "quit"),
 	),
 	Close: key.NewBinding(
 		key.WithKeys("q"),
