@@ -1,0 +1,152 @@
+app-id: com.pritunl.Client
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '25.08'
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node24
+  - org.freedesktop.Sdk.Extension.golang
+command: pritunl-client-flatpak
+separate-locales: false
+
+finish-args:
+  # Display
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # WireGuard
+  - --share=network
+  - --system-talk-name=org.freedesktop.NetworkManager
+  # Tray
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.freedesktop.Notifications
+  # Environment
+  - --env=FLATPAK_MODE=true
+  - --env=ELECTRON_OZONE_PLATFORM_HINT=auto
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/man
+  - '*.a'
+  - '*.la'
+
+modules:
+  - name: pritunl-client-service
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/golang/bin
+      env:
+        GOFLAGS: -mod=vendor -trimpath
+        GOTOOLCHAIN: local
+        GOPROXY: 'off'
+        GOCACHE: /run/build/pritunl-client-service/go-build
+        GOPATH: /run/build/pritunl-client-service/go
+    build-commands:
+      - go build -ldflags="-s -w" -o /app/bin/pritunl-client-service .
+    sources:
+      - type: dir
+        path: ../service
+        skip:
+          - vendor
+          - go-build
+      - ../service/go.mod.yml
+      - type: file
+        path: ../service/modules.txt
+        dest: vendor
+
+  - name: pritunl-client-cli
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/golang/bin
+      env:
+        GOFLAGS: -mod=vendor -trimpath
+        GOTOOLCHAIN: local
+        GOPROXY: 'off'
+        GOCACHE: /run/build/pritunl-client-cli/go-build
+        GOPATH: /run/build/pritunl-client-cli/go
+    build-commands:
+      - go build -ldflags="-s -w" -o /app/bin/pritunl-client .
+    sources:
+      - type: dir
+        path: ../cli
+        skip:
+          - vendor
+          - go-build
+      - ../cli/go.mod.yml
+      - type: file
+        path: ../cli/modules.txt
+        dest: vendor
+
+  - name: pritunl-client-electron
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/node24/bin
+      env:
+        XDG_CACHE_HOME: /run/build/pritunl-client-electron/flatpak-node/cache
+        npm_config_cache: /run/build/pritunl-client-electron/flatpak-node/npm-cache
+        npm_config_offline: 'true'
+        npm_config_legacy_peer_deps: 'true'
+        npm_config_min_release_age: '0'
+        npm_config_update_notifier: 'false'
+        NPM_CONFIG_LOGLEVEL: info
+    build-commands:
+      - npm ci --offline
+      - |
+        case "$FLATPAK_ARCH" in
+          x86_64) ELECTRON_ARCH=x64 ;;
+          aarch64) ELECTRON_ARCH=arm64 ;;
+          *) echo "Unsupported arch $FLATPAK_ARCH" >&2; exit 1 ;;
+        esac
+        ./node_modules/.bin/electron-packager . Pritunl \
+          --platform=linux \
+          --arch=$ELECTRON_ARCH \
+          --electron-zip-dir=flatpak-node/cache/electron \
+          --out=build \
+          --overwrite \
+          --prune=true \
+          --ignore='^/(app|main|styles|dist-dev|build|flatpak-node)($|/)' \
+          --ignore='^/(build\.sh|build_remote\.sh|package.*\.js|webpack.*\.js|tsconfig\.json|README\.md)$'
+      - mkdir -p /app/pritunl-client-electron
+      - cp -a build/Pritunl-linux-*/. /app/pritunl-client-electron/
+      # zypak-wrapper
+      - rm -f /app/pritunl-client-electron/chrome-sandbox
+    sources:
+      - type: dir
+        path: ../client
+        skip:
+          - node_modules
+          - dist-dev
+          - build
+          - flatpak-node
+      - generated-sources.json
+
+  - name: pritunl-client-resources
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 pritunl-client-flatpak /app/bin/pritunl-client-flatpak
+      - install -Dm644 com.pritunl.Client.desktop
+        /app/share/applications/com.pritunl.Client.desktop
+      - install -Dm644 com.pritunl.Client.metainfo.xml
+        /app/share/metainfo/com.pritunl.Client.metainfo.xml
+      - |
+        for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256 512x512; do
+          install -Dm644 icons/$size/apps/pritunl_client_electron.png \
+            /app/share/icons/hicolor/$size/apps/com.pritunl.Client.png
+        done
+        install -Dm644 icons/scalable/apps/pritunl_client_electron.svg \
+          /app/share/icons/hicolor/scalable/apps/com.pritunl.Client.svg
+    sources:
+      - type: file
+        path: pritunl-client-flatpak
+      - type: file
+        path: com.pritunl.Client.desktop
+      - type: file
+        path: com.pritunl.Client.metainfo.xml
+      - type: dir
+        path: ../resources_linux/icons
+        dest: icons
+        skip:
+          - .DS_Store
