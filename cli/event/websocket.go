@@ -26,7 +26,7 @@ var (
 			net.Conn, error) {
 
 			dialer := &net.Dialer{Timeout: dialTimeout}
-			return dialer.DialContext(ctx, "unix", service.UnixSocket)
+			return dialer.DialContext(ctx, "unix", service.GetUnixSocket())
 		},
 	}
 	tcpDialer = &websocket.Dialer{
