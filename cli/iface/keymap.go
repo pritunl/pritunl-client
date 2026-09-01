@@ -14,6 +14,7 @@ type KeyMap struct {
 	Logs       key.Binding
 	Settings   key.Binding
 	Remove     key.Binding
+	Config     key.Binding
 	Refresh    key.Binding
 	Quit       key.Binding
 }
@@ -55,6 +56,10 @@ var bindings = KeyMap{
 		key.WithKeys("r", "delete"),
 		key.WithHelp("r", "remove"),
 	),
+	Config: key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "advanced settings"),
+	),
 	Refresh: key.NewBinding(
 		key.WithKeys("R", "ctrl+r"),
 		key.WithHelp("R", "refresh"),
@@ -67,6 +72,8 @@ var bindings = KeyMap{
 
 type LogsKeyMap struct {
 	Back  key.Binding
+	Next  key.Binding
+	Prev  key.Binding
 	Clear key.Binding
 	Top   key.Binding
 	End   key.Binding
@@ -77,6 +84,14 @@ var logsKeys = LogsKeyMap{
 	Back: key.NewBinding(
 		key.WithKeys("esc", "q", "l", "backspace"),
 		key.WithHelp("esc", "back"),
+	),
+	Next: key.NewBinding(
+		key.WithKeys("tab", "right", "n"),
+		key.WithHelp("tab", "next log"),
+	),
+	Prev: key.NewBinding(
+		key.WithKeys("shift+tab", "left", "p"),
+		key.WithHelp("shift+tab", "previous log"),
 	),
 	Clear: key.NewBinding(
 		key.WithKeys("c"),
@@ -92,6 +107,5 @@ var logsKeys = LogsKeyMap{
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
-		key.WithHelp("ctrl+c", "quit"),
 	),
 }
