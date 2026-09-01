@@ -150,19 +150,21 @@ func (i ListItem) Body(width int) string {
 func (i ListItem) BodySplit(width int) string {
 	rows := []string{}
 
-	colWidth := min((width-6)/2, 60)
-	style := itemColStyle.Width(colWidth)
+	available := min(width-6, 160)
+	rightWidth := available / 2
+	leftColWidth := available - rightWidth
+	leftStyle := itemColStyle.Width(leftColWidth)
+	rightStyle := itemColStyle.Width(rightWidth)
+	leftWidth := leftColWidth - 1
 
-	leftWidth := colWidth - 1
-
-	left := style.Render(renderCol(leftWidth, "User: %s", i.profile.User))
-
-	right := style.Render(i.statusRow(colWidth))
-
+	left := leftStyle.Render(renderCol(leftWidth, "User: %s", i.profile.User))
+	right := rightStyle.Render(i.statusRow(rightWidth))
 	rows = append(rows, lipgloss.JoinHorizontal(lipgloss.Left, left, right))
 
-	left = style.Render(renderCol(leftWidth, "Server: %s", i.profile.Server))
-	right = renderCol(colWidth, "Organization: %s", i.profile.Organization)
+	left = leftStyle.Render(renderCol(
+		leftWidth, "Server: %s", i.profile.Server))
+	right = rightStyle.Render(renderCol(
+		rightWidth, "Organization: %s", i.profile.Organization))
 	rows = append(rows, lipgloss.JoinHorizontal(lipgloss.Left, left, right))
 
 	serverAddr := i.profile.ServerAddress
@@ -174,13 +176,13 @@ func (i ListItem) BodySplit(width int) string {
 		clientAddr = "-"
 	}
 
-	left = style.Render(renderCol(
+	left = leftStyle.Render(renderCol(
 		leftWidth,
 		"Server Address: %s",
 		serverAddr,
 	))
-	right = style.Render(renderCol(
-		colWidth,
+	right = rightStyle.Render(renderCol(
+		rightWidth,
 		"Client Address: %s",
 		clientAddr,
 	))
