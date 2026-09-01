@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	UnixSocket = "/var/run/pritunl.sock"
 	TcpAddress = "127.0.0.1:9770"
 )
 
@@ -23,7 +22,7 @@ const pollTimeout = 5 * time.Second
 
 var unixTransport = &http.Transport{
 	DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
-		return net.Dial("unix", UnixSocket)
+		return net.Dial("unix", GetUnixSocket())
 	},
 }
 
@@ -43,6 +42,10 @@ var httpPollClient = &http.Client{
 var unixPollClient = &http.Client{
 	Timeout:   pollTimeout,
 	Transport: unixTransport,
+}
+
+func GetUnixSocket() string {
+	return utils.GetSockPath()
 }
 
 func GetAddress() string {
