@@ -47,6 +47,11 @@ func GetPath() string {
 		return filepath.Join("/", "Library",
 			"Application Support", "Pritunl", "pritunl-client.json")
 	case "linux":
+		if utils.IsFlatpak() {
+			return filepath.Join(utils.GetFlatpakConfigDir(),
+				"pritunl-client.json")
+		}
+
 		return filepath.Join("/", "var",
 			"lib", "pritunl-client", "pritunl-client.json")
 	default:
