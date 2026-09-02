@@ -64,6 +64,21 @@ process.on("unhandledRejection", function (error) {
 	})
 })
 
+if (Constants.flatpakError) {
+	readyError = Constants.flatpakError
+}
+
+if (!electron.app.requestSingleInstanceLock()) {
+	electron.app.quit()
+} else {
+	electron.app.on("second-instance", (): void => {
+		if (ready) {
+			let main = new Main()
+			main.run()
+		}
+	})
+}
+
 electron.ipcMain.handle(
 	"processing",
 	(evt: electron.IpcMainEvent, msg: string, data: string) => {
@@ -273,6 +288,9 @@ class Main {
 
 		let indexUrl = "file://" + path.join(__dirname, "..", "index.html")
 		indexUrl += "?dev=" + (!Constants.production ? "true" : "false")
+		indexUrl += "&flatpak=" + (Constants.flatpak ? "true" : "false")
+		indexUrl += "&flatpakId=" + encodeURIComponent(Constants.flatpakId)
+		indexUrl += "&flatpakRunDir=" + encodeURIComponent(Constants.flatpakRunDir)
 		indexUrl += "&dataPath=" + encodeURIComponent(
 			electron.app.getPath("userData"))
 		indexUrl += "&frameless=" + (framelessClient ? "true" : "false")
