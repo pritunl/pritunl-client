@@ -4,7 +4,10 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/service/config"
+	"github.com/pritunl/pritunl-client/service/constants"
+	"github.com/pritunl/pritunl-client/service/errortypes"
 	"github.com/pritunl/pritunl-client/service/event"
 	"github.com/pritunl/pritunl-client/service/sprofile"
 	"github.com/pritunl/pritunl-client/service/utils"
@@ -117,6 +120,19 @@ func (c *Connection) Start(opts Options) (err error) {
 	c.Profile.Sync()
 
 	if c.State.IsStop() {
+		c.State.Close()
+		return
+	}
+
+	if c.Profile.Mode != WgMode && constants.Flatpak {
+		err = &errortypes.UnknownError{
+			errors.New("connection: OpenVPN mode not supported in Flatpak, " +
+				"WireGuard mode required"),
+		}
+		logrus.WithFields(c.Fields(logrus.Fields{
+			"error": err,
+		})).Error("connection: Start error")
+		c.Data.SendProfileEvent("configuration_error")
 		c.State.Close()
 		return
 	}
