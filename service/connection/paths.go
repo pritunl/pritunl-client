@@ -117,6 +117,11 @@ func GetWgConfDir() (dir1 string, dir2 string, err error) {
 		dir1 = "/etc/wireguard"
 		return
 	case "linux":
+		if utils.IsFlatpak() {
+			dir1, err = utils.GetTempDir()
+			return
+		}
+
 		dir1 = "/etc/wireguard"
 		return
 	default:
