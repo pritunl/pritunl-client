@@ -10,16 +10,14 @@ import os from "os";
 
 export const loadDelay = 700;
 export let unix = false;
-export const unixPath = "/var/run/pritunl.sock";
 export const webHost = 'http://127.0.0.1:9770';
-export const unixWsHost = 'ws+unix://' + path.join(
-	path.sep, 'var', 'run', 'pritunl.sock') + ':';
 export const webWsHost = 'ws://127.0.0.1:9770';
 export const platform = os.platform()
 export const hostname = os.hostname()
 
 export const args = new Map<string, string>();
 export let production = true;
+export let flatpak = false;
 export let authPath = '';
 export let deviceAuthPath = '';
 export let frameless = false
@@ -51,8 +49,22 @@ if (args.get('dev') === 'true') {
 	production = false;
 }
 
+if (args.get("flatpak") === "true") {
+	flatpak = true
+}
+
+export const flatpakId = args.get("flatpakId")
+export const flatpakRunDir = args.get("flatpakRunDir")
+
+export const unixPath = flatpak ?
+	path.join(flatpakRunDir, 'pritunl.sock') :
+	path.join(path.sep, 'var', 'run', 'pritunl.sock');
+export const unixWsHost = 'ws+unix://' + unixPath + ':';
+
 if (process.platform === 'win32') {
 	authPath = path.join(winDrive, 'ProgramData', 'Pritunl', 'auth');
+} else if (flatpak) {
+	authPath = path.join(flatpakRunDir, 'pritunl.auth');
 } else {
 	authPath = path.join(path.sep, 'var', 'run', 'pritunl.auth');
 }
