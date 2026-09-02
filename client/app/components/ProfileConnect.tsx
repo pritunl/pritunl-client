@@ -380,8 +380,9 @@ export default class ProfileConnect extends React.Component<Props, State> {
 
 	render(): JSX.Element {
 		let connected = this.connected()
-		let hasWg = Constants.state.wg && this.props.profile.wg
-		let hideOvpn = this.props.profile.hide_ovpn
+		let hasWg = (Constants.state.wg &&
+			this.props.profile.wg) || Constants.flatpak
+		let hideOvpn = this.props.profile.hide_ovpn || Constants.flatpak
 
 		let buttonClass = ""
 		let buttonLabel = ""
