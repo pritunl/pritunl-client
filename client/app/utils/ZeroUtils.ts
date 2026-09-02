@@ -6,6 +6,8 @@ import * as ZeroTypes from "../types/ZeroTypes"
 import * as Errors from "../Errors"
 import * as Logger from "../Logger"
 import path from "path"
+import fs from "fs"
+import os from "os"
 
 export const SSH_DIR = "~/.ssh"
 
@@ -362,6 +364,123 @@ export async function getSmartCard(): Promise<SmartCard> {
 	}
 
 	return null
+}
+
+interface FlatpakFsGrant {
+	path: string
+	mode: string
+	negated: boolean
+}
+
+function parseFlatpakFilesystems(): FlatpakFsGrant[] {
+	let info: string
+	try {
+		info = fs.readFileSync("/.flatpak-info", "utf8")
+	} catch (err) {
+		return null
+	}
+
+	let match = info.match(/^\[Context\][\s\S]*?^filesystems=(.*)$/m)
+	if (!match) {
+		return []
+	}
+
+	let grants: FlatpakFsGrant[] = []
+	for (let entry of match[1].split(";")) {
+		entry = entry.trim()
+		if (!entry) {
+			continue
+		}
+
+		let negated = false
+		if (entry.startsWith("!")) {
+			negated = true
+			entry = entry.substring(1)
+		}
+
+		let mode = "rw"
+		let idx = entry.lastIndexOf(":")
+		if (idx !== -1) {
+			let suffix = entry.substring(idx + 1)
+			if (suffix === "ro" || suffix === "rw" || suffix === "create") {
+				mode = suffix
+				entry = entry.substring(0, idx)
+			}
+		}
+
+		grants.push({
+			path: entry,
+			mode: mode,
+			negated: negated,
+		})
+	}
+
+	return grants
+}
+
+function hasSshDirGrant(): boolean {
+	let grants = parseFlatpakFilesystems()
+	if (grants === null) {
+		return true
+	}
+
+	let home = os.homedir()
+	let target = path.join(home, ".ssh")
+	let granted = false
+
+	for (let grant of grants) {
+		let covers = false
+
+		if (grant.path === "host" || grant.path === "home" ||
+			grant.path === "~") {
+
+			covers = true
+		} else {
+			let resolved = grant.path
+			if (resolved.startsWith("~")) {
+				resolved = home + resolved.substring(1)
+			}
+			resolved = resolved.replace(/\/+$/, "")
+
+			if (resolved === target ||
+				target.startsWith(resolved + "/")) {
+
+				covers = true
+			}
+		}
+
+		if (!covers) {
+			continue
+		}
+
+		if (grant.negated) {
+			granted = false
+		} else if (grant.mode !== "ro") {
+			granted = true
+		}
+	}
+
+	return granted
+}
+
+export function sshDirAvailable(): Promise<boolean> {
+	if (!Constants.flatpak) {
+		return Promise.resolve(true)
+	}
+
+	if (!hasSshDirGrant()) {
+		return Promise.resolve(false)
+	}
+
+	return new Promise<boolean>((resolve): void => {
+		fs.access(
+			MiscUtils.expandPath(SSH_DIR),
+			fs.constants.R_OK | fs.constants.W_OK,
+			(err: Error): void => {
+				resolve(!err)
+			},
+		)
+	})
 }
 
 export async function listSshKeys(): Promise<string[]> {
