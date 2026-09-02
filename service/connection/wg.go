@@ -36,6 +36,12 @@ type Wg struct {
 	wgUtilPath    string
 	wgConfPath    string
 	wgConfPath2   string
+	wgConf        *WgConf
+	wgTemplData   WgConfData
+	allowedIps    []string
+	nmName        string
+	nmUuid        string
+	nmConnPath    string
 	connected     bool
 	lastHandshake int
 	bashPath      string
@@ -74,6 +80,9 @@ func (w *Wg) Fields() logrus.Fields {
 		"wg_bash_path":      w.bashPath,
 		"wg_conf_path":      w.wgConfPath,
 		"wg_conf_path2":     w.wgConfPath2,
+		"wg_nm_name":        w.nmName,
+		"wg_nm_uuid":        w.nmUuid,
+		"wg_nm_path":        w.nmConnPath,
 		"wg_connected":      w.connected,
 		"wg_last_handshake": w.lastHandshake,
 		"wg_pub_key":        w.publicKey != "",
@@ -91,6 +100,10 @@ func (w *Wg) Init() {
 	w.bashPath = GetBashPath()
 }
 
+func (w *Wg) isNm() bool {
+	return utils.IsFlatpak()
+}
+
 func (w *Wg) GetPublicKey() string {
 	return w.publicKey
 }
@@ -100,6 +113,15 @@ func (w *Wg) GetReqPrefix() string {
 }
 
 func (w *Wg) generateKey() (err error) {
+	if w.isNm() {
+		w.privateKey, w.publicKey, err = generateWgKey()
+		if err != nil {
+			return
+		}
+
+		return
+	}
+
 	privateKey, err := utils.ExecOutput(w.wgPath, "genkey")
 	if err != nil {
 		err = &errortypes.ExecError{
@@ -241,40 +263,40 @@ func (w *Wg) WatchConnection() (err error) {
 	}
 	interval = interval * 2
 
-	for i := 0; i < 50; i++ {
-		if w.conn.State.IsStop() {
-			w.conn.State.Close()
-			return
+	if w.isNm() {
+		w.nmWaitConnected()
+	} else {
+		for i := 0; i < 50; i++ {
+			if w.conn.State.IsStop() {
+				w.conn.State.Close()
+				return
+			}
+
+			if i%interval == 0 {
+				go w.ping()
+			}
+
+			err = w.updateHandshake()
+			if err != nil {
+				logrus.WithFields(w.conn.Fields(logrus.Fields{
+					"error": err,
+				})).Error("connection: Check handshake status failed")
+
+				w.conn.State.Close()
+				return
+			}
+
+			if w.conn.State.IsStop() {
+				w.conn.State.Close()
+				return
+			}
+
+			if w.lastHandshake != 0 {
+				break
+			}
+
+			time.Sleep(500 * time.Millisecond)
 		}
-
-		if i%interval == 0 {
-			go w.ping()
-		}
-
-		err = w.updateHandshake()
-		if err != nil {
-			logrus.WithFields(w.conn.Fields(logrus.Fields{
-				"error": err,
-			})).Error("connection: Check handshake status failed")
-
-			w.conn.State.Close()
-			return
-		}
-
-		if w.conn.State.IsStop() {
-			w.conn.State.Close()
-			return
-		}
-
-		if w.lastHandshake != 0 {
-			w.connected = true
-			w.conn.Data.Status = Connected
-			w.conn.Data.Timestamp = time.Now().Unix() - 3
-			w.conn.Data.UpdateEvent()
-			break
-		}
-
-		time.Sleep(500 * time.Millisecond)
 	}
 
 	if w.conn.State.IsStop() {
@@ -292,6 +314,11 @@ func (w *Wg) WatchConnection() (err error) {
 		w.conn.State.Close()
 		return
 	}
+
+	w.connected = true
+	w.conn.Data.Status = Connected
+	w.conn.Data.Timestamp = time.Now().Unix() - 3
+	w.conn.Data.UpdateEvent()
 
 	if !w.conn.Profile.DisableDns && w.conn.Data.DnsServers != nil &&
 		len(w.conn.Data.DnsServers) > 0 && runtime.GOOS == "darwin" &&
@@ -553,6 +580,22 @@ func (w *Wg) writeWgConf(data *WgConf) (err error) {
 		templData.DnsServers += strings.Join(data.SearchDomains, ",")
 	}
 
+	w.wgTemplData = templData
+	w.allowedIps = allowedIps
+
+	if w.isNm() {
+		return
+	}
+
+	err = w.writeWgConfFiles(templData)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (w *Wg) writeWgConfFiles(templData WgConfData) (err error) {
 	output := &bytes.Buffer{}
 	err = WgConfTempl.Execute(output, templData)
 	if err != nil {
@@ -633,6 +676,7 @@ func (w *Wg) confWg(data *WgConf) (err error) {
 	w.conn.Data.Routes6 = data.Routes6
 
 	w.serverPubKey = data.PublicKey
+	w.wgConf = data
 
 	switch runtime.GOOS {
 	case "darwin":
@@ -642,7 +686,11 @@ func (w *Wg) confWg(data *WgConf) (err error) {
 		err = w.confWgWin()
 		break
 	case "linux":
-		err = w.confWgLinux()
+		if w.isNm() {
+			err = w.confWgNm()
+		} else {
+			err = w.confWgLinux()
+		}
 		break
 	default:
 		panic("profile: Not implemented")
@@ -811,7 +859,9 @@ func (w *Wg) confWgWin() (err error) {
 func (w *Wg) applyRouteMetrics(data *WgConf) {
 	switch runtime.GOOS {
 	case "linux":
-		w.applyRouteMetricsLinux(data)
+		if !w.isNm() {
+			w.applyRouteMetricsLinux(data)
+		}
 		break
 	case "windows":
 		w.applyRouteMetricsWin(data)
@@ -994,7 +1044,11 @@ func (w *Wg) clearWgWin() {
 func (w *Wg) clearWg() {
 	switch runtime.GOOS {
 	case "linux":
-		w.clearWgLinux()
+		if w.isNm() {
+			w.clearWgNm()
+		} else {
+			w.clearWgLinux()
+		}
 		break
 	case "darwin":
 		w.clearWgMac()
@@ -1022,6 +1076,22 @@ func (w *Wg) addAllowedIp(route *Route, ipv6 bool, allowedIps []string) {
 		if wgIface == "" {
 			return
 		}
+	}
+
+	if w.isNm() {
+		err := w.nmReapply(allowedIps)
+		if err != nil {
+			logrus.WithFields(w.conn.Fields(logrus.Fields{
+				"network": route.Network,
+				"error":   err,
+			})).Warn("connection: Failed to update allowed ips")
+			return
+		}
+
+		logrus.WithFields(w.conn.Fields(logrus.Fields{
+			"network": route.Network,
+		})).Info("connection: Added released route")
+		return
 	}
 
 	_, err := utils.ExecCombinedOutputLogged(
