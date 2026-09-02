@@ -8,6 +8,7 @@ import Help from "./Help"
 import PageInput from "./PageInput"
 import PageInputFile from "./PageInputFile"
 import * as Importer from "../utils/Importer"
+import * as Constants from "../Constants"
 import path from "path"
 
 interface Props {
@@ -18,6 +19,7 @@ interface State {
 	disabled: boolean
 	changed: boolean
 	dialog: boolean
+	zeroAvailable: boolean
 	mode: string
 	uri: string
 	path: string
@@ -71,6 +73,7 @@ export default class ProfileImport extends React.Component<Props, State> {
 			disabled: false,
 			changed: false,
 			dialog: false,
+			zeroAvailable: !Constants.flatpak,
 			mode: "vpn",
 			uri: "",
 			path: "",
@@ -228,6 +231,16 @@ export default class ProfileImport extends React.Component<Props, State> {
 		if (this.state.mode === "zero" && !this.state.zeroKeysLoaded) {
 			this.loadZeroKeys()
 		}
+
+		if (Constants.flatpak) {
+			ZeroUtils.sshDirAvailable().then((available: boolean): void => {
+				this.setState({
+					...this.state,
+					zeroAvailable: available,
+					mode: available ? this.state.mode : "vpn",
+				})
+			})
+		}
 	}
 
 	closeDialog = (): void => {
@@ -238,7 +251,7 @@ export default class ProfileImport extends React.Component<Props, State> {
 	}
 
 	render(): JSX.Element {
-		let zeroMode = this.state.mode === "zero"
+		let zeroMode = this.state.mode === "zero" && this.state.zeroAvailable
 
 		let importDisabled = this.state.disabled
 		if (zeroMode) {
@@ -287,7 +300,8 @@ export default class ProfileImport extends React.Component<Props, State> {
 					<div
 						className="bp5-button-group bp5-fill"
 						style={css.group}
-						hidden={process.platform === 'win32'}
+						hidden={process.platform === 'win32' ||
+							!this.state.zeroAvailable}
 					>
 						<button
 							className={"bp5-button bp5-icon-globe-network" +
