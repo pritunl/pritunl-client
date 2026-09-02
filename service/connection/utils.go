@@ -250,6 +250,11 @@ func RestartProfiles(clean bool) (err error) {
 }
 
 func Clean() (err error) {
+	if utils.IsFlatpak() {
+		nmClean()
+		return
+	}
+
 	if runtime.GOOS != "windows" {
 		return
 	}
