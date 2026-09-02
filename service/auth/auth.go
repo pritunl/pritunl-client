@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dropbox/godropbox/errors"
+	"github.com/pritunl/pritunl-client/service/constants"
 	"github.com/pritunl/pritunl-client/service/platform"
 	"github.com/pritunl/pritunl-client/service/sprofile"
 	"github.com/pritunl/pritunl-client/service/utils"
@@ -59,13 +60,15 @@ func Init() (err error) {
 	} else {
 		prflsPath := sprofile.GetPath()
 
-		err = platform.MkdirLinkedSecure(prflsPath)
-		if err != nil {
-			err = &WriteError{
-				errors.Wrap(
-					err, "utils: Failed to create profiles directory"),
+		if !constants.Flatpak {
+			err = platform.MkdirLinkedSecure(prflsPath)
+			if err != nil {
+				err = &WriteError{
+					errors.Wrap(
+						err, "utils: Failed to create profiles directory"),
+				}
+				return
 			}
-			return
 		}
 	}
 
