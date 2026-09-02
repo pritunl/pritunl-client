@@ -1,14 +1,14 @@
 import * as Auth from "./Auth";
 import * as Request from "./Request"
-import crypto from "crypto";
+import * as Constants from "./Constants";
 
 export function get(path: string): Request.Request {
 	let req = new Request.Request()
 
-	if (Auth.unix) {
-		req.unix(Auth.unixPath)
+	if (Constants.unix) {
+		req.unix(Constants.unixPath)
 	} else {
-		req.tcp(Auth.webHost)
+		req.tcp(Constants.webHost)
 	}
 
 	req.get(path)
@@ -21,10 +21,10 @@ export function get(path: string): Request.Request {
 export function put(path: string): Request.Request {
 	let req = new Request.Request()
 
-	if (Auth.unix) {
-		req.unix(Auth.unixPath)
+	if (Constants.unix) {
+		req.unix(Constants.unixPath)
 	} else {
-		req.tcp(Auth.webHost)
+		req.tcp(Constants.webHost)
 	}
 
 	req.put(path)
@@ -37,10 +37,10 @@ export function put(path: string): Request.Request {
 export function post(path: string): Request.Request {
 	let req = new Request.Request()
 
-	if (Auth.unix) {
-		req.unix(Auth.unixPath)
+	if (Constants.unix) {
+		req.unix(Constants.unixPath)
 	} else {
-		req.tcp(Auth.webHost)
+		req.tcp(Constants.webHost)
 	}
 
 	req.post(path)
@@ -53,10 +53,10 @@ export function post(path: string): Request.Request {
 export function del(path: string): Request.Request {
 	let req = new Request.Request()
 
-	if (Auth.unix) {
-		req.unix(Auth.unixPath)
+	if (Constants.unix) {
+		req.unix(Constants.unixPath)
 	} else {
-		req.tcp(Auth.webHost)
+		req.tcp(Constants.webHost)
 	}
 
 	req.delete(path)
