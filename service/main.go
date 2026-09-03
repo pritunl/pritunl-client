@@ -59,7 +59,13 @@ func main() {
 		constants.Development = true
 	}
 
-	err := config.Load()
+	err := utils.FlatpakInit()
+	if err != nil {
+		fmt.Println(err.Error())
+		panic(err)
+	}
+
+	err = config.Load()
 	if err != nil {
 		panic(err)
 	}
