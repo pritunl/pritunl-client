@@ -1048,6 +1048,11 @@ func GetAuthPath() (pth string) {
 		pth = filepath.Join(pth, "auth")
 		break
 	case "linux", "darwin":
+		if IsFlatpak() {
+			pth = filepath.Join(GetFlatpakRunDir(), "pritunl.auth")
+			break
+		}
+
 		pth = filepath.Join(string(filepath.Separator),
 			"var", "run", "pritunl.auth")
 		break
@@ -1068,6 +1073,11 @@ func GetLogPath() (pth string) {
 		pth = filepath.Join(pth, "pritunl-client.log")
 		break
 	case "linux", "darwin":
+		if IsFlatpak() {
+			pth = filepath.Join(GetFlatpakConfigDir(), "pritunl-client.log")
+			break
+		}
+
 		pth = filepath.Join(string(filepath.Separator),
 			"var", "log", "pritunl-client.log")
 		break
@@ -1088,6 +1098,11 @@ func GetLogPath2() (pth string) {
 		pth = filepath.Join(pth, "pritunl-client.log.1")
 		break
 	case "linux", "darwin":
+		if IsFlatpak() {
+			pth = filepath.Join(GetFlatpakConfigDir(), "pritunl-client.log.1")
+			break
+		}
+
 		pth = filepath.Join(string(filepath.Separator),
 			"var", "log", "pritunl-client.log.1")
 		break
@@ -1098,9 +1113,16 @@ func GetLogPath2() (pth string) {
 	return
 }
 
+func getTempDirUnix() string {
+	if IsFlatpak() {
+		return filepath.Join(GetFlatpakRunDir(), "tmp")
+	}
+	return filepath.Join(string(filepath.Separator), "tmp", "pritunl")
+}
+
 func InitTempDir() (err error) {
 	if runtime.GOOS != "windows" {
-		pth := filepath.Join(string(filepath.Separator), "tmp", "pritunl")
+		pth := getTempDirUnix()
 
 		_ = os.RemoveAll(pth)
 		err = platform.MkdirSecure(pth)
@@ -1127,7 +1149,7 @@ func GetTempDir() (pth string, err error) {
 			return
 		}
 	} else {
-		pth = filepath.Join(string(filepath.Separator), "tmp", "pritunl")
+		pth = getTempDirUnix()
 		err = platform.MkdirSecure(pth)
 		if err != nil {
 			err = &IoError{
@@ -1144,6 +1166,11 @@ func GetTempDir() (pth string, err error) {
 func GetPidPath() (pth string) {
 	switch runtime.GOOS {
 	case "linux", "darwin":
+		if IsFlatpak() {
+			pth = filepath.Join(GetFlatpakRunDir(), "pritunl.pid")
+			break
+		}
+
 		pth = filepath.Join(string(filepath.Separator),
 			"var", "run", "pritunl.pid")
 		break
@@ -1161,6 +1188,35 @@ func PidInit() (err error) {
 
 	pth := GetPidPath()
 	pid := 0
+
+	if IsFlatpak() {
+		locked, e := platform.InstanceLock(
+			filepath.Join(GetFlatpakRunDir(), "pritunl.lock"))
+		if e != nil {
+			err = e
+			return
+		}
+
+		if !locked {
+			fmt.Println("utils: Service already running, exiting")
+			os.Exit(0)
+		}
+
+		_ = os.Remove(pth)
+		err = ioutil.WriteFile(
+			pth,
+			[]byte(strconv.Itoa(os.Getpid())),
+			0644,
+		)
+		if err != nil {
+			err = errortypes.WriteError{
+				errors.Wrapf(err, "utils: Failed to write pid"),
+			}
+			return
+		}
+
+		return
+	}
 
 	data, err := ioutil.ReadFile(pth)
 	if err != nil {
