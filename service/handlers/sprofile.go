@@ -88,6 +88,14 @@ func sprofileGet(c *gin.Context) {
 }
 
 func sprofilePut(c *gin.Context) {
+	if utils.IsFlatpak() {
+		err := &errortypes.WriteError{
+			errors.New("handler: System profiles not supported in Flatpak"),
+		}
+		utils.AbortWithError(c, 400, err)
+		return
+	}
+
 	data := &sprofileData{}
 
 	err := c.Bind(data)
