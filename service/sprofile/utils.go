@@ -151,6 +151,10 @@ func GetAllClient() (prfls []*SprofileClient, err error) {
 }
 
 func Remove(prflId string) {
+	if utils.IsFlatpak() {
+		return
+	}
+
 	prflsPath := GetPath()
 	prflPth := filepath.Join(prflsPath, fmt.Sprintf("%s.conf", prflId))
 	logPth := filepath.Join(prflsPath, fmt.Sprintf("%s.log", prflId))
@@ -164,6 +168,13 @@ func Remove(prflId string) {
 func Reload() (err error) {
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
+
+	if utils.IsFlatpak() {
+		initialized = true
+		cache = []*Sprofile{}
+		cacheStale = false
+		return
+	}
 
 	prflsPath := GetPath()
 	prfls := []*Sprofile{}
@@ -239,6 +250,10 @@ func Reload() (err error) {
 }
 
 func ClearLog(prflId string) (err error) {
+	if utils.IsFlatpak() {
+		return
+	}
+
 	prflsPath := GetPath()
 	pth := filepath.Join(prflsPath, fmt.Sprintf("%s.log", prflId))
 
