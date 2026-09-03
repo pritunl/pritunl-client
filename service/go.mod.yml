@@ -24,6 +24,11 @@
   dest: vendor/github.com/google/go-tpm-tools
   sha256: ab195e043fc7b6a9c3a5ce1d9a7dc5673ee7e22af339e9f4fbdb7cd98028279d
 - type: archive
+  url: https://proxy.golang.org/github.com/google/uuid/@v/v1.6.0.zip
+  strip-components: 3
+  dest: vendor/github.com/google/uuid
+  sha256: d0f02f377217f42702e259684e06441edbf5140dddcc34ba9bea56038b38a6ed
+- type: archive
   url: https://proxy.golang.org/github.com/gorilla/websocket/@v/v1.5.3.zip
   strip-components: 3
   dest: vendor/github.com/gorilla/websocket
@@ -128,11 +133,6 @@
   strip-components: 3
   dest: vendor/github.com/google/logger
   sha256: f3f4767f53a0d57f5b63c2745e32ba404dbf62f836e2f17e2d8a88bc8d101b28
-- type: archive
-  url: https://proxy.golang.org/github.com/google/uuid/@v/v1.6.0.zip
-  strip-components: 3
-  dest: vendor/github.com/google/uuid
-  sha256: d0f02f377217f42702e259684e06441edbf5140dddcc34ba9bea56038b38a6ed
 - type: archive
   url: https://proxy.golang.org/github.com/json-iterator/go/@v/v1.1.12.zip
   strip-components: 3
