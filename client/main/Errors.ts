@@ -34,6 +34,12 @@ export class WriteError extends BaseError {
 	}
 }
 
+export class ParseError extends BaseError {
+	constructor(wrapErr: Error, message: string, args?: {[key: string]: any}) {
+		super("ParseError", wrapErr, message, args)
+	}
+}
+
 export class RequestError extends BaseError {
 	constructor(wrapErr: Error, message: string, args?: {[key: string]: any}) {
 		super("RequestError", wrapErr, message, args)
