@@ -388,6 +388,38 @@ EventDispatcher.register((action: ProfileTypes.ProfileDispatch) => {
 			}
 			Alert.error("Failed to authenticate")
 			break
+		case "flatpak_tpm_missing":
+			if (action.data) {
+				let prfl = ProfilesStore.profile(action.data.id)
+				if (prfl) {
+					Alert.error("Flatpak missing TPM access for device " +
+						"authentication on " + prfl.formattedName() +
+						". Flatpak must have device access for " +
+						"device authentication.")
+					return
+				}
+			}
+			Alert.error("Flatpak missing TPM access for device " +
+				"authentication. Flatpak must have device access for " +
+				"device authentication.")
+			break
+		case "flatpak_tpm_unauthorized":
+			if (action.data) {
+				let prfl = ProfilesStore.profile(action.data.id)
+				if (prfl) {
+					Alert.error("Permission denied accessing TPM for device " +
+						"authentication on " + prfl.formattedName() +
+						". Flatpak has access to the TPM device but " +
+						"does not have permission to open it. Update the " +
+						"udev rules to provide access.")
+					return
+				}
+			}
+			Alert.error("Permission denied accessing TPM for device " +
+				"authentication. Flatpak has access to the TPM device but " +
+				"does not have permission to open it. Update the udev rules to " +
+				"provide access.")
+			break
 		case "inactive":
 			if (action.data) {
 				let prfl = ProfilesStore.profile(action.data.id)
