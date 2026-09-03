@@ -2,9 +2,14 @@ package platform
 
 import (
 	"os"
+	"syscall"
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/service/errortypes"
+)
+
+var (
+	instanceLockFile *os.File
 )
 
 func SystemDirectory() (pth string, err error) {
@@ -113,6 +118,35 @@ func MkdirReadSecure(pth string) (err error) {
 			return
 		}
 	}
+
+	return
+}
+
+func InstanceLock(pth string) (locked bool, err error) {
+	file, err := os.OpenFile(pth, os.O_RDWR|os.O_CREATE, 0600)
+	if err != nil {
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "platform: Failed to open lock %s", pth),
+		}
+		return
+	}
+
+	err = syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
+	if err != nil {
+		_ = file.Close()
+		if err == syscall.EWOULDBLOCK {
+			err = nil
+			return
+		}
+
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "platform: Failed to lock %s", pth),
+		}
+		return
+	}
+
+	instanceLockFile = file
+	locked = true
 
 	return
 }

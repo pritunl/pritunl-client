@@ -81,3 +81,8 @@ func MkdirReadSecure(pth string) (err error) {
 
 	return
 }
+
+func InstanceLock(pth string) (locked bool, err error) {
+	locked = true
+	return
+}
