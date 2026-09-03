@@ -636,6 +636,13 @@ func (s *Sprofile) Sync() (updated bool, err error) {
 }
 
 func (s *Sprofile) Commit() (err error) {
+	if utils.IsFlatpak() {
+		err = &errortypes.WriteError{
+			errors.New("sprofile: System profiles not supported in Flatpak"),
+		}
+		return
+	}
+
 	prflsPath := GetPath()
 
 	err = platform.MkdirSecure(prflsPath)
@@ -664,6 +671,10 @@ func (s *Sprofile) Commit() (err error) {
 }
 
 func (s *Sprofile) Delete() (err error) {
+	if utils.IsFlatpak() {
+		return
+	}
+
 	prflPth := s.BasePath() + ".conf"
 	logPth1 := s.BasePath() + ".log"
 	logPth2 := s.BasePath() + ".log.1"
