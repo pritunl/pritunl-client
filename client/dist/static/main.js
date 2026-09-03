@@ -5267,6 +5267,11 @@ class WriteError extends BaseError {
         super("WriteError", wrapErr, message, args);
     }
 }
+class ParseError extends BaseError {
+    constructor(wrapErr, message, args) {
+        super("ParseError", wrapErr, message, args);
+    }
+}
 class RequestError extends BaseError {
     constructor(wrapErr, message, args) {
         super("RequestError", wrapErr, message, args);
@@ -5876,7 +5881,7 @@ class Errors_WriteError extends Errors_BaseError {
         super("WriteError", wrapErr, message, args);
     }
 }
-class ParseError extends Errors_BaseError {
+class Errors_ParseError extends Errors_BaseError {
     constructor(wrapErr, message, args) {
         super("ParseError", wrapErr, message, args);
     }
@@ -6993,7 +6998,11 @@ class ConfigData {
 const Config = new ConfigData();
 /* harmony default export */ const main_Config = (Config);
 
+// EXTERNAL MODULE: external "crypto"
+var external_crypto_ = __webpack_require__(982);
+var external_crypto_default = /*#__PURE__*/__webpack_require__.n(external_crypto_);
 ;// ./main/Tpm.js
+
 
 
 
@@ -7005,152 +7014,222 @@ let deviceAuthPath = external_path_default().join("/", "Applications", "Pritunl.
 if (external_process_default().argv.indexOf("--dev") !== -1) {
     deviceAuthPath = external_path_default().join(__dirname, "..", "..", "..", "service_macos", "Pritunl Device Authentication");
 }
+const clientId = external_crypto_default().randomBytes(16).toString("hex");
+const procTimeout = 10000;
+const maxProcs = 4;
 let procs = {};
-function Tpm_open(callerId, privKey64) {
-    let proc = external_child_process_default().execFile(deviceAuthPath);
-    let stderr = "";
-    setTimeout(() => {
-        if (proc.exitCode === null) {
-            let err = new ProcessError(null, "Tpm: Secure enclave process timed out", {
-                caller_id: callerId,
+function claim(requestId) {
+    return post("/tpm/request/" + requestId + "/claim")
+        .set("Auth-Token", token)
+        .set("User-Agent", "pritunl")
+        .send({
+        client_id: clientId,
+    })
+        .end()
+        .then((resp) => {
+        if (resp.status === 200) {
+            return true;
+        }
+        if (resp.status !== 409 && resp.status !== 404) {
+            let err = new RequestError(null, "Tpm: Claim request error", {
+                request_id: requestId,
+                reponse_status: resp.status,
+                data: resp.data,
             });
             error(err);
         }
-        proc.kill("SIGINT");
-    }, 10000);
-    proc.on("error", (err) => {
-        err = new ProcessError(err, "Tpm: Secure enclave exec error", {
-            caller_id: callerId,
+        return false;
+    }, (err) => {
+        err = new RequestError(err, "Tpm: Claim request error", {
+            request_id: requestId,
         });
         error(err);
-        post("/tpm/callback")
-            .set("Auth-Token", token)
-            .set("User-Agent", "pritunl")
-            .send({
-            id: callerId,
-            error: err.message,
-        })
-            .end()
-            .then((resp) => {
-            if (resp.status != 200) {
-                err = new RequestError(null, "Tpm: Callback request error", {
-                    caller_id: callerId,
-                    reponse_status: resp.status,
-                    data: resp.data,
-                });
-                error(err);
-            }
-        }, (err) => {
-            err = new RequestError(err, "Tpm: Callback request error", {
-                caller_id: callerId,
-            });
-            error(err);
-        });
+        return false;
     });
-    proc.on("exit", (code, signal) => {
-        delete procs[callerId];
-        if (code !== 0) {
-            let err = new ProcessError(null, "Tpm: Secure enclave exec code error", {
-                caller_id: callerId,
-                exit_code: code,
-                output: stderr,
+}
+function complete(requestId, result) {
+    post("/tpm/request/" + requestId)
+        .set("Auth-Token", token)
+        .set("User-Agent", "pritunl")
+        .send({
+        client_id: clientId,
+        key_data: result.key_data,
+        public_key: result.public_key,
+        signature: result.signature,
+        error: result.error,
+    })
+        .end()
+        .then((resp) => {
+        if (resp.status != 200) {
+            let err = new RequestError(null, "Tpm: Result request error", {
+                request_id: requestId,
+                reponse_status: resp.status,
+                data: resp.data,
             });
             error(err);
-            post("/tpm/callback")
-                .set("Auth-Token", token)
-                .set("User-Agent", "pritunl")
-                .send({
-                id: callerId,
-                error: err.message,
-            })
-                .end()
-                .then((resp) => {
-                if (resp.status != 200) {
-                    err = new RequestError(null, "Tpm: Callback request error", {
-                        caller_id: callerId,
-                        reponse_status: resp.status,
-                        data: resp.data,
-                    });
-                    error(err);
-                }
-            }, (err) => {
-                err = new RequestError(err, "Tpm: Callback request error", {
-                    caller_id: callerId,
-                });
-                error(err);
-            });
         }
+    }, (err) => {
+        err = new RequestError(err, "Tpm: Result request error", {
+            request_id: requestId,
+        });
+        error(err);
     });
-    let outBuffer = "";
-    proc.stdout.on("data", (data) => {
-        outBuffer += data;
-        if (!outBuffer.includes("\n")) {
+}
+function fail(requestId, err) {
+    error(err);
+    complete(requestId, {
+        error: err.message,
+    });
+}
+function procWritable(proc) {
+    return proc.exitCode === null && proc.signalCode === null &&
+        !proc.killed && !!proc.stdin && !proc.stdin.destroyed &&
+        proc.stdin.writable;
+}
+function handle(type, data) {
+    if (!data || !data.request_id) {
+        let err = new RequestError(null, "Tpm: Secure enclave event missing request id", {
+            event_type: type,
+        });
+        error(err);
+        return;
+    }
+    claim(data.request_id).then((claimed) => {
+        if (!claimed) {
             return;
         }
-        let lines = outBuffer.split("\n");
-        let line = lines[0];
-        outBuffer = lines.slice(1).join("\n");
-        let dataObj;
-        try {
-            dataObj = JSON.parse(line.replace(/\s/g, ""));
-        }
-        catch {
-            let err = new RequestError(null, "Tpm: Failed to parse line", {
-                caller_id: callerId,
-                line: data,
-            });
-            error(err);
+        run(type, data);
+    });
+}
+function run(type, data) {
+    let requestId = data.request_id;
+    if (Object.keys(procs).length >= maxProcs) {
+        fail(requestId, new ProcessError(null, "Tpm: Too many secure enclave processes", {
+            request_id: requestId,
+            count: Object.keys(procs).length,
+        }));
+        return;
+    }
+    let proc = external_child_process_default().execFile(deviceAuthPath);
+    let stderr = "";
+    let done = false;
+    procs[requestId] = proc;
+    let timeout = setTimeout(() => {
+        timeout = null;
+        if (proc.exitCode !== null || proc.signalCode !== null) {
             return;
         }
-        post("/tpm/callback")
-            .set("Auth-Token", token)
-            .set("User-Agent", "pritunl")
-            .send({
-            id: callerId,
-            public_key: dataObj.public_key,
-            private_key: dataObj.key_data,
-            signature: dataObj.signature,
-        })
-            .end()
-            .then((resp) => {
-            if (resp.status != 200) {
-                let err = new RequestError(null, "Tpm: Callback request error", {
-                    caller_id: callerId,
-                    reponse_status: resp.status,
-                    data: resp.data,
-                });
-                error(err);
-            }
-        }, (err) => {
-            err = new RequestError(err, "Tpm: Callback request error", {
-                caller_id: callerId,
-            });
-            error(err);
+        let err = new ProcessError(null, "Tpm: Secure enclave process timed out", {
+            request_id: requestId,
         });
+        error(err);
+        proc.kill("SIGINT");
+    }, procTimeout);
+    proc.on("error", (err) => {
+        if (done) {
+            return;
+        }
+        done = true;
+        fail(requestId, new ProcessError(err, "Tpm: Secure enclave exec error", {
+            request_id: requestId,
+        }));
+    });
+    proc.stdin.on("error", (err) => {
+        if (done) {
+            return;
+        }
+        done = true;
+        fail(requestId, new ProcessError(err, "Tpm: Secure enclave stdin error", {
+            request_id: requestId,
+        }));
+    });
+    proc.stdout.on("error", (err) => {
+        err = new ProcessError(err, "Tpm: Secure enclave stdout error", {
+            request_id: requestId,
+        });
+        error(err);
+    });
+    proc.stderr.on("error", (err) => {
+        err = new ProcessError(err, "Tpm: Secure enclave stderr error", {
+            request_id: requestId,
+        });
+        error(err);
     });
     proc.stderr.on("data", (data) => {
         stderr += data;
     });
-    proc.stdin.write(JSON.stringify({
-        "key_data": privKey64,
-    }) + "\n");
-    procs[callerId] = proc;
-}
-function sign(callerId, signData) {
-    let proc = procs[callerId];
-    if (!proc) {
+    proc.on("close", (code, signal) => {
+        if (procs[requestId] === proc) {
+            delete procs[requestId];
+        }
+        if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+        }
+        if (done) {
+            return;
+        }
+        done = true;
+        fail(requestId, new ProcessError(null, "Tpm: Secure enclave process exited without result", {
+            request_id: requestId,
+            exit_code: code,
+            signal: signal,
+            output: stderr,
+        }));
+    });
+    let outBuffer = "";
+    proc.stdout.on("data", (data) => {
+        outBuffer += data;
+        let lines = outBuffer.split("\n");
+        outBuffer = lines.pop();
+        for (let line of lines) {
+            line = line.trim();
+            if (!line || done) {
+                continue;
+            }
+            let dataObj;
+            try {
+                dataObj = JSON.parse(line);
+            }
+            catch {
+                done = true;
+                fail(requestId, new ParseError(null, "Tpm: Failed to parse secure enclave output", {
+                    request_id: requestId,
+                    line: line,
+                }));
+                return;
+            }
+            if (type === "tpm_open") {
+                done = true;
+                complete(requestId, {
+                    key_data: dataObj.key_data,
+                    public_key: dataObj.public_key,
+                });
+                proc.stdin.end();
+            }
+            else if (dataObj.signature) {
+                done = true;
+                complete(requestId, {
+                    signature: dataObj.signature,
+                });
+            }
+        }
+    });
+    if (!procWritable(proc)) {
+        done = true;
+        fail(requestId, new ProcessError(null, "Tpm: Secure enclave process not writable", {
+            request_id: requestId,
+        }));
         return;
     }
     proc.stdin.write(JSON.stringify({
-        "sign_data": signData,
+        "key_data": data.key_data || "",
     }) + "\n");
-}
-function Tpm_close(callerId) {
-    let proc = procs[callerId];
-    if (!proc) {
-        return;
+    if (type === "tpm_sign") {
+        proc.stdin.write(JSON.stringify({
+            "sign_data": data.sign_data,
+        }) + "\n");
     }
-    proc.kill("SIGINT");
 }
 
 ;// ./main/Daemon.js
@@ -7346,9 +7425,6 @@ async function checkUpgrade() {
     await restart();
 }
 
-// EXTERNAL MODULE: external "crypto"
-var external_crypto_ = __webpack_require__(982);
-var external_crypto_default = /*#__PURE__*/__webpack_require__.n(external_crypto_);
 ;// ./main/ProfileSync.js
 
 
@@ -7707,7 +7783,7 @@ function New(self) {
     };
     return self;
 }
-function handle(id, bodyStr) {
+function ProfileSync_handle(id, bodyStr) {
     handleSync(id, bodyStr).catch((err) => {
         error(new ReadError(err, "ProfileSync: Failed to sync profile"));
     });
@@ -7825,7 +7901,7 @@ external_electron_default().ipcMain.handle("processing", (evt, msg, data) => {
     else if (msg === "encryptable") {
         return [null, external_electron_default().safeStorage.isEncryptionAvailable()];
     }
-    let err = new ParseError(null, "Main: Unknown handler type");
+    let err = new Errors_ParseError(null, "Main: Unknown handler type");
     return [err, null];
 });
 external_electron_default().ipcMain.on("control", (evt, msg, data) => {
@@ -8173,17 +8249,12 @@ function init() {
                             openLink(event.data.url);
                         }
                     }
-                    else if (event.type === "tpm_open") {
-                        Tpm_open(event.data.id, event.data.private_key);
-                    }
-                    else if (event.type === "tpm_sign") {
-                        sign(event.data.id, event.data.sign_data);
-                    }
-                    else if (event.type === "tpm_close") {
-                        Tpm_close(event.data.id);
+                    else if (event.type === "tpm_open" ||
+                        event.type === "tpm_sign") {
+                        handle(event.type, event.data);
                     }
                     else if (event.type === "profile_sync") {
-                        handle(event.data.id, event.data.data);
+                        ProfileSync_handle(event.data.id, event.data.data);
                     }
                 });
             });

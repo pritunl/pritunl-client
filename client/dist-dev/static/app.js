@@ -4532,6 +4532,38 @@ _dispatcher_EventDispatcher__WEBPACK_IMPORTED_MODULE_4__["default"].register((ac
             }
             _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Failed to authenticate");
             break;
+        case "flatpak_tpm_missing":
+            if (action.data) {
+                let prfl = _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_9__["default"].profile(action.data.id);
+                if (prfl) {
+                    _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Flatpak missing TPM access for device " +
+                        "authentication on " + prfl.formattedName() +
+                        ". Flatpak must have device access for " +
+                        "device authentication.");
+                    return;
+                }
+            }
+            _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Flatpak missing TPM access for device " +
+                "authentication. Flatpak must have device access for " +
+                "device authentication.");
+            break;
+        case "flatpak_tpm_unauthorized":
+            if (action.data) {
+                let prfl = _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_9__["default"].profile(action.data.id);
+                if (prfl) {
+                    _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Permission denied accessing TPM for device " +
+                        "authentication on " + prfl.formattedName() +
+                        ". Flatpak has access to the TPM device but " +
+                        "does not have permission to open it. Update the " +
+                        "udev rules to provide access.");
+                    return;
+                }
+            }
+            _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Permission denied accessing TPM for device " +
+                "authentication. Flatpak has access to the TPM device but " +
+                "does not have permission to open it. Update the udev rules to " +
+                "provide access.");
+            break;
         case "inactive":
             if (action.data) {
                 let prfl = _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_9__["default"].profile(action.data.id);
