@@ -28,6 +28,10 @@ func getPath() string {
 }
 
 func ProfilePushLog(prflId string, output string) (err error) {
+	if utils.IsFlatpak() {
+		return
+	}
+
 	prflsPath := getPath()
 	logPth1 := filepath.Join(prflsPath, prflId+".log")
 	logPth2 := logPth1 + ".1"
