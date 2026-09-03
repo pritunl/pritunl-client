@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pritunl/pritunl-client/service/errortypes"
 	"github.com/pritunl/pritunl-client/service/handlers"
+	"github.com/pritunl/pritunl-client/service/utils"
 )
 
 type Router struct {
@@ -19,9 +20,11 @@ type Router struct {
 }
 
 func (r *Router) runSock() (err error) {
-	_ = os.Remove("/var/run/pritunl.sock")
+	sockPath := utils.GetSockPath()
 
-	listener, err := net.Listen("unix", "/var/run/pritunl.sock")
+	_ = os.Remove(sockPath)
+
+	listener, err := net.Listen("unix", sockPath)
 	if err != nil {
 		err = &errortypes.WriteError{
 			errors.Wrap(err, "main: Failed to create unix socket"),
@@ -29,7 +32,7 @@ func (r *Router) runSock() (err error) {
 		return
 	}
 
-	err = os.Chmod("/var/run/pritunl.sock", 0777)
+	err = os.Chmod(sockPath, 0777)
 	if err != nil {
 		err = &errortypes.WriteError{
 			errors.Wrap(err, "main: Failed to chmod unix socket"),
