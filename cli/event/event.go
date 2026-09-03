@@ -20,9 +20,38 @@ const (
 )
 
 type Event struct {
-	Id   string          `json:"id"`
-	Type string          `json:"type"`
-	Data json.RawMessage `json:"data"`
+	Id        string          `json:"id"`
+	Type      string          `json:"type"`
+	Timestamp int64           `json:"timestamp"`
+	Data      json.RawMessage `json:"data"`
+}
+
+// TpmData is the data attached to the secure enclave device
+// authentication request events tpm_open and tpm_sign.
+type TpmData struct {
+	RequestId string `json:"request_id"`
+	KeyData   string `json:"key_data"`
+	SignData  string `json:"sign_data"`
+}
+
+// Tpm returns the secure enclave request data or nil when the event does
+// not carry it.
+func (e *Event) Tpm() *TpmData {
+	if len(e.Data) == 0 || string(e.Data) == "null" {
+		return nil
+	}
+
+	data := &TpmData{}
+	err := json.Unmarshal(e.Data, data)
+	if err != nil {
+		return nil
+	}
+
+	if data.RequestId == "" {
+		return nil
+	}
+
+	return data
 }
 
 // ProfileData is the subset of connection data attached to profile events.
