@@ -472,12 +472,9 @@ function init() {
 						if (event.data.open !== false) {
 							Utils.openLink(event.data.url)
 						}
-					} else if (event.type === "tpm_open") {
-						Tpm.open(event.data.id, event.data.private_key)
-					} else if (event.type === "tpm_sign") {
-						Tpm.sign(event.data.id, event.data.sign_data)
-					} else if (event.type === "tpm_close") {
-						Tpm.close(event.data.id)
+					} else if (event.type === "tpm_open" ||
+							event.type === "tpm_sign") {
+						Tpm.handle(event.type, event.data)
 					} else if (event.type === "profile_sync") {
 						ProfileSync.handle(event.data.id, event.data.data)
 					}
