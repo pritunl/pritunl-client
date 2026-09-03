@@ -15,6 +15,7 @@ import (
 	"github.com/pritunl/pritunl-client/cli/constants"
 	"github.com/pritunl/pritunl-client/cli/event"
 	"github.com/pritunl/pritunl-client/cli/sprofile"
+	"github.com/pritunl/pritunl-client/cli/tpm"
 	"github.com/pritunl/tools/logger"
 )
 
@@ -861,6 +862,32 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 			)
 		}
 		cmds = append(cmds, m.resync())
+	case "flatpak_tpm_missing":
+		m.setStatus(profileMsg(
+			"Flatpak missing TPM access for device authentication"), true)
+		if !m.showDialog {
+			m.openMessage(
+				"Flatpak Device Authentication Error",
+				profileMsg("Flatpak missing TPM access")+
+					". Flatpak must have device access for "+
+					"device authentication.",
+			)
+		}
+		cmds = append(cmds, m.resync())
+	case "flatpak_tpm_unauthorized":
+		m.setStatus(profileMsg(
+			"Permission denied accessing TPM for device authentication"),
+			true)
+		if !m.showDialog {
+			m.openMessage(
+				"Flatpak Device Authentication Error",
+				profileMsg("Permission denied accessing TPM")+
+					". Flatpak has access to the TPM device but "+
+					"does not have permission to open it. Update the "+
+					"udev rules to provide access.",
+			)
+		}
+		cmds = append(cmds, m.resync())
 	case "inactive":
 		m.setStatus(profileMsg("Disconnected due to inactivity"), true)
 		cmds = append(cmds, m.resync())
@@ -881,12 +908,25 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.resync())
 	case "shutdown":
 		m.setStatus("Pritunl service is shutting down", true)
-	case "sso_auth", "sso_interactive", "tpm_open", "tpm_sign", "tpm_close":
-		// Single sign-on links are shown from profile sync, TPM events
-		// are handled by the desktop client only.
+	case "sso_auth", "sso_interactive":
+		// Only for GUI
+	case "tpm_open", "tpm_sign":
+		handleTpm(evt)
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+func handleTpm(evt *event.Event) {
+	data := evt.Tpm()
+	if data == nil {
+		logger.WithFields(logger.Fields{
+			"event_type": evt.Type,
+		}).Error("iface: Secure enclave event missing data")
+		return
+	}
+
+	tpm.Handle(evt.Type, data.RequestId, data.KeyData, data.SignData)
 }
 
 func (m Model) updateSize(msg tea.WindowSizeMsg) Model {
