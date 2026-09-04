@@ -715,6 +715,97 @@ func (c *Client) authorize(host string, ssoToken string,
 	return
 }
 
+func newTpmCaller() tpm.TpmCaller {
+	if runtime.GOOS == "darwin" && !config.Config.ForceLocalTpm {
+		return &tpm.Remote{}
+	}
+	return &tpm.Tpm{}
+}
+
+// tpmOpen opens a device auth caller, retrying transient failures. A
+// fresh caller is used for each attempt, callers are single use. A caller
+// whose open failed must not be closed, the local implementations clean
+// up on failure and closing an unopened caller is not safe.
+func (c *Client) tpmOpen() (tp tpm.TpmCaller, err error) {
+	for attempt := 1; ; attempt++ {
+		tp = newTpmCaller()
+		err = tp.Open(config.Config.EnclavePrivateKey)
+		if err == nil {
+			return
+		}
+
+		if _, ok := err.(*errortypes.NotFoundError); ok {
+			return
+		}
+		if _, ok := err.(*errortypes.PermissionError); ok {
+			return
+		}
+		if attempt >= TpmOpenAttempts || c.conn.State.IsStop() {
+			return
+		}
+
+		logrus.WithFields(c.conn.Fields(logrus.Fields{
+			"attempt": attempt,
+			"error":   err,
+		})).Warn("connection: Device auth open failed, retrying")
+
+		time.Sleep(TpmRetryDelay)
+	}
+}
+
+// tpmSign signs data with the device auth caller, retrying transient
+// failures. The helper process exits after a single sign so a retry
+// requires a new open, the caller pointer is replaced with the new caller
+// so the deferred close in encryptReqBox closes the current one. A retry
+// is only possible when a stored key is reused, a newly generated key
+// would not match the device key already sealed into the request.
+func (c *Client) tpmSign(tp *tpm.TpmCaller, deviceKey string,
+	data []byte) (privKey64, sig64 string, err error) {
+
+	for attempt := 1; ; attempt++ {
+		privKey64, sig64, err = (*tp).Sign(data)
+		if err == nil {
+			return
+		}
+		privKey64 = ""
+		sig64 = ""
+
+		if attempt >= TpmSignAttempts || c.conn.State.IsStop() ||
+			config.Config.EnclavePrivateKey == "" {
+
+			return
+		}
+
+		logrus.WithFields(c.conn.Fields(logrus.Fields{
+			"attempt": attempt,
+			"error":   err,
+		})).Warn("connection: Device auth sign failed, retrying")
+
+		(*tp).Close()
+		time.Sleep(TpmRetryDelay)
+
+		newTp := newTpmCaller()
+		e := newTp.Open(config.Config.EnclavePrivateKey)
+		if e != nil {
+			err = e
+			return
+		}
+		*tp = newTp
+
+		newDeviceKey, e := newTp.PublicKey()
+		if e != nil {
+			err = e
+			return
+		}
+		if newDeviceKey != deviceKey {
+			err = &errortypes.RequestError{
+				errors.New("connection: Device key mismatch on sign retry"),
+			}
+			return
+		}
+	}
+}
+
 func (c *Client) encryptReqBox(method string, reqPath string,
 	ciph *Cipher, reqBx *ReqBox) (encReqData *EncryptedRequestData,
 	err error) {
@@ -727,18 +818,28 @@ func (c *Client) encryptReqBox(method string, reqPath string,
 	}
 
 	var tp tpm.TpmCaller
-	if runtime.GOOS == "darwin" && !config.Config.ForceLocalTpm {
-		tp = &tpm.Remote{}
-	} else {
-		tp = &tpm.Tpm{}
-	}
-
 	if c.conn.Profile.DeviceAuth && method == "POST" {
-		err = tp.Open(config.Config.EnclavePrivateKey)
+		tp, err = c.tpmOpen()
 		if err != nil {
+			if _, ok := err.(*errortypes.NotFoundError); ok {
+				if utils.IsFlatpak() {
+					c.conn.State.NoReconnect("tpm_missing_error")
+					c.conn.State.SetStop()
+					c.conn.Data.SendProfileEvent("flatpak_tpm_missing")
+				}
+			}
+			if _, ok := err.(*errortypes.PermissionError); ok {
+				if utils.IsFlatpak() {
+					c.conn.State.NoReconnect("tpm_permission_error")
+					c.conn.State.SetStop()
+					c.conn.Data.SendProfileEvent("flatpak_tpm_unauthorized")
+				}
+			}
 			return
 		}
-		defer tp.Close()
+		defer func() {
+			tp.Close()
+		}()
 
 		deviceKey, e := tp.PublicKey()
 		if e != nil {
@@ -830,13 +931,18 @@ func (c *Client) encryptReqBox(method string, reqPath string,
 
 	if c.conn.Profile.DeviceAuth && method == "POST" {
 		privKey64 := ""
-		privKey64, encBox.DeviceSignature, err = tp.Sign(reqHash[:])
+		privKey64, encBox.DeviceSignature, err = c.tpmSign(
+			&tp, reqBx.DeviceKey, reqHash[:])
 		if err != nil {
 			return
 		}
 
-		if privKey64 != "" {
+		if privKey64 != "" &&
+			(privKey64 != config.Config.EnclavePrivateKey ||
+				reqBx.DeviceKey != config.Config.EnclavePublicKey) {
+
 			config.Config.EnclavePrivateKey = privKey64
+			config.Config.EnclavePublicKey = reqBx.DeviceKey
 
 			err = config.Save()
 			if err != nil {
