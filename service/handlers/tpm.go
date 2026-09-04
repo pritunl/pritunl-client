@@ -8,17 +8,22 @@ import (
 	"github.com/pritunl/pritunl-client/service/utils"
 )
 
-type tpmCallbackData struct {
-	Id         string `json:"id"`
-	PublicKey  string `json:"public_key"`
-	PrivateKey string `json:"private_key"`
-	Signature  string `json:"signature"`
-	Error      string `json:"error"`
+type tpmClaimData struct {
+	ClientId string `json:"client_id"`
 }
 
-func tpmCallbackPost(c *gin.Context) {
-	data := &tpmCallbackData{}
+type tpmResultData struct {
+	ClientId  string `json:"client_id"`
+	KeyData   string `json:"key_data"`
+	PublicKey string `json:"public_key"`
+	Signature string `json:"signature"`
+	Error     string `json:"error"`
+}
 
+func tpmClaimPost(c *gin.Context) {
+	requestId := c.Param("request_id")
+
+	data := &tpmClaimData{}
 	err := c.Bind(data)
 	if err != nil {
 		err = &errortypes.ParseError{
@@ -28,13 +33,45 @@ func tpmCallbackPost(c *gin.Context) {
 		return
 	}
 
-	callerId := data.Id
-	pubKey := data.PublicKey
-	privKey := data.PrivateKey
-	signature := data.Signature
-	callerErr := data.Error
+	if data.ClientId == "" {
+		err = &errortypes.ParseError{
+			errors.New("handler: Missing client id"),
+		}
+		utils.AbortWithError(c, 400, err)
+		return
+	}
 
-	tpm.RemoteCallback(callerId, pubKey, privKey, signature, callerErr)
+	status := tpm.Claim(requestId, data.ClientId)
 
-	c.JSON(200, nil)
+	c.JSON(status, nil)
+}
+
+func tpmRequestPost(c *gin.Context) {
+	requestId := c.Param("request_id")
+
+	data := &tpmResultData{}
+	err := c.Bind(data)
+	if err != nil {
+		err = &errortypes.ParseError{
+			errors.Wrap(err, "handler: Bind error"),
+		}
+		utils.AbortWithError(c, 400, err)
+		return
+	}
+
+	if data.ClientId == "" {
+		err = &errortypes.ParseError{
+			errors.New("handler: Missing client id"),
+		}
+		utils.AbortWithError(c, 400, err)
+		return
+	}
+
+	status := tpm.Complete(requestId, data.ClientId, &tpm.Result{
+		KeyData:   data.KeyData,
+		PublicKey: data.PublicKey,
+		Signature: data.Signature,
+	}, data.Error)
+
+	c.JSON(status, nil)
 }
