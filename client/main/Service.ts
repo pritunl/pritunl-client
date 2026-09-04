@@ -11,6 +11,7 @@ import * as MiscUtils from "../app/utils/MiscUtils";
 export interface Event {
 	id: string
 	type: string
+	timestamp?: number
 	data?: any
 }
 
