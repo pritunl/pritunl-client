@@ -28,6 +28,10 @@ type ExecError struct {
 	errors.DropboxError
 }
 
+type PermissionError struct {
+	errors.DropboxError
+}
+
 type RequestError struct {
 	errors.DropboxError
 }
