@@ -29,6 +29,7 @@ type ConfigData struct {
 	ForceLocalTpm     bool   `json:"force_local_tpm"`
 	InterfaceMetric   int    `json:"interface_metric"`
 	EnclavePrivateKey string `json:"enclave_private_key"`
+	EnclavePublicKey  string `json:"enclave_public_key"`
 }
 
 func (c *ConfigData) Save() (err error) {
