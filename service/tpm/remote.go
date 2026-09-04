@@ -2,89 +2,53 @@ package tpm
 
 import (
 	"encoding/base64"
-	"sync"
-	"time"
 
 	"github.com/dropbox/godropbox/errors"
+	"github.com/pritunl/pritunl-client/service/config"
 	"github.com/pritunl/pritunl-client/service/errortypes"
-	"github.com/pritunl/pritunl-client/service/event"
 	"github.com/pritunl/pritunl-client/service/utils"
 )
 
-var (
-	callers     = map[string]*Remote{}
-	callersLock = sync.Mutex{}
-)
-
-type tpmEventData struct {
-	Id         string `json:"id"`
-	PrivateKey string `json:"private_key"`
-	SignData   string `json:"sign_data"`
-}
-
+// Remote performs secure enclave operations through a user session
+// client, see request.go for the claim protocol. Each operation runs a
+// separate helper process on the client, the enclave key is passed by
+// its data representation so no state is held between operations.
 type Remote struct {
-	callerId  string
-	callerErr string
 	privKey64 string
 	pubKey64  string
-	sig64     string
 }
 
+// Open loads the enclave key, generating one when privKey64 is empty.
+// The public key of a stored key is cached in the config so a stored key
+// needs no client round trip, the key is loaded by the sign request.
 func (t *Remote) Open(privKey64 string) (err error) {
-	t.callerId, err = utils.RandStr(16)
+	if privKey64 != "" && config.Config.EnclavePublicKey != "" {
+		t.privKey64 = privKey64
+		t.pubKey64 = config.Config.EnclavePublicKey
+		return
+	}
+
+	id, err := utils.RandStr(16)
 	if err != nil {
 		return
 	}
 
-	callersLock.Lock()
-	callers[t.callerId] = t
-	callersLock.Unlock()
-
-	evt := event.Event{
-		Type: "tpm_open",
-		Data: &tpmEventData{
-			Id:         t.callerId,
-			PrivateKey: privKey64,
-		},
-	}
-	evt.Init()
-
-	for i := 0; i < 10; i++ {
-		time.Sleep(100 * time.Millisecond)
-		if t.pubKey64 != "" || t.callerErr != "" {
-			break
-		}
-	}
-
-	if t.callerErr != "" {
-		err = &errortypes.RequestError{
-			errors.New("tpm: Client TPM error " + t.callerErr),
-		}
+	res, err := run(&Request{
+		Id:      id,
+		Type:    RequestOpen,
+		KeyData: privKey64,
+	})
+	if err != nil {
 		return
 	}
 
-	if t.pubKey64 == "" {
-		err = &errortypes.RequestError{
-			errors.New("tpm: Timeout waiting for client TPM open"),
-		}
-		return
-	}
+	t.privKey64 = res.KeyData
+	t.pubKey64 = res.PublicKey
 
 	return
 }
 
 func (t *Remote) Close() {
-	evt := event.Event{
-		Type: "tpm_close",
-		Data: &tpmEventData{
-			Id: t.callerId,
-		},
-	}
-	evt.Init()
-
-	callersLock.Lock()
-	delete(callers, t.callerId)
-	callersLock.Unlock()
 }
 
 func (t *Remote) PublicKey() (pubKey64 string, err error) {
@@ -93,61 +57,31 @@ func (t *Remote) PublicKey() (pubKey64 string, err error) {
 }
 
 func (t *Remote) Sign(data []byte) (privKey64, sig64 string, err error) {
-	evt := event.Event{
-		Type: "tpm_sign",
-		Data: &tpmEventData{
-			Id:       t.callerId,
-			SignData: base64.StdEncoding.EncodeToString(data),
-		},
-	}
-	evt.Init()
-
-	for i := 0; i < 10; i++ {
-		time.Sleep(100 * time.Millisecond)
-		if t.sig64 != "" || t.callerErr != "" {
-			break
-		}
-	}
-
-	if t.callerErr != "" {
+	if t.privKey64 == "" || t.pubKey64 == "" {
 		err = &errortypes.RequestError{
-			errors.New("tpm: Client TPM error " + t.callerErr),
+			errors.New("tpm: Sign before open"),
 		}
 		return
 	}
 
-	if t.sig64 == "" {
-		err = &errortypes.RequestError{
-			errors.New("tpm: Timeout waiting for client TPM sign"),
-		}
+	id, err := utils.RandStr(16)
+	if err != nil {
+		return
+	}
+
+	res, err := run(&Request{
+		Id:        id,
+		Type:      RequestSign,
+		KeyData:   t.privKey64,
+		SignData:  base64.StdEncoding.EncodeToString(data),
+		PublicKey: t.pubKey64,
+	})
+	if err != nil {
 		return
 	}
 
 	privKey64 = t.privKey64
-	sig64 = t.sig64
+	sig64 = res.Signature
 
 	return
-}
-
-func RemoteCallback(callerId, pubKey, privKey, signature, error string) {
-	callersLock.Lock()
-	caller := callers[callerId]
-	callersLock.Unlock()
-
-	if caller == nil {
-		return
-	}
-
-	if pubKey != "" {
-		caller.pubKey64 = pubKey
-	}
-	if privKey != "" {
-		caller.privKey64 = privKey
-	}
-	if signature != "" {
-		caller.sig64 = signature
-	}
-	if error != "" {
-		caller.callerErr = error
-	}
 }
