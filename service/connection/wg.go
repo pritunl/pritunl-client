@@ -42,6 +42,8 @@ type Wg struct {
 	nmName        string
 	nmUuid        string
 	nmConnPath    string
+	nmActivePath  string
+	nmVolatile    bool
 	connected     bool
 	lastHandshake int
 	bashPath      string
@@ -83,6 +85,8 @@ func (w *Wg) Fields() logrus.Fields {
 		"wg_nm_name":        w.nmName,
 		"wg_nm_uuid":        w.nmUuid,
 		"wg_nm_path":        w.nmConnPath,
+		"wg_nm_active_path": w.nmActivePath,
+		"wg_nm_volatile":    w.nmVolatile,
 		"wg_connected":      w.connected,
 		"wg_last_handshake": w.lastHandshake,
 		"wg_pub_key":        w.publicKey != "",
