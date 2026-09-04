@@ -21,13 +21,15 @@ var (
 )
 
 type Event struct {
-	Id   string      `json:"id"`
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
+	Id        string      `json:"id"`
+	Type      string      `json:"type"`
+	Timestamp int64       `json:"timestamp"`
+	Data      interface{} `json:"data"`
 }
 
 func (e *Event) Init() {
 	e.Id = utils.Uuid()
+	e.Timestamp = time.Now().UnixNano() / int64(time.Millisecond)
 
 	listeners.RLock()
 	defer listeners.RUnlock()
