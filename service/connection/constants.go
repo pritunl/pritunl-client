@@ -15,6 +15,10 @@ const (
 	OvpnMode            = "ovpn"
 	WgMode              = "wg"
 	NmOvpnUser          = "nm-openvpn"
+
+	TpmOpenAttempts = 3
+	TpmSignAttempts = 2
+	TpmRetryDelay   = 1 * time.Second
 )
 
 var (
