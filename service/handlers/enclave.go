@@ -8,6 +8,7 @@ import (
 
 func resetEnclave(c *gin.Context) {
 	config.Config.EnclavePrivateKey = ""
+	config.Config.EnclavePublicKey = ""
 
 	err := config.Config.Save()
 	if err != nil {
