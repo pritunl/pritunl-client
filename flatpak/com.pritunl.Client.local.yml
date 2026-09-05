@@ -48,9 +48,11 @@ modules:
     build-commands:
       - go build -ldflags="-s -w" -o /app/bin/pritunl-client-service .
     sources:
-      - type: git
-        url: https://github.com/pritunl/pritunl-client.git
-        commit: 14171210372d458abbc34ac14d8fc46efc3d8bc9
+      - type: dir
+        path: ../service
+        dest: service
+        skip:
+          - vendor
       - service-go.mod.yml
       - type: file
         path: service-modules.txt
@@ -71,9 +73,11 @@ modules:
     build-commands:
       - go build -ldflags="-s -w" -o /app/bin/pritunl-client .
     sources:
-      - type: git
-        url: https://github.com/pritunl/pritunl-client.git
-        commit: 14171210372d458abbc34ac14d8fc46efc3d8bc9
+      - type: dir
+        path: ../cli
+        dest: cli
+        skip:
+          - vendor
       - cli-go.mod.yml
       - type: file
         path: cli-modules.txt
@@ -115,14 +119,18 @@ modules:
       # zypak-wrapper
       - rm -f /app/pritunl-client-electron/chrome-sandbox
     sources:
-      - type: git
-        url: https://github.com/pritunl/pritunl-client.git
-        commit: 14171210372d458abbc34ac14d8fc46efc3d8bc9
+      - type: dir
+        path: ../client
+        dest: client
+        skip:
+          - node_modules
+          - dist-dev
+          - build
+          - flatpak-node
       - generated-sources.json
 
   - name: pritunl-client-resources
     buildsystem: simple
-    subdir: flatpak
     build-commands:
       - install -Dm755 pritunl-client-flatpak /app/bin/pritunl-client-flatpak
       - install -Dm644 com.pritunl.Client.desktop
@@ -131,16 +139,25 @@ modules:
         /app/share/metainfo/com.pritunl.Client.metainfo.xml
       - |
         for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256 512x512; do
-          install -Dm644 ../resources_linux/icons/$size/apps/pritunl_client_electron.png \
+          install -Dm644 icons/$size/apps/pritunl_client_electron.png \
             /app/share/icons/hicolor/$size/apps/com.pritunl.Client.png
         done
-        install -Dm644 ../resources_linux/icons/scalable/apps/pritunl_client_electron.svg \
+        install -Dm644 icons/scalable/apps/pritunl_client_electron.svg \
           /app/share/icons/hicolor/scalable/apps/com.pritunl.Client.svg
-        install -Dm644 ../resources_linux/numix_icons/Numix-Circle/48/apps/pritunl_client_electron.svg \
+        install -Dm644 numix_icons/Numix-Circle/48/apps/pritunl_client_electron.svg \
           /app/share/icons/Numix-Circle/48/apps/com.pritunl.Client.svg
-        install -Dm644 ../resources_linux/numix_icons/Numix-Square/48/apps/pritunl_client_electron.svg \
+        install -Dm644 numix_icons/Numix-Square/48/apps/pritunl_client_electron.svg \
           /app/share/icons/Numix-Square/48/apps/com.pritunl.Client.svg
     sources:
-      - type: git
-        url: https://github.com/pritunl/pritunl-client.git
-        commit: 14171210372d458abbc34ac14d8fc46efc3d8bc9
+      - type: file
+        path: pritunl-client-flatpak
+      - type: file
+        path: com.pritunl.Client.desktop
+      - type: file
+        path: com.pritunl.Client.metainfo.xml
+      - type: dir
+        path: ../resources_linux/icons
+        dest: icons
+      - type: dir
+        path: ../resources_linux/numix_icons
+        dest: numix_icons
