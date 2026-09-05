@@ -1,3 +1,4 @@
+# UNDER DEVELOPMENT NOT FOR FLATHUB SUBMISSION
 app-id: com.pritunl.Client
 runtime: org.freedesktop.Platform
 runtime-version: '25.08'
@@ -138,6 +139,10 @@ modules:
         done
         install -Dm644 icons/scalable/apps/pritunl_client_electron.svg \
           /app/share/icons/hicolor/scalable/apps/com.pritunl.Client.svg
+        install -Dm644 numix_icons/Numix-Circle/48/apps/pritunl_client_electron.svg \
+          /app/share/icons/Numix-Circle/48/apps/com.pritunl.Client.svg
+        install -Dm644 numix_icons/Numix-Square/48/apps/pritunl_client_electron.svg \
+          /app/share/icons/Numix-Square/48/apps/com.pritunl.Client.svg
     sources:
       - type: file
         path: pritunl-client-flatpak
@@ -148,5 +153,6 @@ modules:
       - type: dir
         path: ../resources_linux/icons
         dest: icons
-        skip:
-          - .DS_Store
+      - type: dir
+        path: ../resources_linux/numix_icons
+        dest: numix_icons
