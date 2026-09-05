@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"math/big"
+	"os"
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/google/go-tpm-tools/client"
@@ -31,8 +32,14 @@ func (t *Tpm) Open(privKey64 string) (err error) {
 
 	tpmDev, err := tpm2.OpenTPM(tpmPth)
 	if err != nil {
-		err = &errortypes.ReadError{
-			errors.Wrap(err, "tpm: Failed to open tpm"),
+		if os.IsPermission(err) {
+			err = &errortypes.PermissionError{
+				errors.Wrap(err, "tpm: Permission denied opening tpm"),
+			}
+		} else {
+			err = &errortypes.ReadError{
+				errors.Wrap(err, "tpm: Failed to open tpm"),
+			}
 		}
 		return
 	}
@@ -134,7 +141,7 @@ func getTpmPath() (pth string, err error) {
 		"path": "/dev/tpm0",
 	}).Error("tpm: Cannot find TPM for device authentication")
 
-	err = &errortypes.ReadError{
+	err = &errortypes.NotFoundError{
 		errors.New("tpm: Failed to find TPM"),
 	}
 
