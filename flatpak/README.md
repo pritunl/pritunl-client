@@ -16,9 +16,9 @@ Build information for the Pritunl Client Flatpak package.
 ## Prerequisites
 
 ```bash
-sudo dnf install flatpak-builder
 flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak install flathub \
+flatpak install --user flathub \
+    org.flatpak.Builder \
     org.freedesktop.Platform//25.08 \
     org.freedesktop.Sdk//25.08 \
     org.electronjs.Electron2.BaseApp//25.08 \
@@ -29,9 +29,10 @@ flatpak install flathub \
 ## Local Build
 
 ```bash
-cd flatpak
+git clone https://github.com/pritunl/pritunl-client.git
+cd pritunl-client/flatpak
 rm -rf .flatpak-builder/ build-dir/
-flatpak-builder --user --install --force-clean --disable-rofiles-fuse build-dir com.pritunl.Client.local.yml
+flatpak run org.flatpak.Builder --user --install --force-clean --disable-rofiles-fuse build-dir com.pritunl.Client.local.yml
 flatpak run com.pritunl.Client
 # terminal interface (not finished)
 flatpak run --command=pritunl-client com.pritunl.Client
