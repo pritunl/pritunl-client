@@ -13,6 +13,7 @@ import (
 	"github.com/pritunl/pritunl-client/cli/profile"
 	"github.com/pritunl/pritunl-client/cli/service"
 	"github.com/pritunl/pritunl-client/cli/terminal"
+	"github.com/pritunl/pritunl-client/cli/utils"
 	"github.com/pritunl/tools/logger"
 )
 
@@ -646,16 +647,17 @@ func (s *Sprofile) BuildAuth(values PromptValues,
 
 // ResolveMode returns the mode to connect with when none is specified.
 func (s *Sprofile) ResolveMode(mode string) string {
+	if s.HideOvpn || utils.IsFlatpak() {
+		return "wg"
+	}
+
 	if mode == "" {
-		if s.HideOvpn {
-			mode = "wg"
-		} else {
-			mode = s.LastMode
-			if mode == "" {
-				mode = "ovpn"
-			}
+		mode = s.LastMode
+		if mode == "" {
+			mode = "ovpn"
 		}
 	}
+
 	return mode
 }
 

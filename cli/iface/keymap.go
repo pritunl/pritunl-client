@@ -33,7 +33,7 @@ var bindings = KeyMap{
 		key.WithHelp("i", "import"),
 	),
 	Connect: key.NewBinding(
-		key.WithKeys("c", "enter"),
+		key.WithKeys("c"),
 		key.WithHelp("c", "connect"),
 	),
 	ConnectWg: key.NewBinding(

@@ -242,12 +242,9 @@ func (m *Model) Connect(mode string) tea.Cmd {
 		return nil
 	}
 
-	if mode == "wg" && !sprfl.Wg {
+	if mode == "wg" && !sprfl.Wg && !constants.Flatpak {
 		m.setStatus("WireGuard not available for profile", true)
 		return nil
-	}
-	if mode == "ovpn" && sprfl.HideOvpn {
-		mode = "wg"
 	}
 	mode = sprfl.ResolveMode(mode)
 
