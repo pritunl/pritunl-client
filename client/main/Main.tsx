@@ -171,7 +171,9 @@ class Main {
 		let minWidth = 430
 		let minHeight = 520
 
-		if (process.platform === "win32" || Config.frameless) {
+		if (process.platform === "win32" || Config.frameless ||
+			(Constants.flatpak && Config.frameless !== false)) {
+
 			frameless = true
 			framelessClient = true
 
@@ -210,11 +212,11 @@ class Main {
 			icon: path.join(__dirname, "..", "logo.png"),
 			titleBarStyle: titleBarStyle as any,
 			frame: !frameless,
+			transparent: process.platform === "linux" && frameless,
 			trafficLightPosition: {
 				x: 14,
 				y: 12,
 			},
-			autoHideMenuBar: true,
 			fullscreen: false,
 			show: false,
 			width: width,
@@ -228,6 +230,8 @@ class Main {
 				contextIsolation: false,
 			}
 		})
+
+		this.window.setMenuBarVisibility(false)
 
 		this.window.webContents.on("context-menu", (
 				evt: electron.Event, params: electron.ContextMenuParams) => {
