@@ -1,14 +1,19 @@
 package iface
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 const (
-	DialogCancel = -1
-	DialogOk     = 1
+	DialogCancel    = -1
+	DialogOk        = 1
+	DialogInfo      = 2
+	dialogInfoFrame = 12
 )
 
 var (
@@ -25,7 +30,16 @@ var (
 	dialogHelpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#6B7280")).
 			PaddingTop(1)
+
+	dialogInfoLabelStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#9CA3AF"))
 )
+
+// InfoField is a read only label and value shown in the dialog info list.
+type InfoField struct {
+	Label string
+	Value string
+}
 
 type DialogKeyMap struct {
 	Left     key.Binding
@@ -39,6 +53,9 @@ type DialogKeyMap struct {
 	Space    key.Binding
 	Quit     key.Binding
 	Close    key.Binding
+	Back     key.Binding
+	Top      key.Binding
+	End      key.Binding
 }
 
 var dialogKeys = DialogKeyMap{
@@ -85,6 +102,18 @@ var dialogKeys = DialogKeyMap{
 		key.WithKeys("q"),
 		key.WithHelp("q", "close"),
 	),
+	Back: key.NewBinding(
+		key.WithKeys("esc", "enter", "q", "backspace", "i"),
+		key.WithHelp("esc", "back"),
+	),
+	Top: key.NewBinding(
+		key.WithKeys("home", "g"),
+		key.WithHelp("home", "top"),
+	),
+	End: key.NewBinding(
+		key.WithKeys("end", "G"),
+		key.WithHelp("end", "end"),
+	),
 }
 
 type DialogCloseMsg struct {
@@ -95,7 +124,15 @@ type Dialog struct {
 	title   string
 	message string
 	width   int
+	height  int
 	options []Option
+
+	// Info fields replace the options when the info view is shown, the
+	// view is opened by a button returning DialogInfo.
+	infoTitle string
+	info      []InfoField
+	showInfo  bool
+	infoView  viewport.Model
 }
 
 func NewDialog(title, message string, opts ...Option) Dialog {
@@ -109,6 +146,60 @@ func NewDialog(title, message string, opts ...Option) Dialog {
 	d.init()
 
 	return d
+}
+
+// SetInfo sets the read only fields shown when the info view is opened.
+func (d *Dialog) SetInfo(title string, fields []InfoField) {
+	d.infoTitle = title
+	d.info = fields
+	d.infoView = viewport.New(d.contentWidth(), 1)
+	d.infoView.MouseWheelEnabled = true
+	d.renderInfo()
+}
+
+// renderInfo rebuilds the info viewport content for the current size.
+func (d *Dialog) renderInfo() {
+	if d.info == nil {
+		return
+	}
+
+	contentWidth := max(d.contentWidth()-scrollbarWidth, 10)
+	lineStyle := lipgloss.NewStyle().Width(contentWidth)
+
+	lines := []string{}
+	for _, field := range d.info {
+		value := field.Value
+		if value == "" {
+			value = "-"
+		}
+		lines = append(lines, lineStyle.Render(
+			dialogInfoLabelStyle.Render(field.Label+":")+" "+value))
+	}
+	content := strings.Join(lines, "\n")
+
+	// Fill the available height without leaving empty space below
+	// short field lists.
+	maxHeight := 20
+	if d.height > 0 {
+		maxHeight = max(d.height-dialogInfoFrame, 3)
+	}
+	contentHeight := lipgloss.Height(content)
+
+	d.infoView.Width = contentWidth
+	d.infoView.Height = max(min(maxHeight, contentHeight), 1)
+	d.infoView.SetContent(content)
+}
+
+func (d *Dialog) openInfo() {
+	if d.info == nil {
+		return
+	}
+	d.showInfo = true
+	d.infoView.GotoTop()
+}
+
+func (d *Dialog) closeInfo() {
+	d.showInfo = false
 }
 
 func (d *Dialog) init() {
@@ -129,10 +220,11 @@ func (d *Dialog) contentWidth() int {
 }
 
 func (d *Dialog) SetSize(width, height int) {
-	if d.width == width {
+	if d.width == width && d.height == height {
 		return
 	}
 	d.width = max(width, 20)
+	d.height = height
 
 	contentWidth := d.contentWidth()
 	for _, opt := range d.options {
@@ -140,6 +232,8 @@ func (d *Dialog) SetSize(width, height int) {
 			txt.model.Width = max(contentWidth-4, 10)
 		}
 	}
+
+	d.renderInfo()
 }
 
 func (d *Dialog) activeIndex() int {
@@ -222,7 +316,41 @@ func closeDialog(ret int) tea.Cmd {
 	}
 }
 
+func (d Dialog) viewInfo() string {
+	contentWidth := d.contentWidth()
+
+	title := d.infoTitle
+	if title == "" {
+		title = d.title
+	}
+
+	fields := []string{
+		dialogTitleStyle.Render(title),
+		renderScrollView(d.infoView),
+	}
+
+	backBtn := &OptionButton{
+		Label:   "Back",
+		focused: true,
+	}
+	fields = append(fields, backBtn.View())
+
+	fields = append(fields, dialogHelpStyle.Width(contentWidth).Render(
+		"↑↓: scroll  pgup/pgdn: page  home/end: top/end  esc: back"))
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		fields...,
+	)
+
+	return dialogBoxStyle.Width(d.width).Render(content)
+}
+
 func (d Dialog) View() string {
+	if d.showInfo {
+		return d.viewInfo()
+	}
+
 	contentWidth := d.contentWidth()
 
 	fields := []string{
@@ -277,7 +405,33 @@ func (d Dialog) View() string {
 	return dialogBoxStyle.Width(d.width).Render(content)
 }
 
+func (d Dialog) updateInfo(msg tea.Msg) (Dialog, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, dialogKeys.Quit):
+			return d, tea.Quit
+		case key.Matches(keyMsg, dialogKeys.Back):
+			d.closeInfo()
+			return d, nil
+		case key.Matches(keyMsg, dialogKeys.Top):
+			d.infoView.GotoTop()
+			return d, nil
+		case key.Matches(keyMsg, dialogKeys.End):
+			d.infoView.GotoBottom()
+			return d, nil
+		}
+	}
+
+	var cmd tea.Cmd
+	d.infoView, cmd = d.infoView.Update(msg)
+	return d, cmd
+}
+
 func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
+	if d.showInfo {
+		return d.updateInfo(msg)
+	}
+
 	keyMsg, ok := msg.(tea.KeyMsg)
 	if !ok {
 		active := d.GetActiveOption()
@@ -321,6 +475,10 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 			ret, close, handled := active.OnEnter()
 			if handled {
 				if close {
+					if ret == DialogInfo && d.info != nil {
+						d.openInfo()
+						return d, nil
+					}
 					return d, closeDialog(ret)
 				}
 				return d, nil

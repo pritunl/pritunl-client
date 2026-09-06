@@ -97,7 +97,8 @@ func NewLogsView(sources []LogsSource, id string,
 		follow:  true,
 		loading: true,
 	}
-	l.viewport = viewport.New(width, max(height-2, 1))
+	l.viewport = viewport.New(
+		max(width-scrollbarWidth, 10), max(height-2, 1))
 	l.viewport.SetContent("Loading...")
 	l.SetSize(width, height)
 	l.setSource(id)
@@ -144,11 +145,29 @@ func (l *LogsView) cycle(dir int) {
 func (l *LogsView) SetSize(width, height int) {
 	l.width = width
 	l.height = height
-	l.viewport.Width = width
+	l.viewport.Width = max(width-scrollbarWidth, 10)
 	l.viewport.Height = max(height-2, 1)
+
+	// Rewrap the log output for the new width
+	if !l.loading {
+		l.setContent()
+	}
 	if l.follow {
 		l.viewport.GotoBottom()
 	}
+}
+
+// setContent wraps the log output to the viewport width so the page never
+// scrolls horizontally.
+func (l *LogsView) setContent() {
+	content := strings.TrimRight(l.data, "\n")
+	if content == "" {
+		content = "No log output"
+	}
+
+	content = lipgloss.NewStyle().Width(l.viewport.Width).Render(content)
+
+	l.viewport.SetContent(content)
 }
 
 func (l *LogsView) SetData(data string) {
@@ -158,15 +177,7 @@ func (l *LogsView) SetData(data string) {
 	l.loading = false
 	l.data = data
 
-	content := strings.TrimRight(data, "\n")
-	if content == "" {
-		content = "No log output"
-	}
-
-	// Wrap long lines so the page never scrolls horizontally.
-	content = lipgloss.NewStyle().Width(l.width).Render(content)
-
-	l.viewport.SetContent(content)
+	l.setContent()
 	if l.follow {
 		l.viewport.GotoBottom()
 	}
@@ -265,7 +276,7 @@ func (l LogsView) View() string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
-		l.viewport.View(),
+		renderScrollView(l.viewport),
 		menu,
 	)
 }

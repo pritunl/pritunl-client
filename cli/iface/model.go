@@ -459,6 +459,10 @@ func (m *Model) Settings() {
 	}
 	opts = append(opts,
 		&OptionButton{
+			Label:  "Info",
+			Return: DialogInfo,
+		},
+		&OptionButton{
 			Label:  "Cancel",
 			Return: DialogCancel,
 		},
@@ -468,11 +472,14 @@ func (m *Model) Settings() {
 		},
 	)
 
-	m.openDialog(NewDialog(
+	dialog := NewDialog(
 		"Settings "+sprfl.FormatedName(),
 		message,
 		opts...,
-	), func(m *Model, ret int) tea.Cmd {
+	)
+	dialog.SetInfo("Info "+sprfl.FormatedName(), profileInfoFields(sprfl))
+
+	m.openDialog(dialog, func(m *Model, ret int) tea.Cmd {
 		if ret != DialogOk {
 			return nil
 		}
