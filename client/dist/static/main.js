@@ -8009,11 +8009,11 @@ class Main {
             icon: external_path_default().join(__dirname, "..", "logo.png"),
             titleBarStyle: titleBarStyle,
             frame: !frameless,
+            transparent: (external_process_default()).platform === "linux" && frameless,
             trafficLightPosition: {
                 x: 14,
                 y: 12,
             },
-            autoHideMenuBar: true,
             fullscreen: false,
             show: false,
             width: width,
@@ -8027,6 +8027,7 @@ class Main {
                 contextIsolation: false,
             }
         });
+        this.window.setMenuBarVisibility(false);
         this.window.webContents.on("context-menu", (evt, params) => {
             if (params.isEditable) {
                 external_electron_default().Menu.buildFromTemplate([

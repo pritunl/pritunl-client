@@ -8514,7 +8514,7 @@ class ProfileSettings extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                                     changed: true,
                                     profile: profile,
                                     setSystem: !system,
-                                    setAutoStart: true,
+                                    setAutoStart: !!profile.force_connect,
                                 });
                             }
                             else {
@@ -9584,7 +9584,11 @@ function New(self) {
         if (this.name) {
             return this.name;
         }
-        return this.server + " (" + this.user + ")";
+        let name = this.server;
+        if (this.server) {
+            name += " (" + this.user + ")";
+        }
+        return name;
     };
     self.formattedNameShort = function () {
         if (this.name) {
@@ -9936,6 +9940,12 @@ function New(self) {
     self.convertSystem = async function () {
         if (this.system) {
             return;
+        }
+        if (this.force_connect) {
+            this.disabled = false;
+        }
+        else if (this.disabled === undefined || this.disabled === null) {
+            this.disabled = true;
         }
         try {
             await _actions_ServiceActions__WEBPACK_IMPORTED_MODULE_6__.disconnect(this);
