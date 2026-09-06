@@ -14,6 +14,7 @@ interface Props {
 interface State {
 	config: ConfigTypes.Config
 	safeStorage: boolean
+	transparentWindow: boolean
 	changed: boolean
 	disabled: boolean
 }
@@ -45,6 +46,7 @@ export default class ConfigView extends React.Component<Props, State> {
 		this.state = {
 			config: ConfigStore.config,
 			safeStorage: null,
+			transparentWindow: null,
 			changed: false,
 			disabled: false,
 		};
@@ -85,6 +87,8 @@ export default class ConfigView extends React.Component<Props, State> {
 	onCancel = (): void => {
 		this.setState({
 			...this.state,
+			safeStorage: null,
+			transparentWindow: null,
 			changed: false,
 			config: ConfigStore.config,
 		})
@@ -96,10 +100,17 @@ export default class ConfigView extends React.Component<Props, State> {
 			disabled: true,
 		})
 
-		if (this.state.safeStorage !== null) {
-			Config.save({
-				safe_storage: this.state.safeStorage,
-			})
+		if (this.state.safeStorage !== null ||
+			this.state.transparentWindow !== null) {
+
+			let opts: {[key: string]: any} = {}
+			if (this.state.safeStorage !== null) {
+				opts["safe_storage"] = this.state.safeStorage
+			}
+			if (this.state.transparentWindow !== null) {
+				opts["transparent_window"] = this.state.transparentWindow
+			}
+			Config.save(opts)
 		}
 
 		if (this.state.config) {
@@ -117,6 +128,10 @@ export default class ConfigView extends React.Component<Props, State> {
 		let safeStorage = this.state.safeStorage
 		if (safeStorage === null) {
 			safeStorage = Config.safe_storage
+		}
+		let transparentWindow = this.state.transparentWindow
+		if (transparentWindow === null) {
+			transparentWindow = Config.transparent_window
 		}
 
 		return <div className="bp5-card layout vertical flex" style={css.card}>
@@ -198,6 +213,21 @@ export default class ConfigView extends React.Component<Props, State> {
 					onToggle={(): void => {
 						this.set("disable_browser",
 							!this.state.config.disable_browser)
+					}}
+				/>
+			</div>
+			<div className="layout horizontal">
+				<PageSwitch
+					disabled={this.state.disabled}
+					label="Transparent window"
+					help="Enable transparent window, should not be used for most configurations. Restart client for configuration to take effect."
+					checked={!!transparentWindow}
+					onToggle={(): void => {
+						this.setState({
+							...this.state,
+							changed: true,
+							transparentWindow: !transparentWindow,
+						})
 					}}
 				/>
 			</div>
