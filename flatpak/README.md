@@ -38,28 +38,6 @@ flatpak run com.pritunl.Client
 flatpak run --command=pritunl-client com.pritunl.Client
 ```
 
-## Git Build
-
-```bash
-flatpak install flathub org.flatpak.Builder
-COMMIT="865713bbddb479f7abf4b9c7e50f7102311ed88b"
-mkdir com.pritunl.Client
-cd com.pritunl.Client
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/com.pritunl.Client.yml"
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/flathub.json"
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/generated-sources.json"
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/cli-go.mod.yml"
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/cli-modules.txt"
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/service-go.mod.yml"
-wget "https://raw.githubusercontent.com/pritunl/pritunl-client/$COMMIT/flatpak/service-modules.txt"
-sed -i "s|commit: [0-9a-f]\{40\}|commit: $COMMIT|" com.pritunl.Client.yml
-grep -n "url:\|commit:" com.pritunl.Client.yml
-flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest com.pritunl.Client.yml
-flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
-flatpak-builder --user --install --force-clean --disable-rofiles-fuse --repo=repo build-dir com.pritunl.Client.yml
-flatpak run com.pritunl.Client
-```
-
 ## Device Authentication
 
 Device authentication requires TPM access by running the commands below.
