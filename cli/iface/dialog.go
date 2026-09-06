@@ -41,6 +41,23 @@ type InfoField struct {
 	Value string
 }
 
+// dialogRegionBack is the region index of the info view back button.
+const dialogRegionBack = -1
+
+// dialogRegion is the clickable area of a dialog option relative to the
+// dialog content area.
+type dialogRegion struct {
+	index int
+	x     int
+	y     int
+	w     int
+	h     int
+}
+
+func (r dialogRegion) contains(x, y int) bool {
+	return x >= r.x && x < r.x+r.w && y >= r.y && y < r.y+r.h
+}
+
 type DialogKeyMap struct {
 	Left     key.Binding
 	Right    key.Binding
@@ -316,7 +333,7 @@ func closeDialog(ret int) tea.Cmd {
 	}
 }
 
-func (d Dialog) viewInfo() string {
+func (d Dialog) renderInfoView() (string, []dialogRegion) {
 	contentWidth := d.contentWidth()
 
 	title := d.infoTitle
@@ -328,12 +345,21 @@ func (d Dialog) viewInfo() string {
 		dialogTitleStyle.Render(title),
 		renderScrollView(d.infoView),
 	}
+	y := lipgloss.Height(fields[0]) + lipgloss.Height(fields[1])
 
 	backBtn := &OptionButton{
 		Label:   "Back",
 		focused: true,
 	}
-	fields = append(fields, backBtn.View())
+	backView := backBtn.View()
+	regions := []dialogRegion{{
+		index: dialogRegionBack,
+		x:     0,
+		y:     y + optionButtonStyle.GetMarginTop(),
+		w:     lipgloss.Width(backView) - optionButtonStyle.GetMarginRight(),
+		h:     1,
+	}}
+	fields = append(fields, backView)
 
 	fields = append(fields, dialogHelpStyle.Width(contentWidth).Render(
 		"↑↓: scroll  pgup/pgdn: page  home/end: top/end  esc: back"))
@@ -343,34 +369,39 @@ func (d Dialog) viewInfo() string {
 		fields...,
 	)
 
-	return dialogBoxStyle.Width(d.width).Render(content)
+	return dialogBoxStyle.Width(d.width).Render(content), regions
 }
 
-func (d Dialog) View() string {
+// render returns the dialog view and the clickable regions of the
+// options, region positions are relative to the dialog content area.
+func (d Dialog) render() (string, []dialogRegion) {
 	if d.showInfo {
-		return d.viewInfo()
+		return d.renderInfoView()
 	}
 
 	contentWidth := d.contentWidth()
+	regions := []dialogRegion{}
 
 	fields := []string{
 		dialogTitleStyle.Render(d.title),
 	}
+	y := lipgloss.Height(fields[0])
 
 	if d.message != "" {
-		fields = append(fields,
-			lipgloss.NewStyle().Width(contentWidth).Render(d.message),
-			"",
-		)
+		message := lipgloss.NewStyle().Width(contentWidth).Render(d.message)
+		fields = append(fields, message, "")
+		y += lipgloss.Height(message) + 1
 	}
 
 	footerFields := []string{}
+	footerIndex := []int{}
 	hasToggle := false
 
 	prevToggle := false
-	for _, opt := range d.options {
+	for i, opt := range d.options {
 		if opt.Footer() {
 			footerFields = append(footerFields, opt.View())
+			footerIndex = append(footerIndex, i)
 			continue
 		}
 
@@ -379,13 +410,39 @@ func (d Dialog) View() string {
 			hasToggle = true
 			if prevToggle {
 				fields = fields[:len(fields)-1]
+				y -= 1
 			}
 		}
-		fields = append(fields, opt.View(), "")
+
+		view := opt.View()
+		height := lipgloss.Height(view)
+		regions = append(regions, dialogRegion{
+			index: i,
+			x:     0,
+			y:     y,
+			w:     contentWidth,
+			h:     height,
+		})
+
+		fields = append(fields, view, "")
+		y += height + 1
 		prevToggle = isToggle
 	}
 
 	if len(footerFields) > 0 {
+		x := 0
+		for i, view := range footerFields {
+			width := lipgloss.Width(view)
+			regions = append(regions, dialogRegion{
+				index: footerIndex[i],
+				x:     x,
+				y:     y + optionButtonStyle.GetMarginTop(),
+				w:     width - optionButtonStyle.GetMarginRight(),
+				h:     1,
+			})
+			x += width
+		}
+
 		fields = append(fields, lipgloss.JoinHorizontal(
 			lipgloss.Top, footerFields...))
 	}
@@ -402,7 +459,47 @@ func (d Dialog) View() string {
 		fields...,
 	)
 
-	return dialogBoxStyle.Width(d.width).Render(content)
+	return dialogBoxStyle.Width(d.width).Render(content), regions
+}
+
+func (d Dialog) View() string {
+	view, _ := d.render()
+	return view
+}
+
+// Click activates the option under the given position, x and y are
+// relative to the top left corner of the dialog box.
+func (d Dialog) Click(x, y int) (Dialog, tea.Cmd) {
+	x -= dialogBoxStyle.GetBorderLeftSize() + dialogBoxStyle.GetPaddingLeft()
+	y -= dialogBoxStyle.GetBorderTopSize() + dialogBoxStyle.GetPaddingTop()
+
+	_, regions := d.render()
+	for _, region := range regions {
+		if !region.contains(x, y) {
+			continue
+		}
+
+		if region.index == dialogRegionBack {
+			d.closeInfo()
+			return d, nil
+		}
+
+		cmd := d.focusIndex(region.index)
+		opt := d.options[region.index]
+
+		switch opt.(type) {
+		case *OptionToggle, *OptionButton:
+			// Clicking runs the same action as pressing enter on the
+			// focused option
+			var enterCmd tea.Cmd
+			d, enterCmd = d.Update(tea.KeyMsg{Type: tea.KeyEnter})
+			return d, tea.Batch(cmd, enterCmd)
+		}
+
+		return d, cmd
+	}
+
+	return d, nil
 }
 
 func (d Dialog) updateInfo(msg tea.Msg) (Dialog, tea.Cmd) {

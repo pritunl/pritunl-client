@@ -6,8 +6,14 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pritunl/pritunl-client/cli/sprofile"
+)
+
+const (
+	itemFrameHeight = 4
+	itemContentLeft = 3
 )
 
 type Profile struct {
@@ -51,7 +57,26 @@ var (
 			Foreground(lipgloss.Color("#EF4444"))
 	yellowSytle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#fffb00"))
+
+	itemButtonStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFFFFF")).
+			Background(lipgloss.Color("#3B82F6")).
+			Padding(0, 1).
+			MarginRight(1)
+	itemButtonDangerStyle = itemButtonStyle.
+				Background(lipgloss.Color("#EF4444"))
+	itemButtonMutedStyle = itemButtonStyle.
+				Background(lipgloss.Color("#4B5563"))
 )
+
+// itemButton is a rendered profile card button and its column position
+// relative to the card content area.
+type itemButton struct {
+	item  MenuItem
+	text  string
+	x     int
+	width int
+}
 
 type ListItem struct {
 	sprfl   *sprofile.Sprofile
@@ -103,6 +128,57 @@ func (i ListItem) FilterValue() string {
 
 func (i ListItem) Title() string {
 	return itemTitleStyle.Render(i.profile.Name)
+}
+
+// Buttons returns the card action buttons, the connect and disconnect
+// buttons follow the same rules as the menu bar.
+func (i ListItem) Buttons() []itemButton {
+	items := append(profileActions(i.sprfl),
+		MenuItem{Title: "Settings", Key: "s"})
+
+	buttons := []itemButton{}
+	x := 0
+	for _, item := range items {
+		style := itemButtonStyle
+		switch item.Key {
+		case "d":
+			style = itemButtonDangerStyle
+		case "s":
+			style = itemButtonMutedStyle
+		}
+
+		text := style.Render(item.Title)
+		width := lipgloss.Width(text)
+		buttons = append(buttons, itemButton{
+			item:  item,
+			text:  text,
+			x:     x,
+			width: width - style.GetMarginRight(),
+		})
+		x += width
+	}
+
+	return buttons
+}
+
+// ButtonsView renders the card button row.
+func (i ListItem) ButtonsView() string {
+	texts := []string{}
+	for _, btn := range i.Buttons() {
+		texts = append(texts, btn.text)
+	}
+	return lipgloss.JoinHorizontal(lipgloss.Top, texts...)
+}
+
+// ButtonAt returns the key press for the button at the column relative
+// to the card content area.
+func (i ListItem) ButtonAt(x int) (tea.KeyMsg, bool) {
+	for _, btn := range i.Buttons() {
+		if x >= btn.x && x < btn.x+btn.width {
+			return btn.item.KeyMsg()
+		}
+	}
+	return tea.KeyMsg{}, false
 }
 
 func (i ListItem) Body(width int) string {
@@ -204,9 +280,9 @@ func (d *ListDelegate) SetWidth(w int) {
 
 func (d ListDelegate) Height() int {
 	if d.split {
-		return 6
+		return itemFrameHeight + 3
 	}
-	return 9
+	return itemFrameHeight + 6
 }
 
 func (d *ListDelegate) SetSplit(x bool) {
@@ -239,6 +315,7 @@ func (d ListDelegate) Render(w io.Writer, model list.Model,
 		lipgloss.Left,
 		listItem.Title(),
 		body,
+		listItem.ButtonsView(),
 	)
 
 	fmt.Fprint(w, style.Render(content))

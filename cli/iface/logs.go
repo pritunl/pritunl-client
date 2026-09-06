@@ -210,8 +210,31 @@ func clearLogsCmd(src LogsSource) tea.Cmd {
 	}
 }
 
+func (l LogsView) menuItems() []MenuItem {
+	return []MenuItem{
+		{Title: "Back", Key: "esc"},
+		{Title: "Change Log", Key: "←/→"},
+		{Title: "Scroll", Key: "↑/↓"},
+		{Title: "Page", Key: "pgup/pgdn"},
+		{Title: "Top", Key: "home"},
+		{Title: "End", Key: "end"},
+		{Title: "Clear", Key: "c"},
+	}
+}
+
 func (l LogsView) Update(msg tea.Msg) (LogsView, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.MouseMsg:
+		if isLeftClick(msg) {
+			// Menu bar is the last line of the view
+			if msg.Y == l.height-1 {
+				keyMsg, ok := menuBarClick(l.width, l.menuItems(), msg.X)
+				if ok {
+					return l.Update(keyMsg)
+				}
+			}
+			return l, nil
+		}
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, logsKeys.Quit):
@@ -263,15 +286,7 @@ func (l LogsView) View() string {
 	title := menuBarStyle.Width(l.width).Render(
 		" Pritunl Client - Logs: " + l.Source().Name)
 
-	menu := renderMenuBar(l.width, []MenuItem{
-		{Title: "Back", Key: "esc"},
-		{Title: "Change Log", Key: "←/→"},
-		{Title: "Scroll", Key: "↑/↓"},
-		{Title: "Page", Key: "pgup/pgdn"},
-		{Title: "Top", Key: "home"},
-		{Title: "End", Key: "end"},
-		{Title: "Clear", Key: "c"},
-	})
+	menu := renderMenuBar(l.width, l.menuItems())
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,

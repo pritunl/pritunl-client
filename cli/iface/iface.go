@@ -61,7 +61,7 @@ func Iface() (err error) {
 	prog := tea.NewProgram(
 		model,
 		tea.WithAltScreen(),
-		//tea.WithMouseCellMotion(),
+		tea.WithMouseCellMotion(),
 	)
 
 	_, err = prog.Run()

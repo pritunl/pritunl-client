@@ -2,6 +2,7 @@ package iface
 
 import (
 	"fmt"
+	"math"
 	"runtime"
 	"strconv"
 	"strings"
@@ -747,6 +748,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 		return m, nil
+
+	case tea.MouseMsg:
+		return m.updateMouse(msg)
 	}
 
 	if m.showDialog {
@@ -793,6 +797,103 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.profiles = profiles
 
 	return m, cmd
+}
+
+// placeOffset returns the start position of content centered in size,
+// matching lipgloss.Place which puts the odd remainder after the content.
+func placeOffset(size, content int) int {
+	gap := size - content
+	if gap <= 0 {
+		return 0
+	}
+	return gap - int(math.Round(float64(gap)*0.5))
+}
+
+// profileAt returns the list index of the profile card rendered at the
+// row and the row within the card.
+func (m Model) profileAt(y int) (index, row int, ok bool) {
+	// Title bar then the blank list title padding line precede the items
+	top := 2
+	itemHeight := m.listDelegate.Height() + m.listDelegate.Spacing()
+	if y < top || itemHeight <= 0 {
+		return 0, 0, false
+	}
+
+	offset := (y - top) / itemHeight
+	if offset >= m.profiles.Paginator.PerPage {
+		return 0, 0, false
+	}
+
+	index = m.profiles.Paginator.Page*m.profiles.Paginator.PerPage + offset
+	if index >= len(m.profiles.Items()) {
+		return 0, 0, false
+	}
+
+	row = (y - top) % itemHeight
+	return index, row, true
+}
+
+func (m Model) updateMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	if m.showDialog {
+		if isLeftClick(msg) {
+			view := m.dialog.View()
+			x := msg.X - placeOffset(m.winWidth, lipgloss.Width(view))
+			y := msg.Y - placeOffset(m.winHeight, lipgloss.Height(view))
+			m.dialog, cmd = m.dialog.Click(x, y)
+			return m, cmd
+		}
+
+		m.dialog, cmd = m.dialog.Update(msg)
+		return m, cmd
+	}
+
+	if m.showLogs {
+		m.logs, cmd = m.logs.Update(msg)
+		return m, cmd
+	}
+
+	switch msg.Button {
+	case tea.MouseButtonWheelUp:
+		m.profiles.CursorUp()
+		return m, nil
+	case tea.MouseButtonWheelDown:
+		m.profiles.CursorDown()
+		return m, nil
+	}
+
+	if !isLeftClick(msg) {
+		return m, nil
+	}
+
+	// Menu bar is the last line of the view
+	if msg.Y == m.winHeight-1 {
+		keyMsg, ok := menuBarClick(m.winWidth, m.menuItems(), msg.X)
+		if ok {
+			return m.Update(keyMsg)
+		}
+		return m, nil
+	}
+
+	index, row, ok := m.profileAt(msg.Y)
+	if !ok {
+		return m, nil
+	}
+	m.profiles.Select(index)
+
+	// Button row is the last row inside the card border
+	if row == m.listDelegate.Height()-2 {
+		item, ok := m.profiles.Items()[index].(ListItem)
+		if ok {
+			keyMsg, ok := item.ButtonAt(msg.X - itemContentLeft)
+			if ok {
+				return m.Update(keyMsg)
+			}
+		}
+	}
+
+	return m, nil
 }
 
 func (m *Model) resync() tea.Cmd {
@@ -1036,26 +1137,30 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+// profileActions returns the connect or disconnect actions available for
+// the profile, OpenVPN is hidden when the server or Flatpak restricts it.
+func profileActions(sprfl *sprofile.Sprofile) []MenuItem {
+	if sprfl.State {
+		return []MenuItem{{Title: "Disconnect", Key: "d"}}
+	}
+
+	if sprfl.HideOvpn || constants.Flatpak {
+		return []MenuItem{{Title: "Connect WireGuard", Key: "c"}}
+	}
+
+	items := []MenuItem{{Title: "Connect OpenVPN", Key: "c"}}
+	if sprfl.Wg {
+		items = append(items, MenuItem{Title: "Connect WireGuard", Key: "w"})
+	}
+	return items
+}
+
 func (m Model) menuItems() []MenuItem {
 	menu := []MenuItem{}
 
 	sprfl := m.selectedProfile()
 	if sprfl != nil {
-		if sprfl.State {
-			menu = append(menu, MenuItem{Title: "Disconnect", Key: "d"})
-		} else {
-			if sprfl.HideOvpn || constants.Flatpak {
-				menu = append(menu,
-					MenuItem{Title: "Connect WireGuard", Key: "c"})
-			} else {
-				menu = append(menu,
-					MenuItem{Title: "Connect OpenVPN", Key: "c"})
-				if sprfl.Wg {
-					menu = append(menu,
-						MenuItem{Title: "Connect WireGuard", Key: "w"})
-				}
-			}
-		}
+		menu = append(menu, profileActions(sprfl)...)
 		menu = append(menu,
 			MenuItem{Title: "Logs", Key: "l"},
 			MenuItem{Title: "Settings", Key: "s"},
