@@ -63773,7 +63773,7 @@ class Main extends react.Component {
             }
         };
         this.onWindowFrame = async () => {
-            app_Config.frameless = !app_Config.frameless;
+            app_Config.frameless = !this.frameless();
             await app_Config.save({
                 frameless: app_Config.frameless,
             });
@@ -63809,6 +63809,12 @@ class Main extends react.Component {
     componentWillUnmount() {
         Constants_removeChangeListener(this.onChange);
         removeChangeListener(this.onAlert);
+    }
+    frameless() {
+        if (app_Config.frameless === null) {
+            return frameless;
+        }
+        return app_Config.frameless;
     }
     render() {
         if (state.upgrade && !upgradeShown) {
@@ -63860,7 +63866,7 @@ class Main extends react.Component {
             trayLabel = "Disable Tray Icon";
         }
         let frameLabel = "";
-        if (app_Config.frameless) {
+        if (this.frameless()) {
             frameLabel = "Enable Window Frame";
         }
         else {

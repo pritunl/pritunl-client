@@ -7974,7 +7974,8 @@ class Main {
         let height = 550;
         let minWidth = 430;
         let minHeight = 520;
-        if ((external_process_default()).platform === "win32" || main_Config.frameless) {
+        if ((external_process_default()).platform === "win32" || main_Config.frameless ||
+            (flatpak && main_Config.frameless !== false)) {
             frameless = true;
             framelessClient = true;
             if ((external_process_default()).platform === "win32") {

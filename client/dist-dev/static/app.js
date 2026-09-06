@@ -6455,7 +6455,7 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             }
         };
         this.onWindowFrame = async () => {
-            _Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless = !_Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless;
+            _Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless = !this.frameless();
             await _Config__WEBPACK_IMPORTED_MODULE_3__["default"].save({
                 frameless: _Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless,
             });
@@ -6491,6 +6491,12 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     componentWillUnmount() {
         _Constants__WEBPACK_IMPORTED_MODULE_4__.removeChangeListener(this.onChange);
         _Alert__WEBPACK_IMPORTED_MODULE_19__.removeChangeListener(this.onAlert);
+    }
+    frameless() {
+        if (_Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless === null) {
+            return _Constants__WEBPACK_IMPORTED_MODULE_4__.frameless;
+        }
+        return _Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless;
     }
     render() {
         if (_Constants__WEBPACK_IMPORTED_MODULE_4__.state.upgrade && !upgradeShown) {
@@ -6542,7 +6548,7 @@ class Main extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             trayLabel = "Disable Tray Icon";
         }
         let frameLabel = "";
-        if (_Config__WEBPACK_IMPORTED_MODULE_3__["default"].frameless) {
+        if (this.frameless()) {
             frameLabel = "Enable Window Frame";
         }
         else {
