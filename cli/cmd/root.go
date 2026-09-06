@@ -34,4 +34,5 @@ func init() {
 	RootCmd.AddCommand(ListCmd)
 	RootCmd.AddCommand(StartCmd)
 	RootCmd.AddCommand(StopCmd)
+	RootCmd.AddCommand(ConvertCmd)
 }

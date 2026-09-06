@@ -2,8 +2,10 @@ package cmd
 
 var (
 	mode           string
+	username       string
 	password       string
 	passwordPrompt bool
+	userProfile    bool
 	jsonFormat     bool
 	jsonFormated   bool
 )
@@ -15,6 +17,13 @@ func init() {
 		"m",
 		"",
 		"VPN mode (ovpn, wg)",
+	)
+	StartCmd.Flags().StringVarP(
+		&username,
+		"username",
+		"u",
+		"",
+		"VPN username for user profiles that require a username",
 	)
 	StartCmd.Flags().StringVarP(
 		&password,
@@ -29,6 +38,14 @@ func init() {
 		"r",
 		false,
 		"Prompt for VPN password",
+	)
+
+	AddCmd.Flags().BoolVarP(
+		&userProfile,
+		"user",
+		"u",
+		false,
+		"Add as user profile stored in the user data directory",
 	)
 
 	ListCmd.Flags().BoolVarP(

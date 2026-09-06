@@ -15,6 +15,7 @@ import (
 type Profile struct {
 	Id              string `json:"id"`
 	Name            string `json:"name"`
+	System          bool   `json:"system"`
 	State           string `json:"state"`
 	RunState        string `json:"run_state"`
 	RegistrationKey string `json:"registration_key"`
@@ -40,6 +41,7 @@ var ListCmd = &cobra.Command{
 					prfls = append(prfls, &Profile{
 						Id:              sprfl.Id,
 						Name:            sprfl.FormatedName(),
+						System:          sprfl.System,
 						State:           sprfl.FormatedState(),
 						RunState:        sprfl.FormatedRunState(),
 						RegistrationKey: sprfl.RegistrationKey,
@@ -53,6 +55,7 @@ var ListCmd = &cobra.Command{
 					prfls = append(prfls, &Profile{
 						Id:              sprfl.Id,
 						Name:            sprfl.FormatedName(),
+						System:          sprfl.System,
 						State:           sprfl.FormatedState(),
 						RunState:        sprfl.FormatedRunState(),
 						RegistrationKey: sprfl.RegistrationKey,
@@ -98,6 +101,7 @@ var ListCmd = &cobra.Command{
 			fields := []string{
 				"ID",
 				"Name",
+				"Type",
 				"State",
 				"Autostart",
 				"Online For",
@@ -116,6 +120,7 @@ var ListCmd = &cobra.Command{
 					fields := []string{
 						sprfl.Id,
 						sprfl.FormatedName(),
+						sprfl.FormatedType(),
 						sprfl.FormatedRunState(),
 						sprfl.FormatedState(),
 						sprfl.Profile.FormatedTimeShort(),
@@ -131,6 +136,7 @@ var ListCmd = &cobra.Command{
 					fields := []string{
 						sprfl.Id,
 						sprfl.FormatedName(),
+						sprfl.FormatedType(),
 						sprfl.FormatedRunState(),
 						sprfl.FormatedState(),
 						"Disconnected",

@@ -15,23 +15,24 @@ type Route struct {
 }
 
 type Profile struct {
-	Id            string   `json:"id"`
-	Mode          string   `json:"mode"`
-	Iface         string   `json:"iface"`
-	Tuniface      string   `json:"tun_iface"`
-	Routes        []*Route `json:"routes"`
-	Routes6       []*Route `json:"routes6"`
-	Reconnect     bool     `json:"reconnect"`
-	AuthReconnect bool     `json:"auth_reconnect"`
-	Status        string   `json:"status"`
-	Timestamp     int64    `json:"timestamp"`
-	GatewayAddr   string   `json:"gateway_addr"`
-	GatewayAddr6  string   `json:"gateway_addr6"`
-	ServerAddr    string   `json:"server_addr"`
-	ClientAddr    string   `json:"client_addr"`
-	MacAddr       string   `json:"mac_addr"`
-	MacAddrs      []string `json:"mac_addrs"`
-	SsoUrl        string   `json:"sso_url"`
+	Id              string   `json:"id"`
+	Mode            string   `json:"mode"`
+	Iface           string   `json:"iface"`
+	Tuniface        string   `json:"tun_iface"`
+	Routes          []*Route `json:"routes"`
+	Routes6         []*Route `json:"routes6"`
+	Reconnect       bool     `json:"reconnect"`
+	AuthReconnect   bool     `json:"auth_reconnect"`
+	Status          string   `json:"status"`
+	Timestamp       int64    `json:"timestamp"`
+	GatewayAddr     string   `json:"gateway_addr"`
+	GatewayAddr6    string   `json:"gateway_addr6"`
+	ServerAddr      string   `json:"server_addr"`
+	ClientAddr      string   `json:"client_addr"`
+	MacAddr         string   `json:"mac_addr"`
+	MacAddrs        []string `json:"mac_addrs"`
+	RegistrationKey string   `json:"registration_key"`
+	SsoUrl          string   `json:"sso_url"`
 }
 
 func (p *Profile) Uptime() int64 {

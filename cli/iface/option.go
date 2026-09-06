@@ -1,6 +1,8 @@
 package iface
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -17,6 +19,12 @@ var (
 				Foreground(lipgloss.Color("#3B82F6")).
 				Background(lipgloss.Color("#FFFFFF")).
 				Underline(true)
+
+	// Destructive buttons are red like the card disconnect button
+	optionButtonDangerStyle = optionButtonStyle.
+				Background(lipgloss.Color("#EF4444"))
+	optionButtonDangerActiveStyle = optionButtonActiveStyle.
+					Foreground(lipgloss.Color("#EF4444"))
 
 	optionLabelStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#9CA3AF"))
@@ -230,7 +238,22 @@ func (o *OptionButton) OnSpace() bool {
 	return false
 }
 
+// Danger returns true for buttons that remove or clear something.
+func (o *OptionButton) Danger() bool {
+	label := strings.ToLower(o.Label)
+	return strings.Contains(label, "remove") ||
+		strings.Contains(label, "delete") ||
+		strings.Contains(label, "clear")
+}
+
 func (o *OptionButton) View() string {
+	if o.Danger() {
+		if o.focused {
+			return optionButtonDangerActiveStyle.Render(o.Label)
+		}
+		return optionButtonDangerStyle.Render(o.Label)
+	}
+
 	if o.focused {
 		return optionButtonActiveStyle.Render(o.Label)
 	}

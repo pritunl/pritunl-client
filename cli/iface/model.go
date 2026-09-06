@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pritunl/pritunl-client/cli/config"
@@ -142,6 +143,8 @@ func NewModel(listener *event.Listener) Model {
 	lst.SetShowHelp(false)
 	lst.SetFilteringEnabled(false)
 	lst.SetShowStatusBar(false)
+	// Page dots are drawn in the status line instead of the list
+	lst.SetShowPagination(false)
 	lst.DisableQuitKeybindings()
 
 	return Model{
@@ -248,20 +251,61 @@ func (m *Model) Connect(mode string) tea.Cmd {
 	}
 	mode = sprfl.ResolveMode(mode)
 
-	prompts := sprofile.PasswordPrompts(sprfl)
-	if len(prompts) == 0 && sprfl.PreConnectMsg == "" {
-		return m.connectCmd(sprfl, mode, "")
+	// System profile prompts come from the profile, user profiles are
+	// synced and the token checked in the background first
+	if sprfl.System {
+		prompts, err := sprfl.PreConnect()
+		if err != nil {
+			m.openError("Connect", err)
+			return nil
+		}
+		return m.openConnect(sprfl, mode, prompts)
+	}
+
+	m.setStatus("Syncing "+sprfl.FormatedName(), false)
+
+	return preConnectCmd(sprfl, mode)
+}
+
+// PreConnectMsg carries the connect prompts resolved in the background.
+type PreConnectMsg struct {
+	Sprfl   *sprofile.Sprofile
+	Mode    string
+	Prompts *sprofile.Prompts
+	Err     error
+}
+
+func preConnectCmd(sprfl *sprofile.Sprofile, mode string) tea.Cmd {
+	return func() tea.Msg {
+		prompts, err := sprfl.PreConnect()
+		return PreConnectMsg{
+			Sprfl:   sprfl,
+			Mode:    mode,
+			Prompts: prompts,
+			Err:     err,
+		}
+	}
+}
+
+// openConnect opens the authentication dialog or connects directly when
+// no input is required.
+func (m *Model) openConnect(sprfl *sprofile.Sprofile, mode string,
+	prompts *sprofile.Prompts) tea.Cmd {
+
+	if prompts.Empty() && sprfl.PreConnectMsg == "" {
+		return m.connectCmd(sprfl, mode,
+			sprfl.BuildAuth(sprofile.PromptValues{}, prompts.TokenValid))
 	}
 
 	opts := []Option{}
 	optsMap := map[string]*OptionText{}
 
-	for _, prompt := range prompts {
+	for _, prompt := range prompts.Fields {
 		opt := &OptionText{
 			Label:       prompt.Label,
 			Placeholder: prompt.Placeholder,
 			Value:       prompt.Value,
-			Password:    true,
+			Password:    prompt.Secret,
 		}
 		optsMap[prompt.Key] = opt
 		opts = append(opts, opt)
@@ -279,11 +323,17 @@ func (m *Model) Connect(mode string) tea.Cmd {
 	)
 
 	message := sprfl.PreConnectMsg
-	if len(prompts) > 0 {
+	if !prompts.Empty() {
 		if message != "" {
 			message += "\n\n"
 		}
 		message += "Authentication required"
+	}
+	if prompts.SyncErr != nil {
+		if message != "" {
+			message += "\n\n"
+		}
+		message += "Profile sync failed: " + errorMessage(prompts.SyncErr)
 	}
 
 	m.openDialog(NewDialog(
@@ -300,20 +350,21 @@ func (m *Model) Connect(mode string) tea.Cmd {
 			values[key] = opt.GetValue()
 		}
 
-		return m.connectCmd(sprfl, mode, sprofile.BuildPassword(values))
+		return m.connectCmd(sprfl, mode,
+			sprfl.BuildAuth(values, prompts.TokenValid))
 	})
 
 	return nil
 }
 
-func (m *Model) connectCmd(sprfl *sprofile.Sprofile, mode,
-	password string) tea.Cmd {
+func (m *Model) connectCmd(sprfl *sprofile.Sprofile, mode string,
+	auth *sprofile.ConnectAuth) tea.Cmd {
 
 	m.watching[sprfl.Id] = true
 	m.setStatus("Connecting "+sprfl.FormatedName(), false)
 
 	return actionCmd("Connect", "", func() error {
-		return sprfl.Connect(mode, password)
+		return sprfl.Connect(mode, auth)
 	})
 }
 
@@ -341,11 +392,20 @@ func (m *Model) Import() {
 		Placeholder: "pritunl://... or /path/to/profile.tar",
 	}
 
-	m.openDialog(NewDialog(
-		"Import Profile",
-		"Enter a profile URI from the Pritunl server or the path to a "+
-			"downloaded .tar or .ovpn profile file.",
-		uriOpt,
+	systemOpt := &OptionToggle{
+		Label: "System Profile",
+		Value: !constants.Flatpak,
+	}
+
+	message := "Enter a profile URI from the Pritunl server or the path " +
+		"to a downloaded .tar or .ovpn profile file."
+	opts := []Option{uriOpt}
+	if !constants.Flatpak {
+		message += " System profiles are stored by the service and can " +
+			"autostart, user profiles are stored in the user data directory."
+		opts = append(opts, systemOpt)
+	}
+	opts = append(opts,
 		&OptionButton{
 			Label:  "Cancel",
 			Return: DialogCancel,
@@ -354,6 +414,12 @@ func (m *Model) Import() {
 			Label:  "Import",
 			Return: DialogOk,
 		},
+	)
+
+	m.openDialog(NewDialog(
+		"Import Profile",
+		message,
+		opts...,
 	), func(m *Model, ret int) tea.Cmd {
 		if ret != DialogOk {
 			return nil
@@ -365,10 +431,12 @@ func (m *Model) Import() {
 			return nil
 		}
 
+		system := systemOpt.GetValue() && !constants.Flatpak
+
 		m.setStatus("Importing profile", false)
 
 		return actionCmd("Import", "Profile imported", func() error {
-			return sprofile.ImportPath(path)
+			return sprofile.ImportPath(path, system)
 		})
 	})
 }
@@ -411,9 +479,17 @@ func (m *Model) Settings() {
 		Placeholder: sprfl.FormatedName(),
 		Value:       sprfl.Name,
 	}
+	systemOpt := &OptionToggle{
+		Label: "System Profile",
+		Value: sprfl.System,
+	}
 	autostartOpt := &OptionToggle{
 		Label: "Autostart",
-		Value: !sprfl.Disabled,
+		Value: sprfl.System && !sprfl.Disabled,
+	}
+	reconnectOpt := &OptionToggle{
+		Label: "Disable Auto Reconnect",
+		Value: sprfl.DisableReconnectLocal,
 	}
 	gatewayOpt := &OptionToggle{
 		Label: "Disable Default Gateway",
@@ -445,7 +521,18 @@ func (m *Model) Settings() {
 		message = "Autostart is enforced by the server"
 	}
 
-	opts := []Option{nameOpt, autostartOpt}
+	// Autostart requires a system profile and auto reconnect is only
+	// configurable on user profiles, matching the desktop client
+	opts := []Option{nameOpt}
+	if !constants.Flatpak {
+		opts = append(opts, systemOpt)
+	}
+	if sprfl.System {
+		opts = append(opts, autostartOpt)
+	}
+	if !sprfl.System && !sprfl.RestrictClient {
+		opts = append(opts, reconnectOpt)
+	}
 	if !sprfl.RestrictClient {
 		opts = append(opts, gatewayOpt, dnsOpt)
 	}
@@ -487,7 +574,10 @@ func (m *Model) Settings() {
 
 		updated := *sprfl
 		updated.Name = strings.TrimSpace(nameOpt.GetValue())
-		updated.Disabled = !autostartOpt.GetValue()
+		if sprfl.System {
+			updated.Disabled = !autostartOpt.GetValue()
+		}
+		updated.DisableReconnectLocal = reconnectOpt.GetValue()
 		updated.DisableGateway = gatewayOpt.GetValue()
 		updated.DisableDns = dnsOpt.GetValue()
 		updated.DisableIpv6 = ipv6Opt.GetValue()
@@ -500,10 +590,39 @@ func (m *Model) Settings() {
 			return nil
 		}
 
+		convert := !constants.Flatpak && systemOpt.GetValue() != sprfl.System
+		if convert && sprfl.System && sprfl.ForceConnect {
+			m.setStatus("Autostart enforced by server", true)
+			return nil
+		}
+
+		message := "Settings saved"
+		if convert {
+			if sprfl.System {
+				message = "Profile converted to user profile"
+			} else {
+				message = "Profile converted to system profile"
+			}
+		}
+
 		m.setStatus("Saving settings", false)
 
-		return actionCmd("Save Settings", "Settings saved", func() error {
-			return updated.Commit()
+		return actionCmd("Save Settings", message, func() error {
+			err := updated.Commit()
+			if err != nil {
+				return err
+			}
+
+			if !convert {
+				return nil
+			}
+
+			if updated.System {
+				return updated.ConvertUser()
+			}
+
+			// Autostart is disabled by default on the converted profile
+			return updated.ConvertSystem()
 		})
 	})
 }
@@ -694,6 +813,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setStatus("", false)
 		m.openConfig(msg.Config)
 		return m, nil
+
+	case PreConnectMsg:
+		if msg.Err != nil {
+			m.setStatus("Connect failed", true)
+			m.openError("Connect", msg.Err)
+			return m, nil
+		}
+		m.setStatus("", false)
+		return m, m.openConnect(msg.Sprfl, msg.Mode, msg.Prompts)
 
 	case ActionDoneMsg:
 		if msg.Err != nil {
@@ -941,11 +1069,25 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 	case event.ServiceDisconnected:
 		m.eventsUp = false
 		m.setStatus("Service connection lost, reconnecting", true)
-	case "update", "connected", "disconnected", "profile_sync",
-		"wakeup", "registration_pass":
-
+	case "update", "connected", "disconnected", "wakeup":
+		cmds = append(cmds, m.resync())
+	case "profile_sync":
+		// User profiles apply the gateway sync sent after connecting,
+		// system profiles are synced by the service
+		syncData := evt.Sync()
+		if syncData != nil {
+			m.applySync(syncData.Id, syncData.Data)
+		}
+		cmds = append(cmds, m.resync())
+	case "registration_pass":
+		if data != nil {
+			m.saveRegistrationKey(data.Id, "")
+		}
 		cmds = append(cmds, m.resync())
 	case "registration_required":
+		if data != nil && data.RegistrationKey != "" {
+			m.saveRegistrationKey(data.Id, data.RegistrationKey)
+		}
 		if data != nil && data.RegistrationKey != "" &&
 			m.regShown[data.Id] != data.RegistrationKey {
 
@@ -1023,6 +1165,53 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+// applySync applies a signed gateway sync body to a user profile.
+func (m *Model) applySync(id, body string) {
+	for _, itemInf := range m.profiles.Items() {
+		item, ok := itemInf.(ListItem)
+		if !ok || item.sprfl.Id != id || item.sprfl.System {
+			continue
+		}
+
+		err := item.sprfl.SyncApply(body)
+		if err != nil {
+			logger.WithFields(logger.Fields{
+				"profile_id": id,
+				"error":      err,
+			}).Error("iface: Failed to apply profile sync")
+			m.setStatus("Profile sync failed on "+
+				item.sprfl.FormatedName(), true)
+		}
+		return
+	}
+}
+
+// saveRegistrationKey stores the device registration key of a user
+// profile in the profile configuration as the desktop client does, system
+// profiles are stored by the service.
+func (m *Model) saveRegistrationKey(id, key string) {
+	for _, itemInf := range m.profiles.Items() {
+		item, ok := itemInf.(ListItem)
+		if !ok || item.sprfl.Id != id || item.sprfl.System {
+			continue
+		}
+
+		if item.sprfl.RegistrationKey == key {
+			return
+		}
+
+		item.sprfl.RegistrationKey = key
+		err := item.sprfl.Commit()
+		if err != nil {
+			logger.WithFields(logger.Fields{
+				"profile_id": id,
+				"error":      err,
+			}).Error("iface: Failed to save registration key")
+		}
+		return
+	}
 }
 
 func handleTpm(evt *event.Event) {
@@ -1179,25 +1368,57 @@ func (m Model) menuItems() []MenuItem {
 	return menu
 }
 
+// renderPages renders the profile list page dots shown in the status
+// line when the profiles span multiple pages.
+func (m Model) renderPages() string {
+	if m.profiles.Paginator.TotalPages < 2 {
+		return ""
+	}
+
+	pages := m.profiles.Paginator.View()
+	if lipgloss.Width(pages) > m.winWidth/2 {
+		pager := m.profiles.Paginator
+		pager.Type = paginator.Arabic
+		pages = pager.View()
+	}
+
+	return pages
+}
+
+// renderStatus renders the line above the menu bar with the page dots
+// on the left and the status message beside them.
 func (m Model) renderStatus() string {
+	line := ""
+	width := m.winWidth - 1
+
+	pages := m.renderPages()
+	if pages != "" {
+		line = " " + pages
+		width -= lipgloss.Width(pages) + 2
+	}
+
+	status := ""
 	timeout := statusTimeout
 	if m.statusErr {
 		timeout = statusErrorTimeout
 	}
 	if m.statusMsg != "" && time.Since(m.statusTime) < timeout {
-		text := renderCol(m.winWidth-1, "%s", m.statusMsg)
+		text := renderCol(width, "%s", m.statusMsg)
 		if m.statusErr {
-			return " " + statusErrorStyle.Render(text)
+			status = statusErrorStyle.Render(text)
+		} else {
+			status = statusInfoStyle.Render(text)
 		}
-		return " " + statusInfoStyle.Render(text)
+	} else if m.syncErr {
+		status = statusErrorStyle.Render(renderCol(
+			width, "%s", "Unable to reach the Pritunl service"))
 	}
 
-	if m.syncErr {
-		return " " + statusErrorStyle.Render(renderCol(
-			m.winWidth-1, "%s", "Unable to reach the Pritunl service"))
+	if status != "" {
+		line += " " + status
 	}
 
-	return ""
+	return line
 }
 
 func (m Model) View() string {

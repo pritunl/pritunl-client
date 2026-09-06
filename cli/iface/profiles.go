@@ -51,6 +51,8 @@ var (
 	itemTitleStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#4a8cf7")).
 			Bold(true)
+	itemTypeStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#6B7280"))
 	greenStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#10B981"))
 	redStyle = lipgloss.NewStyle().
@@ -88,7 +90,7 @@ func NewListItem(sprfl *sprofile.Sprofile) ListItem {
 
 	prfl := Profile{
 		Id:              sprfl.Id,
-		Name:            sprfl.FormatedName(),
+		Name:            sprfl.FormatedNameShort(),
 		User:            sprfl.User,
 		Organization:    sprfl.Organization,
 		Server:          sprfl.Server,
@@ -127,7 +129,8 @@ func (i ListItem) FilterValue() string {
 }
 
 func (i ListItem) Title() string {
-	return itemTitleStyle.Render(i.profile.Name)
+	return itemTitleStyle.Render(i.profile.Name) +
+		itemTypeStyle.Render("  "+i.sprfl.FormatedType())
 }
 
 // Buttons returns the card action buttons, the connect and disconnect

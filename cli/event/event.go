@@ -54,6 +54,32 @@ func (e *Event) Tpm() *TpmData {
 	return data
 }
 
+// SyncData is the signed profile configuration attached to the
+// profile_sync event sent after a user profile connects.
+type SyncData struct {
+	Id   string `json:"id"`
+	Data string `json:"data"`
+}
+
+// Sync parses the event data as sync data, nil when not present.
+func (e *Event) Sync() *SyncData {
+	if len(e.Data) == 0 || string(e.Data) == "null" {
+		return nil
+	}
+
+	data := &SyncData{}
+	err := json.Unmarshal(e.Data, data)
+	if err != nil {
+		return nil
+	}
+
+	if data.Id == "" || data.Data == "" {
+		return nil
+	}
+
+	return data
+}
+
 // ProfileData is the subset of connection data attached to profile events.
 type ProfileData struct {
 	Id              string `json:"id"`

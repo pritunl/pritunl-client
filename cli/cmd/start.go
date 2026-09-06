@@ -13,7 +13,8 @@ var StartCmd = &cobra.Command{
 			cobra.CheckErr("cmd: Missing profile ID")
 		}
 
-		err := sprofile.Start(args[0], mode, password, passwordPrompt)
+		err := sprofile.Start(args[0], mode, username, password,
+			passwordPrompt)
 		cobra.CheckErr(err)
 	},
 }

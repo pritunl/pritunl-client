@@ -1,16 +1,9 @@
 package sprofile
 
 import (
-	"archive/tar"
-	"bytes"
-	"crypto/tls"
-	"encoding/json"
+	"bufio"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"regexp"
-	"runtime"
 	"strings"
 	"time"
 
@@ -20,53 +13,62 @@ import (
 	"github.com/pritunl/pritunl-client/cli/profile"
 	"github.com/pritunl/pritunl-client/cli/service"
 	"github.com/pritunl/pritunl-client/cli/terminal"
-	"github.com/pritunl/pritunl-client/cli/utils"
-	"github.com/spf13/cobra"
+	"github.com/pritunl/tools/logger"
 )
 
-var (
-	clientSecure = &http.Client{
-		Transport: &http.Transport{
-			TLSHandshakeTimeout: 12 * time.Second,
-			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS12,
-				MaxVersion: tls.VersionTLS13,
-			},
-		},
-		Timeout: 12 * time.Second,
-	}
-	clientInsecure = &http.Client{
-		Transport: &http.Transport{
-			TLSHandshakeTimeout: 12 * time.Second,
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-				MinVersion:         tls.VersionTLS12,
-				MaxVersion:         tls.VersionTLS13,
-			},
-		},
-		Timeout: 12 * time.Second,
-	}
-	ip4reg = regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
-	ip6reg = regexp.MustCompile("/\\[[a-fA-F0-9:]*\\]/")
-)
+// profileRequest is the request body for system profile connections and
+// disconnect and remove requests.
+type profileRequest struct {
+	Id       string `json:"id"`
+	Mode     string `json:"mode,omitempty"`
+	Password string `json:"password,omitempty"`
+}
 
-type SprofileData struct {
-	Id                 string `json:"id"`
-	Mode               string `json:"mode"`
-	Disabled           bool   `json:"disabled"`
-	OrgId              string `json:"org_id"`
-	UserId             string `json:"user_id"`
-	ServerId           string `json:"server_id"`
-	SyncToken          string `json:"sync_token"`
-	SyncSecret         string `json:"sync_secret"`
-	Data               string `json:"data"`
-	Username           string `json:"username"`
-	Password           string `json:"password"`
+// connectData is the request body for user profile connections, the
+// profile configuration is sent to the service with the data.
+type connectData struct {
+	Id                 string                `json:"id"`
+	Mode               string                `json:"mode"`
+	OrgId              string                `json:"org_id"`
+	UserId             string                `json:"user_id"`
+	ServerId           string                `json:"server_id"`
+	SyncHosts          []string              `json:"sync_hosts"`
+	SyncToken          string                `json:"sync_token"`
+	SyncSecret         string                `json:"sync_secret"`
+	SyncHash           string                `json:"sync_hash"`
+	Username           string                `json:"username"`
+	Password           string                `json:"password"`
+	RemotesData        map[string]RemoteData `json:"remotes_data"`
+	HideOvpn           bool                  `json:"hide_ovpn"`
+	DynamicFirewall    bool                  `json:"dynamic_firewall"`
+	GeoSort            string                `json:"geo_sort"`
+	ForceConnect       bool                  `json:"force_connect"`
+	DeviceAuth         bool                  `json:"device_auth"`
+	DisableGateway     bool                  `json:"disable_gateway"`
+	DisableDns         bool                  `json:"disable_dns"`
+	DisableIpv6        bool                  `json:"disable_ipv6"`
+	Dco                bool                  `json:"dco"`
+	DebugOutput        bool                  `json:"debug_output"`
+	ForceDns           bool                  `json:"force_dns"`
+	RestrictClient     bool                  `json:"restrict_client"`
+	SsoAuth            bool                  `json:"sso_auth"`
+	ServerPublicKey    string                `json:"server_public_key"`
+	ServerBoxPublicKey string                `json:"server_box_public_key"`
+	TokenTtl           int                   `json:"token_ttl"`
+	Timeout            bool                  `json:"timeout"`
+	Reconnect          bool                  `json:"reconnect"`
+	Data               string                `json:"data"`
+}
+
+type tokenRequest struct {
+	Profile            string `json:"profile"`
 	ServerPublicKey    string `json:"server_public_key"`
 	ServerBoxPublicKey string `json:"server_box_public_key"`
-	TokenTtl           int    `json:"token_ttl"`
-	Reconnect          bool   `json:"reconnect"`
-	Timeout            bool   `json:"timeout"`
+	Ttl                int    `json:"ttl"`
+}
+
+type tokenResponse struct {
+	Valid bool `json:"valid"`
 }
 
 func Match(sprflId string) (sprfl *Sprofile, err error) {
@@ -119,60 +121,54 @@ func Delete(sprflId string) (err error) {
 	return sprfl.Remove()
 }
 
+// GetAll loads the system profiles from the service and the user
+// profiles from the user profiles directory with the connection state
+// of each, matching the desktop client profile loading.
 func GetAll() (sprfls Sprofiles, err error) {
-	reqUrl := service.GetAddress() + "/sprofile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	req, err := http.NewRequest("GET", reqUrl, nil)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Get request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-
-	resp, err := service.GetPollClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
 	sprfls = []*Sprofile{}
-	err = json.NewDecoder(resp.Body).Decode(&sprfls)
+	err = serviceJson(service.GetPollClient(), "GET", "/sprofile",
+		nil, &sprfls)
 	if err != nil {
-		err = errortypes.ParseError{
-			errors.Wrap(err, "sprofile: Failed to parse response"),
-		}
 		return
 	}
 
-	sprflsMap := map[string]*Sprofile{}
 	for _, sprfl := range sprfls {
-		sprflsMap[sprfl.Id] = sprfl
+		sprfl.System = true
 	}
+
+	userPrfls, err := getAllUser()
+	if err != nil {
+		return
+	}
+	sprfls = append(sprfls, userPrfls...)
 
 	prfls, err := profile.GetAll()
 	if err != nil {
 		return
 	}
 
-	for _, prfl := range prfls {
-		sprfl := sprflsMap[prfl.Id]
-		if sprfl != nil {
-			sprfl.Profile = prfl
+	for _, sprfl := range sprfls {
+		prfl := prfls[sprfl.Id]
+		if prfl == nil {
+			continue
+		}
+
+		sprfl.Profile = prfl
+		if !sprfl.System {
+			sprfl.State = sprfl.IsConnected()
+
+			// Store the registration key from the service as the
+			// desktop client does on the registration event
+			if sprfl.RegistrationKey == "" && prfl.RegistrationKey != "" {
+				sprfl.RegistrationKey = prfl.RegistrationKey
+				e := sprfl.writeConf()
+				if e != nil {
+					logger.WithFields(logger.Fields{
+						"profile_id": sprfl.Id,
+						"error":      e,
+					}).Error("sprofile: Failed to save registration key")
+				}
+			}
 		}
 	}
 
@@ -181,6 +177,8 @@ func GetAll() (sprfls Sprofiles, err error) {
 	return
 }
 
+// PasswordPrompt reads the system profile authentication from the
+// terminal in the order expected by the service.
 func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	passModes := set.NewSet()
 
@@ -192,7 +190,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if passModes.Contains("pin") {
 		part := terminal.ReadPassword("Pin")
 		if part == "" {
-			cobra.CheckErr("sprofile: Pin is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: Pin is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -200,7 +201,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if passModes.Contains("duo") {
 		part := terminal.ReadPassword("Duo Passcode")
 		if part == "" {
-			cobra.CheckErr("sprofile: Duo Passcode is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: Duo Passcode is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -208,7 +212,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if passModes.Contains("onelogin") {
 		part := terminal.ReadPassword("OneLogin Passcode")
 		if part == "" {
-			cobra.CheckErr("sprofile: OneLogin Passcode is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: OneLogin Passcode is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -216,7 +223,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if passModes.Contains("okta") {
 		part := terminal.ReadPassword("Okta Passcode")
 		if part == "" {
-			cobra.CheckErr("sprofile: Okta Passcode is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: Okta Passcode is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -224,7 +234,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if passModes.Contains("otp") {
 		part := terminal.ReadPassword("Authenticator Passcode")
 		if part == "" {
-			cobra.CheckErr("sprofile: Authenticator Passcode is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: Authenticator Passcode is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -232,7 +245,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if passModes.Contains("yubikey") {
 		part := terminal.ReadPassword("YubiKey")
 		if part == "" {
-			cobra.CheckErr("sprofile: YubiKey is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: YubiKey is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -240,7 +256,10 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	if pass == "" {
 		part := terminal.ReadPassword("Password")
 		if part == "" {
-			cobra.CheckErr("sprofile: Password is empty")
+			err = errortypes.ParseError{
+				errors.New("sprofile: Password is empty"),
+			}
+			return
 		}
 		pass += part
 	}
@@ -248,6 +267,8 @@ func PasswordPrompt(sprfl *Sprofile) (pass string, err error) {
 	return
 }
 
+// PasswordPrompts returns the authentication prompts of a system
+// profile from the password mode.
 func PasswordPrompts(sprfl *Sprofile) (prompts []Prompt) {
 	passModes := set.NewSet()
 
@@ -257,85 +278,219 @@ func PasswordPrompts(sprfl *Sprofile) (prompts []Prompt) {
 	}
 
 	if passModes.Contains("pin") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "pin",
-			Label:       "Pin",
-			Placeholder: "Enter pin...",
-		})
+		prompts = append(prompts, promptPin)
 	}
-
 	if passModes.Contains("duo") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "duo",
-			Label:       "Duo Passcode",
-			Placeholder: "Enter passcode...",
-		})
+		prompts = append(prompts, promptDuo)
 	}
-
 	if passModes.Contains("onelogin") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "onelogin",
-			Label:       "OneLogin Passcode",
-			Placeholder: "Enter passcode...",
-		})
+		prompts = append(prompts, promptOnelogin)
 	}
-
 	if passModes.Contains("okta") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "okta",
-			Label:       "Okta Passcode",
-			Placeholder: "Enter passcode...",
-		})
+		prompts = append(prompts, promptOkta)
 	}
-
 	if passModes.Contains("otp") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "otp",
-			Label:       "Authenticator Passcode",
-			Placeholder: "Enter passcode...",
-		})
+		prompts = append(prompts, promptOtp)
 	}
-
 	if passModes.Contains("yubikey") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "yubikey",
-			Label:       "YubiKey OTP",
-			Placeholder: "Enter YubiKey...",
-		})
+		prompts = append(prompts, promptYubikey)
 	}
-
 	if passModes.Contains("password") {
-		prompts = append(prompts, Prompt{
-			Type:        PromptInput,
-			Key:         "password",
-			Label:       "Password",
-			Placeholder: "Enter password...",
-		})
+		prompts = append(prompts, promptPassword)
 	}
 
 	return
 }
 
-func Start(sprflId, mode, password string, passwordPrompt bool) (err error) {
+// authTypes returns the authentication types of a user profile from the
+// password mode or the OpenVPN data, matching the desktop client.
+func (s *Sprofile) authTypes(data string) []string {
+	passwordMode := s.PasswordMode
+	if passwordMode == "" && strings.Contains(data, "auth-user-pass") {
+		if s.User != "" {
+			passwordMode = "otp"
+		} else {
+			passwordMode = "username_password"
+		}
+	}
+
+	if passwordMode == "" {
+		return []string{}
+	}
+
+	return strings.Split(passwordMode, "_")
+}
+
+// userPrompts returns the authentication prompts of a user profile in
+// the desktop client order, a valid token removes the second factor
+// prompts.
+func userPrompts(authTypes []string, tokenValid bool) (prompts []Prompt) {
+	types := set.NewSet()
+	for _, authType := range authTypes {
+		types.Add(authType)
+	}
+
+	if tokenValid {
+		types.Remove("pin")
+		types.Remove("duo")
+		types.Remove("onelogin")
+		types.Remove("okta")
+		types.Remove("yubikey")
+		types.Remove("otp")
+	}
+
+	if types.Contains("username") {
+		prompts = append(prompts, promptUsername)
+	}
+	if types.Contains("password") {
+		prompts = append(prompts, promptPassword)
+	}
+	if types.Contains("pin") {
+		prompts = append(prompts, promptPin)
+	}
+	if types.Contains("duo") {
+		prompts = append(prompts, promptDuo)
+	}
+	if types.Contains("onelogin") {
+		prompts = append(prompts, promptOnelogin)
+	}
+	if types.Contains("okta") {
+		prompts = append(prompts, promptOkta)
+	}
+	if types.Contains("otp") && !types.Contains("duo") &&
+		!types.Contains("onelogin") && !types.Contains("okta") {
+
+		prompts = append(prompts, promptOtp)
+	}
+	if types.Contains("yubikey") {
+		prompts = append(prompts, promptYubikey)
+	}
+
+	return
+}
+
+// Prompts is the authentication input required to connect a profile.
+type Prompts struct {
+	Fields []Prompt
+
+	// TokenValid is set when the service holds a valid authentication
+	// token for the profile and second factors are not required.
+	TokenValid bool
+
+	// SyncErr is a non fatal failure syncing the profile configuration
+	// before connecting.
+	SyncErr error
+}
+
+// Empty returns true when no input is required.
+func (p *Prompts) Empty() bool {
+	return len(p.Fields) == 0
+}
+
+// PreConnect prepares the profile for connecting and returns the
+// authentication prompts. User profiles are synced from the server and
+// the service token is updated first, matching the desktop client.
+func (s *Sprofile) PreConnect() (prompts *Prompts, err error) {
+	prompts = &Prompts{}
+
+	if s.System {
+		prompts.Fields = PasswordPrompts(s)
+		return
+	}
+
+	prompts.SyncErr = s.Sync()
+
+	if s.Token {
+		valid, e := s.tokenUpdate()
+		if e != nil {
+			logger.WithFields(logger.Fields{
+				"profile_id": s.Id,
+				"error":      e,
+			}).Error("sprofile: Failed to update token")
+		} else {
+			prompts.TokenValid = valid
+		}
+	} else {
+		e := s.tokenDelete()
+		if e != nil {
+			logger.WithFields(logger.Fields{
+				"profile_id": s.Id,
+				"error":      e,
+			}).Error("sprofile: Failed to clear token")
+		}
+	}
+
+	data, err := s.ReadData()
+	if err != nil {
+		return
+	}
+
+	prompts.Fields = userPrompts(s.authTypes(data), prompts.TokenValid)
+
+	return
+}
+
+func (s *Sprofile) tokenUpdate() (valid bool, err error) {
+	resp := &tokenResponse{}
+	err = serviceJson(service.GetClient(), "PUT", "/token", &tokenRequest{
+		Profile:            s.Id,
+		ServerPublicKey:    strings.Join(s.ServerPublicKey, "\n"),
+		ServerBoxPublicKey: s.ServerBoxPublicKey,
+		Ttl:                s.TokenTtl,
+	}, resp)
+	if err != nil {
+		return
+	}
+
+	valid = resp.Valid
+
+	return
+}
+
+func (s *Sprofile) tokenDelete() (err error) {
+	return serviceCall("DELETE", "/token/"+s.Id, nil)
+}
+
+// Start connects a profile from the command line, the prompts are read
+// from the terminal when passwordPrompt is set.
+func Start(sprflId, mode, username, password string,
+	passwordPrompt bool) (err error) {
+
 	sprfl, err := Match(sprflId)
 	if err != nil {
 		return
 	}
 
+	prompts, err := sprfl.PreConnect()
+	if err != nil {
+		return
+	}
+
+	if prompts.SyncErr != nil {
+		fmt.Fprintln(os.Stderr, "Profile sync failed: "+
+			strings.SplitN(prompts.SyncErr.Error(), "\n", 2)[0])
+	}
+
 	if passwordPrompt {
-		password, err = PasswordPrompt(sprfl)
-		if err != nil {
-			return
+		if sprfl.System {
+			password, err = PasswordPrompt(sprfl)
+			if err != nil {
+				return
+			}
+		} else {
+			values := readPrompts(prompts.Fields)
+			if values["username"] != "" {
+				username = values["username"]
+			}
+			password = BuildUserPassword(values)
 		}
 	}
 
-	err = sprfl.Connect(mode, password)
+	err = sprfl.Connect(mode, &ConnectAuth{
+		Username: username,
+		Password: password,
+		Token:    prompts.TokenValid,
+	})
 	if err != nil {
 		return
 	}
@@ -361,19 +516,95 @@ func Start(sprflId, mode, password string, passwordPrompt bool) (err error) {
 	return
 }
 
+// readPrompts reads the prompt values from the terminal.
+func readPrompts(prompts []Prompt) (values PromptValues) {
+	values = PromptValues{}
+
+	for _, prompt := range prompts {
+		if prompt.Secret {
+			values[prompt.Key] = terminal.ReadPassword(prompt.Label)
+			continue
+		}
+
+		fmt.Print(prompt.Label + ": ")
+		reader := bufio.NewReader(os.Stdin)
+		line, _ := reader.ReadString('\n')
+		values[prompt.Key] = strings.TrimSpace(line)
+	}
+
+	return
+}
+
 type Prompt struct {
 	Key         string
 	Type        int
 	Label       string
 	Placeholder string
 	Value       string
+
+	// Secret prompts are masked when entered.
+	Secret bool
 }
 
 var PromptInput = 1
 
+var (
+	promptUsername = Prompt{
+		Type:        PromptInput,
+		Key:         "username",
+		Label:       "Username",
+		Placeholder: "Enter username...",
+	}
+	promptPassword = Prompt{
+		Type:        PromptInput,
+		Key:         "password",
+		Label:       "Password",
+		Placeholder: "Enter password...",
+		Secret:      true,
+	}
+	promptPin = Prompt{
+		Type:        PromptInput,
+		Key:         "pin",
+		Label:       "Pin",
+		Placeholder: "Enter pin...",
+		Secret:      true,
+	}
+	promptDuo = Prompt{
+		Type:        PromptInput,
+		Key:         "duo",
+		Label:       "Duo Passcode",
+		Placeholder: "Enter passcode...",
+	}
+	promptOnelogin = Prompt{
+		Type:        PromptInput,
+		Key:         "onelogin",
+		Label:       "OneLogin Passcode",
+		Placeholder: "Enter passcode...",
+	}
+	promptOkta = Prompt{
+		Type:        PromptInput,
+		Key:         "okta",
+		Label:       "Okta Passcode",
+		Placeholder: "Enter passcode...",
+	}
+	promptOtp = Prompt{
+		Type:        PromptInput,
+		Key:         "otp",
+		Label:       "Authenticator Passcode",
+		Placeholder: "Enter passcode...",
+	}
+	promptYubikey = Prompt{
+		Type:        PromptInput,
+		Key:         "yubikey",
+		Label:       "YubiKey OTP",
+		Placeholder: "Enter YubiKey...",
+	}
+)
+
 type PromptValues map[string]string
 
-// BuildPassword joins prompt values in the order expected by the server.
+// BuildPassword joins system profile prompt values in the order expected
+// by the service.
 func BuildPassword(values PromptValues) (password string) {
 	for _, key := range []string{
 		"pin", "duo", "onelogin", "okta", "otp", "yubikey", "password",
@@ -381,6 +612,36 @@ func BuildPassword(values PromptValues) (password string) {
 		password += values[key]
 	}
 	return
+}
+
+// BuildUserPassword joins user profile prompt values in the order used
+// by the desktop client.
+func BuildUserPassword(values PromptValues) (password string) {
+	for _, key := range []string{
+		"password", "pin", "duo", "onelogin", "okta", "otp", "yubikey",
+	} {
+		password += values[key]
+	}
+	return
+}
+
+// BuildAuth returns the connection authentication from prompt values,
+// the password is joined in the order for the profile type.
+func (s *Sprofile) BuildAuth(values PromptValues,
+	tokenValid bool) *ConnectAuth {
+
+	auth := &ConnectAuth{
+		Username: values["username"],
+		Token:    tokenValid,
+	}
+
+	if s.System {
+		auth.Password = BuildPassword(values)
+	} else {
+		auth.Password = BuildUserPassword(values)
+	}
+
+	return auth
 }
 
 // ResolveMode returns the mode to connect with when none is specified.
@@ -398,9 +659,18 @@ func (s *Sprofile) ResolveMode(mode string) string {
 	return mode
 }
 
+// ConnectAuth is the authentication for a connection, Token is set when
+// the service holds a valid token from PreConnect.
+type ConnectAuth struct {
+	Username string
+	Password string
+	Token    bool
+}
+
 // Connect sends the connect request for the profile, prompts must
-// already be resolved into password.
-func (s *Sprofile) Connect(mode, password string) (err error) {
+// already be resolved into auth. User profiles send the profile data to
+// the service matching the desktop client.
+func (s *Sprofile) Connect(mode string, auth *ConnectAuth) (err error) {
 	mode = s.ResolveMode(mode)
 
 	switch mode {
@@ -413,176 +683,101 @@ func (s *Sprofile) Connect(mode, password string) (err error) {
 		return
 	}
 
-	reqUrl := service.GetAddress() + "/profile"
+	if auth == nil {
+		auth = &ConnectAuth{}
+	}
 
-	authKey, err := service.GetAuthKey()
+	if s.System {
+		return serviceCall("POST", "/profile", &profileRequest{
+			Id:       s.Id,
+			Mode:     mode,
+			Password: auth.Password,
+		})
+	}
+
+	data, err := s.ReadData()
 	if err != nil {
 		return
 	}
+	if data == "" {
+		err = errortypes.ReadError{
+			errors.New("sprofile: Profile data is empty"),
+		}
+		return
+	}
 
-	data, err := json.Marshal(&SprofileData{
-		Id:       s.Id,
-		Mode:     mode,
-		Password: password,
+	username := auth.Username
+	if username == "" {
+		username = "pritunl"
+	}
+	if !auth.Token && auth.Password == "" {
+		username = ""
+	}
+
+	return serviceCall("POST", "/profile", &connectData{
+		Id:                 s.Id,
+		Mode:               mode,
+		OrgId:              s.OrganizationId,
+		UserId:             s.UserId,
+		ServerId:           s.ServerId,
+		SyncHosts:          s.SyncHosts,
+		SyncToken:          s.SyncToken,
+		SyncSecret:         s.SyncSecret,
+		SyncHash:           s.SyncHash,
+		Username:           username,
+		Password:           auth.Password,
+		RemotesData:        s.RemotesData,
+		HideOvpn:           s.HideOvpn,
+		DynamicFirewall:    s.DynamicFirewall,
+		GeoSort:            s.GeoSort,
+		ForceConnect:       s.ForceConnect,
+		DeviceAuth:         s.DeviceAuth,
+		DisableGateway:     s.DisableGateway,
+		DisableDns:         s.DisableDns,
+		DisableIpv6:        s.DisableIpv6,
+		Dco:                s.Dco,
+		DebugOutput:        s.DebugOutput,
+		ForceDns:           s.ForceDns,
+		RestrictClient:     s.RestrictClient,
+		SsoAuth:            s.SsoAuth,
+		ServerPublicKey:    strings.Join(s.ServerPublicKey, "\n"),
+		ServerBoxPublicKey: s.ServerBoxPublicKey,
+		TokenTtl:           s.TokenTtl,
+		Timeout:            true,
+		Reconnect:          !(s.DisableReconnect || s.DisableReconnectLocal),
+		Data:               data,
 	})
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("POST", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Post request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Newf("sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
 }
 
 // Disconnect stops the running profile.
 func (s *Sprofile) Disconnect() (err error) {
-	reqUrl := service.GetAddress() + "/profile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	data, err := json.Marshal(&SprofileData{
+	return serviceCall("DELETE", "/profile", &profileRequest{
 		Id: s.Id,
 	})
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("DELETE", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Delete request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Newf("sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
 }
 
-// Remove deletes the profile from the service.
+// Remove deletes the profile, system profiles are removed from the
+// service and user profiles from the user profiles directory.
 func (s *Sprofile) Remove() (err error) {
-	reqUrl := service.GetAddress() + "/sprofile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
+	if s.System {
+		return serviceCall("DELETE", "/sprofile", &profileRequest{
+			Id: s.Id,
+		})
 	}
 
-	data, err := json.Marshal(&SprofileData{
-		Id: s.Id,
-	})
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
+	_ = s.Disconnect()
+	_ = serviceCall("DELETE", "/log/"+s.Id, nil)
 
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("DELETE", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Delete request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Newf("sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
+	return s.removeUser()
 }
 
-// Commit saves the profile settings to the service.
+// Commit saves the profile settings, system profiles to the service and
+// user profiles to the configuration file.
 func (s *Sprofile) Commit() (err error) {
+	if !s.System {
+		return s.writeConf()
+	}
+
 	if s.ForceConnect && s.Disabled {
 		err = errortypes.ParseError{
 			errors.New("sprofile: Autostart enforced by server"),
@@ -590,104 +785,21 @@ func (s *Sprofile) Commit() (err error) {
 		return
 	}
 
-	reqUrl := service.GetAddress() + "/sprofile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	data, err := json.Marshal(s)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(data)
-
-	req, err := http.NewRequest("PUT", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Put request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Newf("sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
+	return serviceCall("PUT", "/sprofile", s)
 }
 
-// ClearLogs clears the profile log output.
-func (s *Sprofile) ClearLogs() (err error) {
-	reqUrl := service.GetAddress() + "/sprofile/" + s.Id + "/log"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	req, err := http.NewRequest("DELETE", reqUrl, nil)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Delete request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Newf("sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
-}
-
+// SetState enables or disables autostart, only system profiles autostart.
 func SetState(sprflId string, state bool) (err error) {
 	sprfl, err := Match(sprflId)
 	if err != nil {
+		return
+	}
+
+	if !sprfl.System {
+		err = errortypes.ParseError{
+			errors.New("sprofile: Autostart requires a system profile, " +
+				"convert the profile with the convert command"),
+		}
 		return
 	}
 
@@ -696,250 +808,28 @@ func SetState(sprflId string, state bool) (err error) {
 	return sprfl.Commit()
 }
 
-func Import(data string) (err error) {
-	proflId, err := utils.RandStr(16)
+// Convert changes the profile storage type between system and user.
+func Convert(sprflId string, system bool) (err error) {
+	sprfl, err := Match(sprflId)
 	if err != nil {
 		return
 	}
 
-	profl := &Sprofile{
-		Id: strings.ToLower(proflId),
-	}
-
-	jsonData := ""
-	jsonFound := false
-	jsonLoaded := false
-
-	dataLines := strings.Split(data, "\n")
-	data = ""
-	for _, line := range dataLines {
-		if !jsonLoaded && !jsonFound && line == "#{" {
-			jsonFound = true
-			jsonLoaded = true
-		}
-
-		if jsonFound && strings.HasPrefix(line, "#") {
-			if line == "#}" {
-				jsonFound = false
-			}
-			jsonData += strings.Replace(line, "#", "", 1)
-		} else {
-			data += line + "\n"
-		}
-	}
-
-	if jsonLoaded {
-		err = json.Unmarshal([]byte(jsonData), profl)
-		if err != nil {
-			err = &errortypes.ParseError{
-				errors.Wrap(err, "profile: Failed to parse sync conf data"),
+	if system {
+		if sprfl.System {
+			err = errortypes.ParseError{
+				errors.New("sprofile: Profile is already a system profile"),
 			}
 			return
 		}
-	} else {
-		err = &errortypes.ParseError{
-			errors.Wrap(err, "profile: Conf data missing"),
+		return sprfl.ConvertSystem()
+	}
+
+	if !sprfl.System {
+		err = errortypes.ParseError{
+			errors.New("sprofile: Profile is already a user profile"),
 		}
 		return
 	}
-
-	profl.OvpnData = data
-
-	reqUrl := service.GetAddress() + "/sprofile"
-
-	authKey, err := service.GetAuthKey()
-	if err != nil {
-		return
-	}
-
-	reqData, err := json.Marshal(profl)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Json marshal error"),
-		}
-		return
-	}
-
-	body := bytes.NewBuffer(reqData)
-
-	req, err := http.NewRequest("PUT", reqUrl, body)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Post request failed"),
-		}
-		return
-	}
-
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		req.Host = "unix"
-	}
-	req.Header.Set("Auth-Key", authKey)
-	req.Header.Set("User-Agent", "pritunl")
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := service.GetClient().Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Wrapf(err, "sprofile: Unknown request error %d",
-				resp.StatusCode),
-		}
-		return
-	}
-
-	return
-}
-
-// ImportPath imports a profile from a URI, a .tar archive of profiles or
-// a single .ovpn profile file.
-func ImportPath(path string) (err error) {
-	if strings.HasPrefix(path, "http://") ||
-		strings.HasPrefix(path, "https://") ||
-		strings.HasPrefix(path, "pritunl://") ||
-		strings.HasPrefix(path, "pritunls://") {
-
-		return ImportUri(path)
-	}
-
-	if strings.HasSuffix(strings.ToLower(path), ".tar") {
-		return ImportTar(path)
-	}
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		err = errortypes.ReadError{
-			errors.Wrapf(err, "sprofile: Failed to read profile '%s'", path),
-		}
-		return
-	}
-
-	// Detect tar archives without the extension
-	if len(data) > 262 && string(data[257:262]) == "ustar" {
-		return ImportTar(path)
-	}
-
-	return Import(string(data))
-}
-
-func ImportTar(filename string) (err error) {
-	tarFile, err := os.Open(filename)
-	if err != nil {
-		err = errortypes.ReadError{
-			errors.Wrapf(err, "sprofile: Failed to open tar '%s'", filename),
-		}
-		return
-	}
-	defer tarFile.Close()
-
-	tr := tar.NewReader(tarFile)
-	for {
-		_, err = tr.Next()
-		if err != nil {
-			if err == io.EOF {
-				err = nil
-				break
-			}
-
-			err = errortypes.ReadError{
-				errors.Wrap(err, "sprofile: Failed to read tar header"),
-			}
-			return
-		}
-
-		data := bytes.NewBuffer(nil)
-		_, err = io.Copy(data, tr)
-		if err != nil {
-			err = errortypes.ReadError{
-				errors.Wrap(err, "sprofile: Failed to read tar data"),
-			}
-			return
-		}
-
-		err = Import(data.String())
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-func ImportUri(uri string) (err error) {
-	uri = strings.Replace(uri, "pritunl://", "https://", 1)
-	uri = strings.Replace(uri, "/k/", "/ku/", 1)
-
-	req, err := http.NewRequest(
-		"GET",
-		uri,
-		nil,
-	)
-	if err != nil {
-		err = &errortypes.RequestError{
-			errors.Wrap(err, "profile: Sync profile request error"),
-		}
-		return
-	}
-
-	req.Header.Set("User-Agent", "pritunl")
-
-	var client *http.Client
-	if len(ip4reg.FindAllString(uri, -1)) > 0 ||
-		len(ip6reg.FindAllString(uri, -1)) > 0 {
-
-		client = clientInsecure
-	} else {
-		client = clientSecure
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Request failed"),
-		}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 404 {
-		err = errortypes.RequestError{
-			errors.Wrap(err, "sprofile: Invalid profile uri"),
-		}
-		return
-	}
-
-	if resp.StatusCode != 200 {
-		err = errortypes.RequestError{
-			errors.Wrapf(
-				err,
-				"sprofile: Unknown profile uri error %d",
-				resp.StatusCode,
-			),
-		}
-		return
-	}
-
-	data := map[string]string{}
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		err = &errortypes.ParseError{
-			errors.Wrap(err, "sprofile: Failed to parse uri response body"),
-		}
-		return
-	}
-
-	for _, proflData := range data {
-		err = Import(proflData)
-		if err != nil {
-			return
-		}
-	}
-
-	return
+	return sprfl.ConvertUser()
 }
