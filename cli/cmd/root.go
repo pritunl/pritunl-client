@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/pritunl/pritunl-client/cli/iface"
+	"github.com/pritunl/pritunl-client/cli/service"
 	"github.com/pritunl/pritunl-client/cli/utils"
 	"github.com/spf13/cobra"
 )
@@ -13,6 +14,12 @@ var RootCmd = &cobra.Command{
 		"Run without a command to open the interactive terminal interface.",
 	SilenceErrors: true,
 	SilenceUsage:  true,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if cmd.Name() == VersionCmd.Name() {
+			return nil
+		}
+		return service.EnsureRunning()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := iface.Iface()
 		cobra.CheckErr(err)
