@@ -568,6 +568,7 @@ class ConfigData {
         this.disable_tray_icon = false;
         this.classic_interface = false;
         this.safe_storage = false;
+        this.transparent_window = false;
         this.frameless = null;
         this.theme = "dark-3";
         this.editor_theme = "";
@@ -581,6 +582,9 @@ class ConfigData {
         }
         if (data["safe_storage"] !== undefined) {
             this.safe_storage = data["safe_storage"];
+        }
+        if (data["transparent_window"] !== undefined) {
+            this.transparent_window = data["transparent_window"];
         }
         if (data["theme"] !== undefined) {
             this.theme = data["theme"];
@@ -631,6 +635,7 @@ class ConfigData {
             disable_tray_icon: opts["disable_tray_icon"],
             classic_interface: opts["classic_interface"],
             safe_storage: opts["safe_storage"],
+            transparent_window: opts["transparent_window"],
             window_width: opts["window_width"],
             window_height: opts["window_height"],
             frameless: opts["frameless"],
@@ -647,6 +652,9 @@ class ConfigData {
                 }
                 if (data.safe_storage === undefined) {
                     data.safe_storage = this.safe_storage;
+                }
+                if (data.transparent_window === undefined) {
+                    data.transparent_window = this.transparent_window;
                 }
                 if (data.window_width === undefined) {
                     data.window_width = this.window_width;
@@ -5313,6 +5321,8 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         this.onCancel = () => {
             this.setState({
                 ...this.state,
+                safeStorage: null,
+                transparentWindow: null,
                 changed: false,
                 config: _stores_ConfigStore__WEBPACK_IMPORTED_MODULE_3__["default"].config,
             });
@@ -5322,10 +5332,16 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
                 ...this.state,
                 disabled: true,
             });
-            if (this.state.safeStorage !== null) {
-                _Config__WEBPACK_IMPORTED_MODULE_2__["default"].save({
-                    safe_storage: this.state.safeStorage,
-                });
+            if (this.state.safeStorage !== null ||
+                this.state.transparentWindow !== null) {
+                let opts = {};
+                if (this.state.safeStorage !== null) {
+                    opts["safe_storage"] = this.state.safeStorage;
+                }
+                if (this.state.transparentWindow !== null) {
+                    opts["transparent_window"] = this.state.transparentWindow;
+                }
+                _Config__WEBPACK_IMPORTED_MODULE_2__["default"].save(opts);
             }
             if (this.state.config) {
                 _actions_ConfigActions__WEBPACK_IMPORTED_MODULE_1__.commit(this.state.config).then(() => {
@@ -5340,6 +5356,7 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         this.state = {
             config: _stores_ConfigStore__WEBPACK_IMPORTED_MODULE_3__["default"].config,
             safeStorage: null,
+            transparentWindow: null,
             changed: false,
             disabled: false,
         };
@@ -5367,6 +5384,10 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         let safeStorage = this.state.safeStorage;
         if (safeStorage === null) {
             safeStorage = _Config__WEBPACK_IMPORTED_MODULE_2__["default"].safe_storage;
+        }
+        let transparentWindow = this.state.transparentWindow;
+        if (transparentWindow === null) {
+            transparentWindow = _Config__WEBPACK_IMPORTED_MODULE_2__["default"].transparent_window;
         }
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "bp5-card layout vertical flex", style: css.card },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: css.buttonsTop },
@@ -5396,6 +5417,14 @@ class ConfigView extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for single sign-on authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
                         this.set("disable_browser", !this.state.config.disable_browser);
+                    } })),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Transparent window", help: "Enable transparent window, should not be used for most configurations. Restart client for configuration to take effect.", checked: !!transparentWindow, onToggle: () => {
+                        this.setState({
+                            ...this.state,
+                            changed: true,
+                            transparentWindow: !transparentWindow,
+                        });
                     } })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "layout horizontal" },
                 react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageSwitch__WEBPACK_IMPORTED_MODULE_4__["default"], { disabled: this.state.disabled, label: "Enable safe storage", help: "Enable encryption of profile keys with safe storage. May cause client to become unresponsive or connections to fail.", checked: !!safeStorage, onToggle: () => {

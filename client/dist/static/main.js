@@ -6889,6 +6889,7 @@ class ConfigData {
         this.disable_tray_icon = false;
         this.classic_interface = false;
         this.safe_storage = false;
+        this.transparent_window = false;
         this.frameless = null;
         this.theme = "dark";
         this.editor_theme = "";
@@ -6902,6 +6903,9 @@ class ConfigData {
         }
         if (data["safe_storage"] !== undefined) {
             this.safe_storage = data["safe_storage"];
+        }
+        if (data["transparent_window"] !== undefined) {
+            this.transparent_window = data["transparent_window"];
         }
         if (data["theme"] !== undefined) {
             this.theme = data["theme"];
@@ -6954,6 +6958,7 @@ class ConfigData {
             disable_tray_icon: opts["disable_tray_icon"],
             classic_interface: opts["classic_interface"],
             safe_storage: opts["safe_storage"],
+            transparent_window: opts["transparent_window"],
             window_width: opts["window_width"],
             window_height: opts["window_height"],
             frameless: opts["frameless"],
@@ -6970,6 +6975,9 @@ class ConfigData {
                 }
                 if (data.safe_storage === undefined) {
                     data.safe_storage = this.safe_storage;
+                }
+                if (data.transparent_window === undefined) {
+                    data.transparent_window = this.transparent_window;
                 }
                 if (data.window_width === undefined) {
                     data.window_width = this.window_width;
@@ -8009,7 +8017,8 @@ class Main {
             icon: external_path_default().join(__dirname, "..", "logo.png"),
             titleBarStyle: titleBarStyle,
             frame: !frameless,
-            transparent: (external_process_default()).platform === "linux" && frameless,
+            transparent: ((external_process_default()).platform === "linux" && frameless &&
+                (main_Config.transparent_window || (external_process_default()).env.XDG_SESSION_TYPE === "x11")),
             trafficLightPosition: {
                 x: 14,
                 y: 12,

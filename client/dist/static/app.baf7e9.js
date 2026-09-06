@@ -48989,6 +48989,7 @@ class ConfigData {
         this.disable_tray_icon = false;
         this.classic_interface = false;
         this.safe_storage = false;
+        this.transparent_window = false;
         this.frameless = null;
         this.theme = "dark-3";
         this.editor_theme = "";
@@ -49002,6 +49003,9 @@ class ConfigData {
         }
         if (data["safe_storage"] !== undefined) {
             this.safe_storage = data["safe_storage"];
+        }
+        if (data["transparent_window"] !== undefined) {
+            this.transparent_window = data["transparent_window"];
         }
         if (data["theme"] !== undefined) {
             this.theme = data["theme"];
@@ -49052,6 +49056,7 @@ class ConfigData {
             disable_tray_icon: opts["disable_tray_icon"],
             classic_interface: opts["classic_interface"],
             safe_storage: opts["safe_storage"],
+            transparent_window: opts["transparent_window"],
             window_width: opts["window_width"],
             window_height: opts["window_height"],
             frameless: opts["frameless"],
@@ -49068,6 +49073,9 @@ class ConfigData {
                 }
                 if (data.safe_storage === undefined) {
                     data.safe_storage = this.safe_storage;
+                }
+                if (data.transparent_window === undefined) {
+                    data.transparent_window = this.transparent_window;
                 }
                 if (data.window_width === undefined) {
                     data.window_width = this.window_width;
@@ -63462,6 +63470,8 @@ class ConfigView extends react.Component {
         this.onCancel = () => {
             this.setState({
                 ...this.state,
+                safeStorage: null,
+                transparentWindow: null,
                 changed: false,
                 config: stores_ConfigStore.config,
             });
@@ -63471,10 +63481,16 @@ class ConfigView extends react.Component {
                 ...this.state,
                 disabled: true,
             });
-            if (this.state.safeStorage !== null) {
-                app_Config.save({
-                    safe_storage: this.state.safeStorage,
-                });
+            if (this.state.safeStorage !== null ||
+                this.state.transparentWindow !== null) {
+                let opts = {};
+                if (this.state.safeStorage !== null) {
+                    opts["safe_storage"] = this.state.safeStorage;
+                }
+                if (this.state.transparentWindow !== null) {
+                    opts["transparent_window"] = this.state.transparentWindow;
+                }
+                app_Config.save(opts);
             }
             if (this.state.config) {
                 ConfigActions_commit(this.state.config).then(() => {
@@ -63489,6 +63505,7 @@ class ConfigView extends react.Component {
         this.state = {
             config: stores_ConfigStore.config,
             safeStorage: null,
+            transparentWindow: null,
             changed: false,
             disabled: false,
         };
@@ -63516,6 +63533,10 @@ class ConfigView extends react.Component {
         let safeStorage = this.state.safeStorage;
         if (safeStorage === null) {
             safeStorage = app_Config.safe_storage;
+        }
+        let transparentWindow = this.state.transparentWindow;
+        if (transparentWindow === null) {
+            transparentWindow = app_Config.transparent_window;
         }
         return react.createElement("div", { className: "bp5-card layout vertical flex", style: Config_css.card },
             react.createElement("div", { style: Config_css.buttonsTop },
@@ -63545,6 +63566,14 @@ class ConfigView extends react.Component {
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Disable browser open", help: "Disable automatic opening of browser for single sign-on authentication.", checked: !!this.state.config.disable_browser, onToggle: () => {
                         this.set("disable_browser", !this.state.config.disable_browser);
+                    } })),
+            react.createElement("div", { className: "layout horizontal" },
+                react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Transparent window", help: "Enable transparent window, should not be used for most configurations. Restart client for configuration to take effect.", checked: !!transparentWindow, onToggle: () => {
+                        this.setState({
+                            ...this.state,
+                            changed: true,
+                            transparentWindow: !transparentWindow,
+                        });
                     } })),
             react.createElement("div", { className: "layout horizontal" },
                 react.createElement(PageSwitch, { disabled: this.state.disabled, label: "Enable safe storage", help: "Enable encryption of profile keys with safe storage. May cause client to become unresponsive or connections to fail.", checked: !!safeStorage, onToggle: () => {
