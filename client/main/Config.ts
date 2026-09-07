@@ -3,13 +3,15 @@ import path from "path"
 import electron from "electron"
 import * as Errors from "./Errors"
 import * as Logger from "./Logger"
+import * as Constants from "./Constants"
 
 class ConfigData {
 	window_width = 0
 	window_height = 0
-	disable_tray_icon = false
+	disable_tray_icon = Constants.flatpak
 	classic_interface = false
 	safe_storage = false
+	transparent_window = false
 	frameless: boolean = null
 	theme = "dark"
 	editor_theme = ""
@@ -23,6 +25,9 @@ class ConfigData {
 		}
 		if (data["safe_storage"] !== undefined) {
 			this.safe_storage = data["safe_storage"]
+		}
+		if (data["transparent_window"] !== undefined) {
+			this.transparent_window = data["transparent_window"]
 		}
 		if (data["theme"] !== undefined) {
 			this.theme = data["theme"]
@@ -85,6 +90,7 @@ class ConfigData {
 			disable_tray_icon: opts["disable_tray_icon"],
 			classic_interface: opts["classic_interface"],
 			safe_storage: opts["safe_storage"],
+			transparent_window: opts["transparent_window"],
 			window_width: opts["window_width"],
 			window_height: opts["window_height"],
 			frameless: opts["frameless"],
@@ -102,6 +108,9 @@ class ConfigData {
 				}
 				if (data.safe_storage === undefined) {
 					data.safe_storage = this.safe_storage
+				}
+				if (data.transparent_window === undefined) {
+					data.transparent_window = this.transparent_window
 				}
 				if (data.window_width === undefined) {
 					data.window_width = this.window_width
