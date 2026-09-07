@@ -212,8 +212,15 @@ export default class Main extends React.Component<{}, State> {
 		}
 	}
 
+	frameless(): boolean {
+		if (Config.frameless === null) {
+			return Constants.frameless
+		}
+		return Config.frameless
+	}
+
 	onWindowFrame = async (): Promise<void> => {
-		Config.frameless = !Config.frameless
+		Config.frameless = !this.frameless()
 		await Config.save({
 			frameless: Config.frameless,
 		})
@@ -303,7 +310,7 @@ export default class Main extends React.Component<{}, State> {
 		}
 
 		let frameLabel = ""
-		if (Config.frameless) {
+		if (this.frameless()) {
 			frameLabel = "Enable Window Frame"
 		} else {
 			frameLabel = "Disable Window Frame"
