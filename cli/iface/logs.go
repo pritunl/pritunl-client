@@ -1,6 +1,8 @@
 package iface
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -12,8 +14,15 @@ import (
 )
 
 const (
-	LogsService = "service"
-	LogsClient  = "client"
+	LogsService        = "service"
+	LogsClient         = "client"
+	logsNumberMinWidth = 3
+)
+
+var (
+	logsNumberStyle = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#9CA3AF")).
+		Background(lipgloss.Color("#1F2937"))
 )
 
 // LogsMsg carries a log fetch result, Id is the profile id or one of
@@ -157,17 +166,40 @@ func (l *LogsView) SetSize(width, height int) {
 	}
 }
 
-// setContent wraps the log output to the viewport width so the page never
-// scrolls horizontally.
+// setContent numbers the log lines and wraps them to the viewport width
+// so the page never scrolls horizontally, wrapped lines continue under
+// their number.
 func (l *LogsView) setContent() {
 	content := strings.TrimRight(l.data, "\n")
 	if content == "" {
-		content = "No log output"
+		l.viewport.SetContent("No log output")
+		return
 	}
 
-	content = lipgloss.NewStyle().Width(l.viewport.Width).Render(content)
+	lines := strings.Split(content, "\n")
+	numberWidth := max(len(strconv.Itoa(len(lines))), logsNumberMinWidth)
 
-	l.viewport.SetContent(content)
+	// Gutter has the number padded by a space on each side followed by a
+	// plain space before the text
+	indent := logsNumberStyle.Render(strings.Repeat(" ", numberWidth+2)) + " "
+	wrapStyle := lipgloss.NewStyle().Width(
+		max(l.viewport.Width-numberWidth-3, 10))
+
+	output := make([]string, 0, len(lines))
+	for i, line := range lines {
+		number := logsNumberStyle.Render(
+			fmt.Sprintf(" %*d ", numberWidth, i+1)) + " "
+
+		for j, part := range strings.Split(wrapStyle.Render(line), "\n") {
+			if j == 0 {
+				output = append(output, number+part)
+			} else {
+				output = append(output, indent+part)
+			}
+		}
+	}
+
+	l.viewport.SetContent(strings.Join(output, "\n"))
 }
 
 func (l *LogsView) SetData(data string) {
