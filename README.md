@@ -35,9 +35,9 @@ bash <(curl -s https://raw.githubusercontent.com/pritunl/pritunl-client/master/t
 sudo dnf -y install git-core wireguard-tools openvpn
 
 sudo rm -rf /usr/local/go
-wget https://go.dev/dl/go1.25.5.linux-amd64.tar.gz
-echo "9e9b755d63b36acf30c12a9a3fc379243714c1c6d3dd72861da637f336ebb35b go1.25.5.linux-amd64.tar.gz" | sha256sum -c - && sudo tar -C /usr/local -xf go1.25.5.linux-amd64.tar.gz
-rm -f go1.25.5.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.27.1.linux-amd64.tar.gz
+echo "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445 go1.27.1.linux-amd64.tar.gz" | sha256sum -c - && sudo tar -C /usr/local -xf go1.27.1.linux-amd64.tar.gz
+rm -f go1.27.1.linux-amd64.tar.gz
 
 tee -a ~/.bashrc << EOF
 export GOPATH=\$HOME/go
@@ -55,6 +55,5 @@ sudo cp "$(ls -td ~/go/pkg/mod/github.com/pritunl/pritunl-client@*/ | head -n1)/
 sudo systemctl daemon-reload
 sudo systemctl enable --now pritunl-client.service
 
-sudo pritunl-client add <profile_uri>
-sudo pritunl-client list
+pritunl-client
 ```
