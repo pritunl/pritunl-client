@@ -23,6 +23,7 @@ CONSTANTS_PATH2 = 'client/package.json'
 CONSTANTS_PATH3 = 'client/package-lock.json'
 CONSTANTS_PATH4 = 'cli/constants/constants.go'
 CONSTANTS_PATH5 = 'resources_win/setup.iss'
+CONSTANTS_PATH6 = 'flatpak/com.pritunl.Client.metainfo.xml'
 STABLE_PACUR_PATH = '../pritunl-pacur'
 TEST_PACUR_PATH = '../pritunl-pacur-test'
 BUILD_KEYS_PATH = os.path.expanduser('~/data/build/pritunl_build.json')
@@ -302,6 +303,18 @@ if cmd == 'set-version':
             count=1,
         ))
 
+    with open(CONSTANTS_PATH6, 'r') as constants_file:
+        constants_data = constants_file.read()
+
+    with open(CONSTANTS_PATH6, 'w') as constants_file:
+        constants_file.write(re.sub(
+            '(<release version=".*?" date=".*?"/>)',
+            '<release version="%s" date="%s"/>' % (
+                new_version, cur_date.strftime('%Y-%m-%d')),
+            constants_data,
+            count=1,
+        ))
+
     # Check for duplicate version
     response = requests.get(
         'https://api.github.com/repos/%s/%s/releases' % (
@@ -357,6 +370,7 @@ if cmd == 'set-version':
     subprocess.check_call(['git', 'add', CONSTANTS_PATH3])
     subprocess.check_call(['git', 'add', CONSTANTS_PATH4])
     subprocess.check_call(['git', 'add', CONSTANTS_PATH5])
+    subprocess.check_call(['git', 'add', CONSTANTS_PATH6])
     subprocess.check_call(['git', 'commit', '-S', '-m', 'Create new release'])
     subprocess.check_call(['git', 'push'])
 
