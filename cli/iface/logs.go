@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/pritunl/pritunl-client/cli/logs"
 	"github.com/pritunl/pritunl-client/cli/sprofile"
 )
@@ -107,8 +107,13 @@ func NewLogsView(sources []LogsSource, id string,
 		loading: true,
 	}
 	l.viewport = viewport.New(
-		max(width-scrollbarWidth, 10), max(height-2, 1))
-	l.viewport.SetContent("Loading...")
+		viewport.WithWidth(max(width-scrollbarWidth, 10)),
+		viewport.WithHeight(max(height-2, 1)),
+	)
+	// Long lines wrap inside the viewport, wrapped lines continue under
+	// their number in the gutter
+	l.viewport.SoftWrap = true
+	l.setPlaceholder("Loading...")
 	l.SetSize(width, height)
 	l.setSource(id)
 	return l
@@ -148,58 +153,62 @@ func (l *LogsView) cycle(dir int) {
 	l.index = ((l.index+dir)%n + n) % n
 	l.loading = true
 	l.follow = true
-	l.viewport.SetContent("Loading...")
+	l.setPlaceholder("Loading...")
 }
 
 func (l *LogsView) SetSize(width, height int) {
 	l.width = width
 	l.height = height
-	l.viewport.Width = max(width-scrollbarWidth, 10)
-	l.viewport.Height = max(height-2, 1)
+	l.viewport.SetWidth(max(width-scrollbarWidth, 10))
+	l.viewport.SetHeight(max(height-2, 1))
 
-	// Rewrap the log output for the new width
-	if !l.loading {
-		l.setContent()
-	}
+	// The viewport rewraps the lines for the new width, keep the offset
+	// within the rewrapped content
+	l.viewport.SetYOffset(l.viewport.YOffset())
 	if l.follow {
 		l.viewport.GotoBottom()
 	}
 }
 
-// setContent numbers the log lines and wraps them to the viewport width
-// so the page never scrolls horizontally, wrapped lines continue under
-// their number.
+// setPlaceholder shows a message in place of the log output without the
+// line number gutter.
+func (l *LogsView) setPlaceholder(text string) {
+	l.viewport.LeftGutterFunc = nil
+	l.viewport.SetContent(text)
+}
+
+// setGutter renders the line numbers in the viewport gutter, the number is
+// padded by a space on each side followed by a plain space before the
+// text. Wrapped continuation lines get a blank gutter under their number.
+func (l *LogsView) setGutter(numberWidth int) {
+	blank := logsNumberStyle.Render(strings.Repeat(" ", numberWidth+2)) + " "
+
+	l.viewport.LeftGutterFunc = func(info viewport.GutterContext) string {
+		if info.Soft {
+			return blank
+		}
+		return logsNumberStyle.Render(
+			fmt.Sprintf(" %*d ", numberWidth, info.Index+1)) + " "
+	}
+}
+
+// setContent loads the log lines into the viewport, the viewport numbers
+// and wraps them to the width so the page never scrolls horizontally.
 func (l *LogsView) setContent() {
 	content := strings.TrimRight(l.data, "\n")
 	if content == "" {
-		l.viewport.SetContent("No log output")
+		l.setPlaceholder("No log output")
 		return
 	}
+
+	// Tabs are not expanded by the viewport
+	content = strings.ReplaceAll(content, "\t", "    ")
 
 	lines := strings.Split(content, "\n")
 	numberWidth := max(len(strconv.Itoa(len(lines))), logsNumberMinWidth)
 
-	// Gutter has the number padded by a space on each side followed by a
-	// plain space before the text
-	indent := logsNumberStyle.Render(strings.Repeat(" ", numberWidth+2)) + " "
-	wrapStyle := lipgloss.NewStyle().Width(
-		max(l.viewport.Width-numberWidth-3, 10))
-
-	output := make([]string, 0, len(lines))
-	for i, line := range lines {
-		number := logsNumberStyle.Render(
-			fmt.Sprintf(" %*d ", numberWidth, i+1)) + " "
-
-		for j, part := range strings.Split(wrapStyle.Render(line), "\n") {
-			if j == 0 {
-				output = append(output, number+part)
-			} else {
-				output = append(output, indent+part)
-			}
-		}
-	}
-
-	l.viewport.SetContent(strings.Join(output, "\n"))
+	l.setGutter(numberWidth)
+	l.viewport.SetContentLines(lines)
 }
 
 func (l *LogsView) SetData(data string) {
@@ -256,8 +265,8 @@ func (l LogsView) menuItems() []MenuItem {
 
 func (l LogsView) Update(msg tea.Msg) (LogsView, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.MouseMsg:
-		if isLeftClick(msg) {
+	case tea.MouseClickMsg:
+		if msg.Button == tea.MouseLeft {
 			// Menu bar is the last line of the view
 			if msg.Y == l.height-1 {
 				keyMsg, ok := menuBarClick(l.width, l.menuItems(), msg.X)
@@ -265,9 +274,9 @@ func (l LogsView) Update(msg tea.Msg) (LogsView, tea.Cmd) {
 					return l.Update(keyMsg)
 				}
 			}
-			return l, nil
 		}
-	case tea.KeyMsg:
+		return l, nil
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, logsKeys.Quit):
 			return l, tea.Quit

@@ -3,9 +3,9 @@ package iface
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 var (
@@ -31,6 +31,8 @@ var (
 	optionLabelActiveStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#3B82F6")).
 				Bold(true)
+	optionErrorStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#EF4444"))
 
 	toggleOffStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#6B7280")).
@@ -43,6 +45,18 @@ var (
 			Padding(0, 1).
 			MarginRight(1)
 )
+
+// optionInputStyles returns the text input styles matching the dialog
+// colors, the prompt follows the label focus color.
+func optionInputStyles() textinput.Styles {
+	styles := textinput.DefaultDarkStyles()
+	styles.Focused.Prompt = optionLabelActiveStyle
+	styles.Blurred.Prompt = optionLabelStyle
+	styles.Focused.Placeholder = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#6B7280"))
+	styles.Blurred.Placeholder = styles.Focused.Placeholder
+	return styles
+}
 
 // Option is a single field or button in a Dialog.
 type Option interface {
@@ -72,15 +86,22 @@ type OptionText struct {
 	Placeholder string
 	Value       string
 	Password    bool
-	model       textinput.Model
+
+	// Validate checks the value as it is typed, the error is shown under
+	// the input and blocks the dialog from being accepted.
+	Validate func(string) error
+
+	model textinput.Model
 }
 
 func (o *OptionText) Init(width int) {
 	o.model = textinput.New()
 	o.model.Placeholder = o.Placeholder
 	o.model.CharLimit = 2048
-	o.model.Width = max(width-4, 10)
 	o.model.Prompt = "> "
+	o.model.Validate = o.Validate
+	o.model.SetStyles(optionInputStyles())
+	o.SetWidth(width)
 	if o.Password {
 		o.model.EchoMode = textinput.EchoPassword
 		o.model.EchoCharacter = '•'
@@ -88,6 +109,11 @@ func (o *OptionText) Init(width int) {
 	if o.Value != "" {
 		o.model.SetValue(o.Value)
 	}
+}
+
+// SetWidth sets the input width for the dialog content width.
+func (o *OptionText) SetWidth(width int) {
+	o.model.SetWidth(max(width-4, 10))
 }
 
 func (o *OptionText) Footer() bool {
@@ -120,6 +146,11 @@ func (o *OptionText) OnSpace() bool {
 	return false
 }
 
+// Err returns the validation error of the current value.
+func (o *OptionText) Err() error {
+	return o.model.Err
+}
+
 func (o *OptionText) View() string {
 	var label string
 	if o.Focused() {
@@ -127,7 +158,13 @@ func (o *OptionText) View() string {
 	} else {
 		label = optionLabelStyle.Render(o.Label)
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, label, o.model.View())
+
+	parts := []string{label, o.model.View()}
+	if err := o.model.Err; err != nil {
+		parts = append(parts, optionErrorStyle.Render(err.Error()))
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Left, parts...)
 }
 
 func (o *OptionText) GetValue() string {

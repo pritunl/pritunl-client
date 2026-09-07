@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/paginator"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/list"
+	"charm.land/bubbles/v2/paginator"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/pritunl/pritunl-client/cli/config"
 	"github.com/pritunl/pritunl-client/cli/constants"
 	"github.com/pritunl/pritunl-client/cli/event"
@@ -647,6 +647,21 @@ func (m *Model) Config() tea.Cmd {
 	return configCmd()
 }
 
+// validateMetric checks the interface metric input as it is typed, an
+// empty value leaves the metric unmodified.
+func validateMetric(val string) error {
+	val = strings.TrimSpace(val)
+	if val == "" {
+		return nil
+	}
+
+	metric, err := strconv.Atoi(val)
+	if err != nil || metric < 0 || metric > 9999 {
+		return fmt.Errorf("Must be a number from 0 to 9999")
+	}
+	return nil
+}
+
 // openConfig shows the global advanced settings dialog, these mirror the
 // desktop client advanced settings with platform specific options hidden.
 func (m *Model) openConfig(conf *config.Config) {
@@ -678,6 +693,7 @@ func (m *Model) openConfig(conf *config.Config) {
 		Label:       "Interface Metric (0 to leave unmodified)",
 		Placeholder: "0",
 		Value:       strconv.Itoa(conf.InterfaceMetric),
+		Validate:    validateMetric,
 	}
 
 	opts := []Option{}
@@ -890,7 +906,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+	if keyMsg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(keyMsg, m.bindings.Quit):
 			return m, tea.Quit
@@ -963,9 +979,10 @@ func (m Model) updateMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 
 	if m.showDialog {
 		if isLeftClick(msg) {
+			mouse := msg.Mouse()
 			view := m.dialog.View()
-			x := msg.X - placeOffset(m.winWidth, lipgloss.Width(view))
-			y := msg.Y - placeOffset(m.winHeight, lipgloss.Height(view))
+			x := mouse.X - placeOffset(m.winWidth, lipgloss.Width(view))
+			y := mouse.Y - placeOffset(m.winHeight, lipgloss.Height(view))
 			m.dialog, cmd = m.dialog.Click(x, y)
 			return m, cmd
 		}
@@ -979,29 +996,31 @@ func (m Model) updateMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	switch msg.Button {
-	case tea.MouseButtonWheelUp:
-		m.profiles.CursorUp()
-		return m, nil
-	case tea.MouseButtonWheelDown:
-		m.profiles.CursorDown()
+	if wheel, ok := msg.(tea.MouseWheelMsg); ok {
+		switch wheel.Button {
+		case tea.MouseWheelUp:
+			m.profiles.CursorUp()
+		case tea.MouseWheelDown:
+			m.profiles.CursorDown()
+		}
 		return m, nil
 	}
 
 	if !isLeftClick(msg) {
 		return m, nil
 	}
+	mouse := msg.Mouse()
 
 	// Menu bar is the last line of the view
-	if msg.Y == m.winHeight-1 {
-		keyMsg, ok := menuBarClick(m.winWidth, m.menuItems(), msg.X)
+	if mouse.Y == m.winHeight-1 {
+		keyMsg, ok := menuBarClick(m.winWidth, m.menuItems(), mouse.X)
 		if ok {
 			return m.Update(keyMsg)
 		}
 		return m, nil
 	}
 
-	index, row, ok := m.profileAt(msg.Y)
+	index, row, ok := m.profileAt(mouse.Y)
 	if !ok {
 		return m, nil
 	}
@@ -1011,7 +1030,7 @@ func (m Model) updateMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	if row == m.listDelegate.Height()-2 {
 		item, ok := m.profiles.Items()[index].(ListItem)
 		if ok {
-			keyMsg, ok := item.ButtonAt(msg.X - itemContentLeft)
+			keyMsg, ok := item.ButtonAt(mouse.X - itemContentLeft)
 			if ok {
 				return m.Update(keyMsg)
 			}
@@ -1418,7 +1437,17 @@ func (m Model) renderStatus() string {
 	return line
 }
 
-func (m Model) View() string {
+// View declares the full screen view, the alt screen and mouse mode are
+// view options in Bubble Tea v2 instead of program options.
+func (m Model) View() tea.View {
+	view := tea.NewView(m.render())
+	view.AltScreen = true
+	view.MouseMode = tea.MouseModeCellMotion
+	view.WindowTitle = "Pritunl Client"
+	return view
+}
+
+func (m Model) render() string {
 	if !m.ready {
 		return "Initializing..."
 	}

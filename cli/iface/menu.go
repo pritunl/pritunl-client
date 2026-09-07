@@ -3,8 +3,8 @@ package iface
 import (
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 var (
@@ -23,24 +23,24 @@ type MenuItem struct {
 // KeyMsg returns the key press the menu item represents so clicking the
 // item runs the same action as the key. Items that only describe
 // navigation keys have no click action.
-func (i MenuItem) KeyMsg() (tea.KeyMsg, bool) {
+func (i MenuItem) KeyMsg() (tea.KeyPressMsg, bool) {
 	switch i.Key {
 	case "esc":
-		return tea.KeyMsg{Type: tea.KeyEsc}, true
+		return tea.KeyPressMsg{Code: tea.KeyEscape}, true
 	case "←/→":
-		return tea.KeyMsg{Type: tea.KeyRight}, true
+		return tea.KeyPressMsg{Code: tea.KeyRight}, true
 	case "home":
-		return tea.KeyMsg{Type: tea.KeyHome}, true
+		return tea.KeyPressMsg{Code: tea.KeyHome}, true
 	case "end":
-		return tea.KeyMsg{Type: tea.KeyEnd}, true
+		return tea.KeyPressMsg{Code: tea.KeyEnd}, true
 	}
 
 	runes := []rune(i.Key)
 	if len(runes) == 1 {
-		return tea.KeyMsg{Type: tea.KeyRunes, Runes: runes}, true
+		return tea.KeyPressMsg{Code: runes[0], Text: string(runes)}, true
 	}
 
-	return tea.KeyMsg{}, false
+	return tea.KeyPressMsg{}, false
 }
 
 // menuPart is a rendered menu item and its column position in the bar.
@@ -94,17 +94,17 @@ func renderMenuBar(width int, items []MenuItem) string {
 }
 
 // menuBarClick returns the key press for the menu item at the column.
-func menuBarClick(width int, items []MenuItem, x int) (tea.KeyMsg, bool) {
+func menuBarClick(width int, items []MenuItem, x int) (tea.KeyPressMsg, bool) {
 	for _, part := range menuBarParts(width, items) {
 		if x >= part.x && x < part.x+part.width {
 			return part.item.KeyMsg()
 		}
 	}
-	return tea.KeyMsg{}, false
+	return tea.KeyPressMsg{}, false
 }
 
 // isLeftClick returns true for a left mouse button press.
 func isLeftClick(msg tea.MouseMsg) bool {
-	return msg.Action == tea.MouseActionPress &&
-		msg.Button == tea.MouseButtonLeft
+	click, ok := msg.(tea.MouseClickMsg)
+	return ok && click.Button == tea.MouseLeft
 }

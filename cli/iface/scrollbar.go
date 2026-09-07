@@ -3,8 +3,8 @@ package iface
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/viewport"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/viewport"
+	"charm.land/lipgloss/v2"
 )
 
 const (
@@ -23,7 +23,7 @@ var (
 // height, the thumb size and position reflect the visible portion. The
 // column is blank when the content fits in the viewport.
 func renderScrollbar(view viewport.Model) string {
-	height := view.Height
+	height := view.Height()
 	total := view.TotalLineCount()
 
 	if height <= 0 {
@@ -38,7 +38,7 @@ func renderScrollbar(view viewport.Model) string {
 	track := height - thumb
 	pos := 0
 	if track > 0 {
-		pos = view.YOffset * track / (total - height)
+		pos = view.YOffset() * track / (total - height)
 		if view.AtBottom() {
 			pos = track
 		}

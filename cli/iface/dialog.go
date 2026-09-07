@@ -3,10 +3,10 @@ package iface
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 const (
@@ -109,7 +109,7 @@ var dialogKeys = DialogKeyMap{
 		key.WithHelp("shift+tab", "previous"),
 	),
 	Space: key.NewBinding(
-		key.WithKeys(" "),
+		key.WithKeys("space"),
 		key.WithHelp("space", "toggle"),
 	),
 	Quit: key.NewBinding(
@@ -169,7 +169,10 @@ func NewDialog(title, message string, opts ...Option) Dialog {
 func (d *Dialog) SetInfo(title string, fields []InfoField) {
 	d.infoTitle = title
 	d.info = fields
-	d.infoView = viewport.New(d.contentWidth(), 1)
+	d.infoView = viewport.New(
+		viewport.WithWidth(d.contentWidth()),
+		viewport.WithHeight(1),
+	)
 	d.infoView.MouseWheelEnabled = true
 	d.renderInfo()
 }
@@ -202,8 +205,8 @@ func (d *Dialog) renderInfo() {
 	}
 	contentHeight := lipgloss.Height(content)
 
-	d.infoView.Width = contentWidth
-	d.infoView.Height = max(min(maxHeight, contentHeight), 1)
+	d.infoView.SetWidth(contentWidth)
+	d.infoView.SetHeight(max(min(maxHeight, contentHeight), 1))
 	d.infoView.SetContent(content)
 }
 
@@ -246,7 +249,7 @@ func (d *Dialog) SetSize(width, height int) {
 	contentWidth := d.contentWidth()
 	for _, opt := range d.options {
 		if txt, ok := opt.(*OptionText); ok {
-			txt.model.Width = max(contentWidth-4, 10)
+			txt.SetWidth(contentWidth)
 		}
 	}
 
@@ -323,6 +326,29 @@ func (d *Dialog) defaultReturn() (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+// invalidIndex returns the index of the first text option with a
+// validation error or -1 when all values are valid.
+func (d *Dialog) invalidIndex() int {
+	for i, opt := range d.options {
+		if txt, ok := opt.(*OptionText); ok && txt.Err() != nil {
+			return i
+		}
+	}
+	return -1
+}
+
+// close closes the dialog with the return value, accepting the dialog is
+// blocked while a text option has a validation error and the invalid
+// option is focused instead.
+func (d *Dialog) close(ret int) tea.Cmd {
+	if ret == DialogOk {
+		if i := d.invalidIndex(); i != -1 {
+			return d.focusIndex(i)
+		}
+	}
+	return closeDialog(ret)
 }
 
 func closeDialog(ret int) tea.Cmd {
@@ -492,7 +518,7 @@ func (d Dialog) Click(x, y int) (Dialog, tea.Cmd) {
 			// Clicking runs the same action as pressing enter on the
 			// focused option
 			var enterCmd tea.Cmd
-			d, enterCmd = d.Update(tea.KeyMsg{Type: tea.KeyEnter})
+			d, enterCmd = d.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 			return d, tea.Batch(cmd, enterCmd)
 		}
 
@@ -503,7 +529,7 @@ func (d Dialog) Click(x, y int) (Dialog, tea.Cmd) {
 }
 
 func (d Dialog) updateInfo(msg tea.Msg) (Dialog, tea.Cmd) {
-	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+	if keyMsg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(keyMsg, dialogKeys.Quit):
 			return d, tea.Quit
@@ -529,7 +555,7 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 		return d.updateInfo(msg)
 	}
 
-	keyMsg, ok := msg.(tea.KeyMsg)
+	keyMsg, ok := msg.(tea.KeyPressMsg)
 	if !ok {
 		active := d.GetActiveOption()
 		if active != nil {
@@ -576,7 +602,7 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 						d.openInfo()
 						return d, nil
 					}
-					return d, closeDialog(ret)
+					return d, d.close(ret)
 				}
 				return d, nil
 			}
@@ -584,9 +610,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 
 		ret, ok := d.defaultReturn()
 		if ok {
-			return d, closeDialog(ret)
+			return d, d.close(ret)
 		}
-		return d, closeDialog(DialogOk)
+		return d, d.close(DialogOk)
 	}
 
 	if active != nil {

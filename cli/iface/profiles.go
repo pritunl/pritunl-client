@@ -5,9 +5,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/list"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/list"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/pritunl/pritunl-client/cli/sprofile"
 )
 
@@ -175,13 +175,13 @@ func (i ListItem) ButtonsView() string {
 
 // ButtonAt returns the key press for the button at the column relative
 // to the card content area.
-func (i ListItem) ButtonAt(x int) (tea.KeyMsg, bool) {
+func (i ListItem) ButtonAt(x int) (tea.KeyPressMsg, bool) {
 	for _, btn := range i.Buttons() {
 		if x >= btn.x && x < btn.x+btn.width {
 			return btn.item.KeyMsg()
 		}
 	}
-	return tea.KeyMsg{}, false
+	return tea.KeyPressMsg{}, false
 }
 
 func (i ListItem) Body(width int) string {

@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/cli/errortypes"
 	"github.com/pritunl/pritunl-client/cli/event"
@@ -58,11 +58,8 @@ func Iface() (err error) {
 
 	model := NewModel(listener)
 
-	prog := tea.NewProgram(
-		model,
-		tea.WithAltScreen(),
-		tea.WithMouseCellMotion(),
-	)
+	// Alt screen and mouse mode are declared by the model view
+	prog := tea.NewProgram(model)
 
 	_, err = prog.Run()
 	if err != nil {
