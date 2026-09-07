@@ -565,7 +565,7 @@ class ConfigData {
     constructor() {
         this.window_width = 0;
         this.window_height = 0;
-        this.disable_tray_icon = false;
+        this.disable_tray_icon = _Constants__WEBPACK_IMPORTED_MODULE_3__.flatpak;
         this.classic_interface = false;
         this.safe_storage = false;
         this.transparent_window = false;

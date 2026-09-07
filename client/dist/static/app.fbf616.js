@@ -48986,7 +48986,7 @@ class ConfigData {
     constructor() {
         this.window_width = 0;
         this.window_height = 0;
-        this.disable_tray_icon = false;
+        this.disable_tray_icon = flatpak;
         this.classic_interface = false;
         this.safe_storage = false;
         this.transparent_window = false;
