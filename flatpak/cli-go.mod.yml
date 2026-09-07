@@ -1,18 +1,18 @@
 - type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/bubbles/@v/v0.21.0.zip
+  url: https://proxy.golang.org/charm.land/bubbles/v2/@v/v2.2.1.zip
   strip-components: 3
-  dest: cli/vendor/github.com/charmbracelet/bubbles
-  sha256: fdfdda9c2605a6898027c9bcd2ffc38abc7cec4beb4087d509694d813c4b1dc9
+  dest: cli/vendor/charm.land/bubbles/v2
+  sha256: 64292cdc965e4cdd81fae7b9b26f77ced179321ab014f49a442b4789078b0024
 - type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/bubbletea/@v/v1.3.5.zip
+  url: https://proxy.golang.org/charm.land/bubbletea/v2/@v/v2.0.9.zip
   strip-components: 3
-  dest: cli/vendor/github.com/charmbracelet/bubbletea
-  sha256: ca18d0ac180d4cb5b2c9abbefda535ea29917808f97640bd0e112d42e8363712
+  dest: cli/vendor/charm.land/bubbletea/v2
+  sha256: 501af22ac5a220d38d6305219c17fdc9b19c0e1b6b05305bc0a1878d21cbb9ff
 - type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/lipgloss/@v/v1.1.0.zip
+  url: https://proxy.golang.org/charm.land/lipgloss/v2/@v/v2.0.6.zip
   strip-components: 3
-  dest: cli/vendor/github.com/charmbracelet/lipgloss
-  sha256: 22512fd8c211302255bb6f57d8018eed9b8d8f6dd51310512901240bde9b061a
+  dest: cli/vendor/charm.land/lipgloss/v2
+  sha256: 26b77e3a8159d4d084d04a32c63db22cf9a48553d3eee1b488e478b1bb592c23
 - type: archive
   url: https://proxy.golang.org/github.com/dropbox/godropbox/@v/v0.0.0-20230623171840-436d2007a9fd.zip
   strip-components: 3
@@ -49,85 +49,75 @@
   dest: cli/vendor/github.com/atotto/clipboard
   sha256: d67b2c36c662751309fd2ec351df3651584bea840bd27be9a90702c3a238b43f
 - type: archive
-  url: https://proxy.golang.org/github.com/aymanbagabas/go-osc52/v2/@v/v2.0.1.zip
-  strip-components: 4
-  dest: cli/vendor/github.com/aymanbagabas/go-osc52/v2
-  sha256: 939ebf2a5481f2172e1a5e0c318d05aef5b6d950a960556216c3da7879a927f8
-- type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/colorprofile/@v/v0.2.3-0.20250311203215-f60798e515dc.zip
+  url: https://proxy.golang.org/github.com/charmbracelet/colorprofile/@v/v0.4.3.zip
   strip-components: 3
   dest: cli/vendor/github.com/charmbracelet/colorprofile
-  sha256: 8df093c3abeab24f9c17464cf222a4f44e3875acc4cd7a071c8b856934bffc2d
+  sha256: 656472ff48f01a098418a31667f3253cf34e04d4e1cb6c1a0a80f76ad370b689
 - type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/x/ansi/@v/v0.8.0.zip
+  url: https://proxy.golang.org/github.com/charmbracelet/ultraviolet/@v/v0.0.0-20260811164956-006e29f97886.zip
+  strip-components: 3
+  dest: cli/vendor/github.com/charmbracelet/ultraviolet
+  sha256: f05a2aac1310f73700c7587db28429dacd345b1d68ca50c05048f9ac989c0f7f
+- type: archive
+  url: https://proxy.golang.org/github.com/charmbracelet/x/ansi/@v/v0.11.8.zip
   strip-components: 4
   dest: cli/vendor/github.com/charmbracelet/x/ansi
-  sha256: 93232b97a5a80c2c5c283faa63d434f71387afaf255e0dab9479a066581b946d
+  sha256: ac0870e7be61cbffe23d06404c77cfd43e11e162e1c79a4bf3bfaf57036d7407
 - type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/x/cellbuf/@v/v0.0.13-0.20250311204145-2c3ea96c31dd.zip
-  strip-components: 4
-  dest: cli/vendor/github.com/charmbracelet/x/cellbuf
-  sha256: afb3737da68b726e922e1982d8e2a354fc74ebc9a458879bbc1bbbcd39fda654
-- type: archive
-  url: https://proxy.golang.org/github.com/charmbracelet/x/term/@v/v0.2.1.zip
+  url: https://proxy.golang.org/github.com/charmbracelet/x/term/@v/v0.2.2.zip
   strip-components: 4
   dest: cli/vendor/github.com/charmbracelet/x/term
-  sha256: 943ea615acab846478d15fc9b21eb5e47df786577915f84565b6d4b31d4014a0
+  sha256: 0452a430f7e6882393f81ba19a70a63709960acb9743e1199a7b04d908e6b506
 - type: archive
-  url: https://proxy.golang.org/github.com/erikgeiser/coninput/@v/v0.0.0-20211004153227-1c3628e74d0f.zip
+  url: https://proxy.golang.org/github.com/charmbracelet/x/termios/@v/v0.1.1.zip
+  strip-components: 4
+  dest: cli/vendor/github.com/charmbracelet/x/termios
+  sha256: 3dd9823ed5db08d398c276e216e4150560d3a6894814c4404251b4210b22abed
+- type: archive
+  url: https://proxy.golang.org/github.com/charmbracelet/x/windows/@v/v0.2.2.zip
+  strip-components: 4
+  dest: cli/vendor/github.com/charmbracelet/x/windows
+  sha256: fb3f82357ad9a8a25a42dfa1880434149dd6fcc43e0b32a03664f72082ce5c2f
+- type: archive
+  url: https://proxy.golang.org/github.com/clipperhouse/displaywidth/@v/v0.11.0.zip
   strip-components: 3
-  dest: cli/vendor/github.com/erikgeiser/coninput
-  sha256: bd7f9a62374dc4d111863491729763a0eafcdc440d4a6ebead61d3af4a2c3f2f
+  dest: cli/vendor/github.com/clipperhouse/displaywidth
+  sha256: 27830c91cdfb2a648748db21f7a2734dcb50d21c620edde51d488ba4e7967e3d
+- type: archive
+  url: https://proxy.golang.org/github.com/clipperhouse/uax29/v2/@v/v2.7.0.zip
+  strip-components: 4
+  dest: cli/vendor/github.com/clipperhouse/uax29/v2
+  sha256: 67b1278f1ffb4e4d783a390e48fe7396864650138e785d4b4bfca5914333f761
 - type: archive
   url: https://proxy.golang.org/github.com/inconshreveable/mousetrap/@v/v1.1.0.zip
   strip-components: 3
   dest: cli/vendor/github.com/inconshreveable/mousetrap
   sha256: 526674de624d7db108cfe7653ef110ccdfd97bc85026254224815567928ed243
 - type: archive
-  url: https://proxy.golang.org/github.com/lucasb-eyer/go-colorful/@v/v1.2.0.zip
+  url: https://proxy.golang.org/github.com/lucasb-eyer/go-colorful/@v/v1.4.1.zip
   strip-components: 3
   dest: cli/vendor/github.com/lucasb-eyer/go-colorful
-  sha256: 78d5d0e0737f0f54bbed77b6dfa847d8c871bed2668a9dc44328c7c3411ada10
+  sha256: 399a71ecf3e3aaa0af96a779f1c106688b095dbfd0a85455a7c706d3d7ff9ebd
 - type: archive
-  url: https://proxy.golang.org/github.com/mattn/go-isatty/@v/v0.0.20.zip
-  strip-components: 3
-  dest: cli/vendor/github.com/mattn/go-isatty
-  sha256: f2d5f89ca451577e17464b9bb596dc0d0ecececb5eaa63622c41b57cd0b7b8cc
-- type: archive
-  url: https://proxy.golang.org/github.com/mattn/go-localereader/@v/v0.0.1.zip
-  strip-components: 3
-  dest: cli/vendor/github.com/mattn/go-localereader
-  sha256: aa67306797b071ce93188fe2834f63ffd7963faf623d49229d891ef52e595b35
-- type: archive
-  url: https://proxy.golang.org/github.com/mattn/go-runewidth/@v/v0.0.16.zip
+  url: https://proxy.golang.org/github.com/mattn/go-runewidth/@v/v0.0.27.zip
   strip-components: 3
   dest: cli/vendor/github.com/mattn/go-runewidth
-  sha256: 179d2d900c76ee3560fbeda60d0237a3be6acb734d0cb7423b55e5ccb0cedbca
-- type: archive
-  url: https://proxy.golang.org/github.com/muesli/ansi/@v/v0.0.0-20230316100256-276c6243b2f6.zip
-  strip-components: 3
-  dest: cli/vendor/github.com/muesli/ansi
-  sha256: 59c0d420908d51df3c701510337fbe42bfb4d48fcc5f490b5eb2f36fc25f91b9
+  sha256: 78b1690bd2506faeeecff9cce615e5710c12fe25a5393abe3c2503d0ea4ee2ea
 - type: archive
   url: https://proxy.golang.org/github.com/muesli/cancelreader/@v/v0.2.2.zip
   strip-components: 3
   dest: cli/vendor/github.com/muesli/cancelreader
   sha256: f0654e7f8f8a49b02ff10a75ccaa0eb08a65aaacbc45f5ba93305276e2ac7f61
 - type: archive
-  url: https://proxy.golang.org/github.com/muesli/termenv/@v/v0.16.0.zip
-  strip-components: 3
-  dest: cli/vendor/github.com/muesli/termenv
-  sha256: ba02d3ebd9c1d87e2c2133b1f2bb61a7001b3765196e8016029ce9fe54c5c0fc
-- type: archive
   url: https://proxy.golang.org/github.com/rivo/uniseg/@v/v0.4.7.zip
   strip-components: 3
   dest: cli/vendor/github.com/rivo/uniseg
   sha256: b995e4aa0cc1e5779cc61138ac925cb8c1e963e40c80e4b93ee8553812ebb792
 - type: archive
-  url: https://proxy.golang.org/github.com/sahilm/fuzzy/@v/v0.1.1.zip
+  url: https://proxy.golang.org/github.com/sahilm/fuzzy/@v/v0.1.3.zip
   strip-components: 3
   dest: cli/vendor/github.com/sahilm/fuzzy
-  sha256: ea29d62ead95ddb604f29ea9f26805ce20d451440fa511d7aaa7356bcebdaa1f
+  sha256: d93c49af536d39cd2f25be6f75e4bd4c3af5b0ca8f9b19121f9b7a6536d05c30
 - type: archive
   url: https://proxy.golang.org/github.com/spf13/pflag/@v/v1.0.5.zip
   strip-components: 3
@@ -139,17 +129,12 @@
   dest: cli/vendor/github.com/xo/terminfo
   sha256: b8f4270191e08e135e932dfe168769046a4268ec7f3892593b1d773b2c5fa4cf
 - type: archive
-  url: https://proxy.golang.org/golang.org/x/sync/@v/v0.13.0.zip
+  url: https://proxy.golang.org/golang.org/x/sync/@v/v0.22.0.zip
   strip-components: 3
   dest: cli/vendor/golang.org/x/sync
-  sha256: 4bdaaffe69cc7c997cff97cd81dc9c6777777bd311175f100f76b049bbbe7ed9
+  sha256: 4bc67d258ce7867cfc1a43765c43d98b4c49b90c46dd0b86f896a5a4909fade0
 - type: archive
   url: https://proxy.golang.org/golang.org/x/sys/@v/v0.47.0.zip
   strip-components: 3
   dest: cli/vendor/golang.org/x/sys
   sha256: cdac013ddced0262926ec29ffcda645da39670e61c7e5b761e572b6b1809bb1b
-- type: archive
-  url: https://proxy.golang.org/golang.org/x/text/@v/v0.3.8.zip
-  strip-components: 3
-  dest: cli/vendor/golang.org/x/text
-  sha256: 66af186502189c9365fcf0ce1746e2ae96c0f7ec38c78adda3a4e9f5ffce02cd
