@@ -113,7 +113,7 @@ chmod +x resources_macos/scripts/preinstall
 cd build
 pkgbuild --analyze --root macos component.plist
 plutil -convert xml1 component.plist
-sed -i '' -E 's#(<key>BundleIsRelocatable</key>[[:space:]]*)<true/>#\1<false/>#g' component.plist
+perl -0777 -pi -e 's#(<key>BundleIsRelocatable</key>\s*)<true/>#${1}<false/>#g' component.plist
 if grep -A1 BundleIsRelocatable component.plist | grep -q '<true/>'; then
   echo "component.plist still has relocatable bundles" >&2
   exit 1
@@ -125,7 +125,7 @@ mkdir pkg_check
 xar -xf Build.pkg -C pkg_check
 lsbom -p fMUG pkg_check/Bom | grep 'PrivilegedHelperTools' > helper_bom.txt
 cat helper_bom.txt
-if grep -vE '^\./Library/PrivilegedHelperTools(/pritunl-client(/[^[:space:]]+)?)?[[:space:]]+(drwxr-xr-x|-rwxr-xr-x)[[:space:]]+0[[:space:]]+0$' helper_bom.txt; then
+if grep -vE '^\./Library/PrivilegedHelperTools(/pritunl-client(/[^[:space:]]+)?)?[[:space:]]+(drwxr-xr-x|-rwxr-xr-x)[[:space:]]+root[[:space:]]+wheel[[:space:]]*$' helper_bom.txt; then
   echo "PrivilegedHelperTools entries are not 0755 root:wheel" >&2
   exit 1
 fi
