@@ -40,7 +40,7 @@ flatpak run --command=pritunl-client com.pritunl.Client
 
 ## Device Authentication
 
-Add device authentication
+Add Device Authentication
 
 ```bash
 flatpak override --user --device=all com.pritunl.Client
@@ -52,7 +52,7 @@ sudo udevadm trigger --subsystem-match=tpmrm
 flatpak kill com.pritunl.Client
 ```
 
-Remove device authention
+Remove Device Authention
 
 ```bash
 flatpak override --user --nodevice=all com.pritunl.Client
