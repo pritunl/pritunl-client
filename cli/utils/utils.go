@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	FlatpakDefaultId = "com.pritunl.Client"
+	FlatpakDefaultId = "com.pritunl.client"
 )
 
 func Uuid() (id string) {

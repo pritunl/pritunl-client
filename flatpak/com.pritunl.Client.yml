@@ -1,4 +1,4 @@
-app-id: com.pritunl.Client
+app-id: com.pritunl.client
 runtime: org.freedesktop.Platform
 runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
@@ -125,21 +125,21 @@ modules:
     subdir: flatpak
     build-commands:
       - install -Dm755 pritunl-client-flatpak /app/bin/pritunl-client-flatpak
-      - install -Dm644 com.pritunl.Client.desktop
-        /app/share/applications/com.pritunl.Client.desktop
-      - install -Dm644 com.pritunl.Client.metainfo.xml
-        /app/share/metainfo/com.pritunl.Client.metainfo.xml
+      - install -Dm644 com.pritunl.client.desktop
+        /app/share/applications/com.pritunl.client.desktop
+      - install -Dm644 com.pritunl.client.metainfo.xml
+        /app/share/metainfo/com.pritunl.client.metainfo.xml
       - |
         for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256 512x512; do
           install -Dm644 ../resources_linux/icons/$size/apps/pritunl_client_electron.png \
-            /app/share/icons/hicolor/$size/apps/com.pritunl.Client.png
+            /app/share/icons/hicolor/$size/apps/com.pritunl.client.png
         done
         install -Dm644 ../resources_linux/icons/scalable/apps/pritunl_client_electron.svg \
-          /app/share/icons/hicolor/scalable/apps/com.pritunl.Client.svg
+          /app/share/icons/hicolor/scalable/apps/com.pritunl.client.svg
         install -Dm644 ../resources_linux/numix_icons/Numix-Circle/48/apps/pritunl_client_electron.svg \
-          /app/share/icons/Numix-Circle/48/apps/com.pritunl.Client.svg
+          /app/share/icons/Numix-Circle/48/apps/com.pritunl.client.svg
         install -Dm644 ../resources_linux/numix_icons/Numix-Square/48/apps/pritunl_client_electron.svg \
-          /app/share/icons/Numix-Square/48/apps/com.pritunl.Client.svg
+          /app/share/icons/Numix-Square/48/apps/com.pritunl.client.svg
     sources:
       - type: git
         url: https://github.com/pritunl/pritunl-client.git

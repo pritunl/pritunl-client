@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	FlatpakDefaultId = "com.pritunl.Client"
+	FlatpakDefaultId = "com.pritunl.client"
 )
 
 func IsFlatpak() bool {

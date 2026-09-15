@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.pritunl.Client</id>
+  <id>com.pritunl.client</id>
   <name>Pritunl Client</name>
   <summary>Connect to Pritunl VPN servers</summary>
   <developer id="com.pritunl">
     <name>Pritunl</name>
   </developer>
   <metadata_license>CC0-1.0</metadata_license>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/pritunl/pritunl-client/refs/heads/master/images/flatpak_client_short_light.png</image>
+      <caption>Client profile list in light theme</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/pritunl/pritunl-client/refs/heads/master/images/flatpak_client_short_dark.png</image>
+      <caption>Client profile list in dark theme</caption>
+    </screenshot>
+  </screenshots>
   <project_license>LicenseRef-proprietary</project_license>
   <description>
     <p>
@@ -21,7 +31,7 @@
       not available in this build.
     </p>
   </description>
-  <launchable type="desktop-id">com.pritunl.Client.desktop</launchable>
+  <launchable type="desktop-id">com.pritunl.client.desktop</launchable>
   <url type="homepage">https://client.pritunl.com</url>
   <url type="bugtracker">https://forum.pritunl.com</url>
   <url type="help">https://docs.pritunl.com</url>

@@ -17,7 +17,7 @@ export let production = (process.argv.indexOf("--dev") === -1)
 export let devTools = (process.argv.indexOf("--dev-tools") !== -1)
 export let flatpak = process.env.FLATPAK_MODE === "true"
 
-export const flatpakId = process.env.FLATPAK_ID || "com.pritunl.Client"
+export const flatpakId = process.env.FLATPAK_ID || "com.pritunl.client"
 export const flatpakRunDir = path.join(
 	process.env.XDG_RUNTIME_DIR || "", "app", flatpakId)
 export let flatpakError = ""

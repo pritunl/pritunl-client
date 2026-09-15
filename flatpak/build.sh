@@ -13,7 +13,7 @@ REPO_DIR="/flatpak"
 SIGN_KEY="$REPO_DIR/sign.key"
 SRC_DIR="/src"
 BUILD_DIR="/build"
-APP_ID="com.pritunl.Client"
+APP_ID="com.pritunl.client"
 BRANCH="stable"
 GNUPG_DIR="$BUILD_DIR/gnupg"
 
@@ -79,15 +79,15 @@ echo "commit: $COMMIT"
 
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
-cp "$SRC_DIR/flatpak/com.pritunl.Client.yml" ./
+cp "$SRC_DIR/flatpak/com.pritunl.client.yml" ./
 cp "$SRC_DIR/flatpak/flathub.json" ./
 cp "$SRC_DIR/flatpak/generated-sources.json" ./
 cp "$SRC_DIR/flatpak/cli-go.mod.yml" ./
 cp "$SRC_DIR/flatpak/cli-modules.txt" ./
 cp "$SRC_DIR/flatpak/service-go.mod.yml" ./
 cp "$SRC_DIR/flatpak/service-modules.txt" ./
-sed -i "s|commit: [0-9a-f]\{40\}|commit: $COMMIT|" com.pritunl.Client.yml
-grep -n "url:\|commit:" com.pritunl.Client.yml
+sed -i "s|commit: [0-9a-f]\{40\}|commit: $COMMIT|" com.pritunl.client.yml
+grep -n "url:\|commit:" com.pritunl.client.yml
 
 gpgconf --homedir "$GNUPG_DIR" --kill gpg-agent
 flatpak-builder \
@@ -97,7 +97,7 @@ flatpak-builder \
     --repo="$REPO_DIR/stable" \
     --gpg-sign="$GPG_KEY" \
     --gpg-homedir="$GNUPG_DIR" \
-    build-dir com.pritunl.Client.yml
+    build-dir com.pritunl.client.yml
 
 flatpak build-update-repo \
     --generate-static-deltas \
