@@ -5457,7 +5457,7 @@ let mainWindow;
 let production = (external_process_default().argv.indexOf("--dev") === -1);
 let devTools = (external_process_default().argv.indexOf("--dev-tools") !== -1);
 let flatpak = (external_process_default()).env.FLATPAK_MODE === "true";
-const flatpakId = (external_process_default()).env.FLATPAK_ID || "com.pritunl.Client";
+const flatpakId = (external_process_default()).env.FLATPAK_ID || "com.pritunl.client";
 const flatpakRunDir = external_path_default().join((external_process_default()).env.XDG_RUNTIME_DIR || "", "app", flatpakId);
 let flatpakError = "";
 if (flatpak && !(external_process_default()).env.XDG_RUNTIME_DIR) {
