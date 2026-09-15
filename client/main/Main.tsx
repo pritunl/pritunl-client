@@ -144,6 +144,8 @@ electron.ipcMain.on(
 			Utils.openLink("https://client.pritunl.com/#install")
 		} else if (msg === "open-link") {
 			Utils.openLink(data)
+		} else if (msg === "copy") {
+			electron.clipboard.writeText(data)
 		}
 	},
 )
