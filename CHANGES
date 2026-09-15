@@ -1,6 +1,10 @@
 Pritunl Client Changelog
 ========================
 
+<%= version %>
+
+Fix copy link button in Electron interface
+
 Version 1.4.4744.47 2026-09-08
 ------------------------------
 
