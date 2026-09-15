@@ -7964,6 +7964,9 @@ external_electron_default().ipcMain.on("control", (evt, msg, data) => {
     else if (msg === "open-link") {
         openLink(data);
     }
+    else if (msg === "copy") {
+        external_electron_default().clipboard.writeText(data);
+    }
 });
 wakeup().then((awake) => {
     awaken = awake;

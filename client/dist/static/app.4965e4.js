@@ -54205,7 +54205,7 @@ dispatcher_EventDispatcher.register((action) => {
             let ssoAuthElm = react.createElement("div", null,
                 react.createElement("div", null, ssoAuthMsg),
                 react.createElement("button", { className: "bp5-button bp5-intent-primary bp5-icon-link", type: "button", style: css.updateButton, onClick: (evt) => {
-                        external_electron_default().clipboard.writeText(action.data.url);
+                        external_electron_default().ipcRenderer.send("control", "copy", action.data.url);
                         evt.currentTarget.className = "bp5-button bp5-intent-success " +
                             "bp5-icon-link";
                         evt.currentTarget.innerText = "Link Copied";
@@ -55477,7 +55477,7 @@ function openLinkAlert(url, message) {
     let linkElm = react.createElement("div", null,
         react.createElement("div", null, message),
         react.createElement("button", { className: "bp5-button bp5-intent-primary bp5-icon-link", type: "button", style: ZeroActions_css.linkButton, onClick: (evt) => {
-                external_electron_default().clipboard.writeText(url);
+                external_electron_default().ipcRenderer.send("control", "copy", url);
                 evt.currentTarget.className = "bp5-button bp5-intent-success " +
                     "bp5-icon-link";
                 evt.currentTarget.innerText = "Link Copied";

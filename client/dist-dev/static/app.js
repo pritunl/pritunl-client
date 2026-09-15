@@ -4643,7 +4643,7 @@ _dispatcher_EventDispatcher__WEBPACK_IMPORTED_MODULE_4__["default"].register((ac
             let ssoAuthElm = react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", null,
                 react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", null, ssoAuthMsg),
                 react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", { className: "bp5-button bp5-intent-primary bp5-icon-link", type: "button", style: css.updateButton, onClick: (evt) => {
-                        electron__WEBPACK_IMPORTED_MODULE_0___default().clipboard.writeText(action.data.url);
+                        electron__WEBPACK_IMPORTED_MODULE_0___default().ipcRenderer.send("control", "copy", action.data.url);
                         evt.currentTarget.className = "bp5-button bp5-intent-success " +
                             "bp5-icon-link";
                         evt.currentTarget.innerText = "Link Copied";
@@ -5099,7 +5099,7 @@ function openLinkAlert(url, message) {
     let linkElm = react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", null,
         react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", null, message),
         react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", { className: "bp5-button bp5-intent-primary bp5-icon-link", type: "button", style: css.linkButton, onClick: (evt) => {
-                electron__WEBPACK_IMPORTED_MODULE_0___default().clipboard.writeText(url);
+                electron__WEBPACK_IMPORTED_MODULE_0___default().ipcRenderer.send("control", "copy", url);
                 evt.currentTarget.className = "bp5-button bp5-intent-success " +
                     "bp5-icon-link";
                 evt.currentTarget.innerText = "Link Copied";
