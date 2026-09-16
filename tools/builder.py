@@ -343,8 +343,8 @@ if cmd == 'set-version':
     release_xml = '    <release version="%s" date="%s">\n' % (
         new_version, cur_date.strftime('%Y-%m-%d'))
     release_xml += '      <url type="details">' + \
-        'https://github.com/pritunl/pritunl-client/blob/master/CHANGES' + \
-        '</url>\n'
+        'https://github.com/pritunl/pritunl-client/blob/%s/CHANGES' % (
+            new_version) + '</url>\n'
     release_xml += '      <description>\n'
     release_xml += '        <ul>\n'
     for change in new_changes:
