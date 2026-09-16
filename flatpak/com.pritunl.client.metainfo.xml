@@ -17,7 +17,7 @@
       <caption>Client profile list in dark theme</caption>
     </screenshot>
   </screenshots>
-  <project_license>LicenseRef-proprietary=https://raw.githubusercontent.com/pritunl/pritunl-client/0df5c23bf9557496323d985ea7317a5e1ec02df7/LICENSE</project_license>
+  <project_license>LicenseRef-proprietary=https://github.com/pritunl/pritunl-client/blob/master/LICENSE</project_license>
   <description>
     <p>
       Pritunl Client is the desktop client for Pritunl VPN servers. It
