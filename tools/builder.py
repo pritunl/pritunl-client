@@ -10,6 +10,7 @@ import os
 import zlib
 import getpass
 import base64
+import xml.sax.saxutils
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import (
@@ -240,6 +241,34 @@ if cmd == 'set-version':
     with open(CHANGES_PATH, 'r') as changes_file:
         changes_data = changes_file.read()
 
+    if '<%= version %>' not in changes_data:
+        print('Version placeholder does not exist in changes')
+        sys.exit(1)
+
+    new_changes = []
+    in_new_changes = False
+    for line in changes_data.splitlines():
+        line = line.strip()
+
+        if line == '<%= version %>':
+            in_new_changes = True
+            continue
+
+        if not in_new_changes:
+            continue
+
+        if line[:7] == 'Version':
+            break
+
+        if not line or line[0] == '-':
+            continue
+
+        new_changes.append(line)
+
+    if not new_changes:
+        print('New changes do not exist in changes')
+        sys.exit(1)
+
     with open(CHANGES_PATH, 'w') as changes_file:
         ver_date_str = 'Version ' + new_version.replace(
             'v', '') + cur_date.strftime(' %Y-%m-%d')
@@ -307,13 +336,29 @@ if cmd == 'set-version':
     with open(CONSTANTS_PATH6, 'r') as constants_file:
         constants_data = constants_file.read()
 
+    if '<releases>\n' not in constants_data:
+        print('Releases do not exist in metainfo')
+        sys.exit(1)
+
+    release_xml = '    <release version="%s" date="%s">\n' % (
+        new_version, cur_date.strftime('%Y-%m-%d'))
+    release_xml += '      <url type="details">' + \
+        'https://github.com/pritunl/pritunl-client/blob/master/CHANGES' + \
+        '</url>\n'
+    release_xml += '      <description>\n'
+    release_xml += '        <ul>\n'
+    for change in new_changes:
+        release_xml += '          <li>%s</li>\n' % xml.sax.saxutils.escape(
+            change)
+    release_xml += '        </ul>\n'
+    release_xml += '      </description>\n'
+    release_xml += '    </release>\n'
+
     with open(CONSTANTS_PATH6, 'w') as constants_file:
-        constants_file.write(re.sub(
-            '(<release version=".*?" date=".*?"/>)',
-            '<release version="%s" date="%s"/>' % (
-                new_version, cur_date.strftime('%Y-%m-%d')),
-            constants_data,
-            count=1,
+        constants_file.write(constants_data.replace(
+            '<releases>\n',
+            '<releases>\n' + release_xml,
+            1,
         ))
 
     # Check for duplicate version
