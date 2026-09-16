@@ -53,14 +53,14 @@
   </branding>
   <releases>
     <release version="1.4.4744.47" date="2026-09-08">
-      <url type="details">https://github.com/pritunl/pritunl-client/blob/master/CHANGES</url>
+      <url type="details">https://github.com/pritunl/pritunl-client/blob/1.4.4744.47/CHANGES</url>
       <description>
         <ul>
-          <li>Added a terminal user interface.</li>
-          <li>Added user profile support to the command-line interface.</li>
-          <li>Added Flatpak support.</li>
-          <li>Improved connection management.</li>
-          <li>Improved the user interface.</li>
+          <li>Added a terminal user interface</li>
+          <li>Added user profile support to the command-line interface</li>
+          <li>Added Flatpak support</li>
+          <li>Improved connection management</li>
+          <li>Improved the user interface</li>
         </ul>
       </description>
     </release>
