@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	Version        = "1.4.4744.47"
+	Version        = "1.4.4752.50"
 	MacosHelperDir = "/Library/PrivilegedHelperTools/pritunl-client"
 )
 

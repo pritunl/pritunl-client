@@ -52,6 +52,15 @@
     <color type="primary" scheme_preference="dark">#151719</color>
   </branding>
   <releases>
+    <release version="1.4.4752.50" date="2026-09-16">
+      <url type="details">https://github.com/pritunl/pritunl-client/blob/1.4.4752.50/CHANGES</url>
+      <description>
+        <ul>
+          <li>Fix copy link button in Electron interface</li>
+          <li>Flatpak improvements</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.4744.47" date="2026-09-08">
       <url type="details">https://github.com/pritunl/pritunl-client/blob/1.4.4744.47/CHANGES</url>
       <description>

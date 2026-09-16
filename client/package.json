@@ -1,6 +1,6 @@
 {
   "name": "pritunl",
-  "version": "1.4.4744.47",
+  "version": "1.4.4752.50",
   "main": "dist/static/main.js",
   "scripts": {
     "start": "electron .",

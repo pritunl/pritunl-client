@@ -1,7 +1,8 @@
 Pritunl Client Changelog
 ========================
 
-<%= version %>
+Version 1.4.4752.50 2026-09-16
+------------------------------
 
 Fix copy link button in Electron interface
 Flatpak improvements
