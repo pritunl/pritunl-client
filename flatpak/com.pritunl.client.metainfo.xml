@@ -9,15 +9,15 @@
   <metadata_license>CC0-1.0</metadata_license>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/pritunl/pritunl-client/refs/heads/master/images/flatpak_client_short_light.png</image>
+      <image>https://raw.githubusercontent.com/pritunl/pritunl-client/0df5c23bf9557496323d985ea7317a5e1ec02df7/images/flatpak_client_short_light.png</image>
       <caption>Client profile list in light theme</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/pritunl/pritunl-client/refs/heads/master/images/flatpak_client_short_dark.png</image>
+      <image>https://raw.githubusercontent.com/pritunl/pritunl-client/0df5c23bf9557496323d985ea7317a5e1ec02df7/images/flatpak_client_short_dark.png</image>
       <caption>Client profile list in dark theme</caption>
     </screenshot>
   </screenshots>
-  <project_license>LicenseRef-proprietary</project_license>
+  <project_license>LicenseRef-proprietary=https://raw.githubusercontent.com/pritunl/pritunl-client/0df5c23bf9557496323d985ea7317a5e1ec02df7/LICENSE</project_license>
   <description>
     <p>
       Pritunl Client is the desktop client for Pritunl VPN servers. It
@@ -41,7 +41,7 @@
     <category>Network</category>
   </categories>
   <requires>
-    <display_length compare="ge">430</display_length>
+    <display_length compare="ge" side="shortest">520</display_length>
   </requires>
   <supports>
     <control>pointing</control>
@@ -52,6 +52,17 @@
     <color type="primary" scheme_preference="dark">#151719</color>
   </branding>
   <releases>
-    <release version="1.4.4744.47" date="2026-09-08"/>
+    <release version="1.4.4744.47" date="2026-09-08">
+      <url type="details">https://github.com/pritunl/pritunl-client/blob/master/CHANGES</url>
+      <description>
+        <ul>
+          <li>Added a terminal user interface.</li>
+          <li>Added user profile support to the command-line interface.</li>
+          <li>Added Flatpak support.</li>
+          <li>Improved connection management.</li>
+          <li>Improved the user interface.</li>
+        </ul>
+      </description>
+    </release>
   </releases>
 </component>
