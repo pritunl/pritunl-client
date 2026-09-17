@@ -130,6 +130,9 @@ type Model struct {
 	watching map[string]bool
 	ssoShown map[string]string
 	regShown map[string]string
+
+	// SSO links received before profile sync displays them.
+	ssoPending map[string]string
 }
 
 func NewModel(listener *event.Listener) Model {
@@ -153,6 +156,7 @@ func NewModel(listener *event.Listener) Model {
 		profiles:     lst,
 		bindings:     bindings,
 		watching:     map[string]bool{},
+		ssoPending:   map[string]string{},
 		ssoShown:     map[string]string{},
 		regShown:     map[string]string{},
 	}
@@ -1048,8 +1052,7 @@ func (m *Model) resync() tea.Cmd {
 	return syncCmd()
 }
 
-// updateEvent mirrors the event handling in the desktop client, single
-// sign-on links are surfaced from profile sync instead of the sso event.
+// updateEvent mirrors the event handling in the desktop client.
 func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 	if evt == nil {
 		return m, nil
@@ -1086,6 +1089,11 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 		m.eventsUp = false
 		m.setStatus("Service connection lost, reconnecting", true)
 	case "update", "connected", "disconnected", "wakeup":
+		if data != nil && (data.Status == "connected" ||
+			data.Status == "disconnecting" || data.Status == "disconnected") {
+
+			delete(m.ssoPending, data.Id)
+		}
 		cmds = append(cmds, m.resync())
 	case "profile_sync":
 		// User profiles apply the gateway sync sent after connecting,
@@ -1174,7 +1182,16 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.resync())
 	case "shutdown":
 		m.setStatus("Pritunl service is shutting down", true)
-	case "sso_auth", "sso_interactive":
+	case "sso_auth":
+		if data != nil && data.Url != "" && m.watching[data.Id] &&
+			m.ssoShown[data.Id] != data.Url {
+
+			// User profile links are only sent in this event. Keep the
+			// link until profile sync can show it without replacing a dialog.
+			m.ssoPending[data.Id] = data.Url
+			cmds = append(cmds, m.resync())
+		}
+	case "sso_interactive":
 		// Only for GUI
 	case "tpm_open", "tpm_sign":
 		handleTpm(evt)
@@ -1308,15 +1325,20 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 			continue
 		}
 
-		if sprfl.Profile != nil && sprfl.Profile.SsoUrl != "" &&
-			m.ssoShown[sprfl.Id] != sprfl.Profile.SsoUrl {
+		ssoUrl := m.ssoPending[sprfl.Id]
+		if ssoUrl == "" && sprfl.Profile != nil {
+			ssoUrl = sprfl.Profile.SsoUrl
+		}
+		if ssoUrl != "" && m.ssoShown[sprfl.Id] != ssoUrl {
 
-			m.ssoShown[sprfl.Id] = sprfl.Profile.SsoUrl
+			delete(m.ssoPending, sprfl.Id)
+			m.ssoShown[sprfl.Id] = ssoUrl
 			m.openMessage(
 				"Single Sign-On Authentication",
 				"Open the link below in a browser to complete "+
-					"authentication:\n\n"+sprfl.Profile.SsoUrl,
+					"authentication:",
 			)
+			m.dialog.link = ssoUrl
 			return m, nil
 		}
 

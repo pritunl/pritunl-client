@@ -7,6 +7,8 @@ import (
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/atotto/clipboard"
+	"github.com/charmbracelet/x/ansi"
 )
 
 const (
@@ -137,12 +139,26 @@ type DialogCloseMsg struct {
 	Return int
 }
 
+type linkCopiedMsg struct {
+	url string
+	err error
+}
+
+func copyLinkCmd(url string, write func(string) error) tea.Cmd {
+	return func() tea.Msg {
+		return linkCopiedMsg{url: url, err: write(url)}
+	}
+}
+
 type Dialog struct {
 	title   string
 	message string
 	width   int
 	height  int
 	options []Option
+
+	link       string
+	copyStatus string
 
 	// Info fields replace the options when the info view is shown, the
 	// view is opened by a button returning DialogInfo.
@@ -419,6 +435,14 @@ func (d Dialog) render() (string, []dialogRegion) {
 		y += lipgloss.Height(message) + 1
 	}
 
+	if d.link != "" {
+		// Keep the full target even when the visible URL cannot fit on one line.
+		link := ansi.SetHyperlink(d.link) +
+			ansi.Truncate(d.link, contentWidth, "…") + ansi.ResetHyperlink()
+		fields = append(fields, link, "")
+		y += 2
+	}
+
 	footerFields := []string{}
 	footerIndex := []int{}
 	hasToggle := false
@@ -476,6 +500,12 @@ func (d Dialog) render() (string, []dialogRegion) {
 	helpText := "tab/↑↓: move  enter: select  esc: close"
 	if hasToggle {
 		helpText = "tab/↑↓: move  space: toggle  enter: select  esc: close"
+	}
+	if d.link != "" {
+		helpText = "c: copy link  " + helpText
+	}
+	if d.copyStatus != "" {
+		helpText = d.copyStatus + "\n" + helpText
 	}
 	fields = append(fields, dialogHelpStyle.Width(contentWidth).Render(
 		helpText))
@@ -551,6 +581,15 @@ func (d Dialog) updateInfo(msg tea.Msg) (Dialog, tea.Cmd) {
 }
 
 func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
+	if copied, ok := msg.(linkCopiedMsg); ok {
+		if d.link != "" && copied.url == d.link {
+			d.copyStatus = "Link copied"
+			if copied.err != nil {
+				d.copyStatus = "Copy failed: " + errorMessage(copied.err)
+			}
+		}
+		return d, nil
+	}
 	if d.showInfo {
 		return d.updateInfo(msg)
 	}
@@ -569,6 +608,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, dialogKeys.Quit):
 		return d, tea.Quit
+	case d.link != "" && keyMsg.String() == "c":
+		d.copyStatus = "Copying link…"
+		return d, copyLinkCmd(d.link, clipboard.WriteAll)
 	case key.Matches(keyMsg, dialogKeys.Esc):
 		return d, closeDialog(DialogCancel)
 	case key.Matches(keyMsg, dialogKeys.Close):

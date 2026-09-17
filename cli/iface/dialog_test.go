@@ -1,0 +1,93 @@
+package iface
+
+import (
+	"errors"
+	"strconv"
+	"strings"
+	"testing"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/ansi"
+)
+
+func TestSsoDialogLinkRenderingAndCopy(t *testing.T) {
+	url := "https://vpn.example.com/key/request?state=" + strings.Repeat("abc123", 30)
+	for _, width := range []int{40, 80, 300} {
+		t.Run(strconv.Itoa(width), func(t *testing.T) {
+			m := ssoTestModel()
+			m = ssoTestUpdate(m, ssoTestSync(true, url))
+			d := m.dialog
+			d.SetSize(width, 30)
+			view := d.View()
+			if !strings.Contains(view, ansi.SetHyperlink(url)) {
+				t.Fatal("rendered hyperlink does not target the complete URL")
+			}
+			plain := ansi.Strip(view)
+			linkLines := 0
+			for _, line := range strings.Split(plain, "\n") {
+				if strings.Contains(line, "https://") || strings.Contains(line, "abc123") {
+					linkLines++
+				}
+				if ansi.StringWidth(line) > width {
+					t.Fatalf("dialog exceeds width %d: %q", width, line)
+				}
+			}
+			if linkLines != 1 {
+				t.Fatalf("URL occupies %d lines, want one", linkLines)
+			}
+			if !strings.Contains(plain, "c: copy link") {
+				t.Fatal("missing copy shortcut hint")
+			}
+			if width < len(url) && !strings.Contains(plain, "…") {
+				t.Fatal("abbreviated URL has no ellipsis")
+			}
+			d, cmd := d.Update(tea.KeyPressMsg{Code: 'c', Text: "c"})
+			if cmd == nil || d.copyStatus != "Copying link…" {
+				t.Fatal("copy shortcut did not start a clipboard command")
+			}
+		})
+	}
+}
+
+func TestCopyLinkResult(t *testing.T) {
+	url := "https://vpn.example.com/key/request?state=unwrapped-token"
+	for _, fail := range []bool{false, true} {
+		t.Run(strconv.FormatBool(fail), func(t *testing.T) {
+			d := NewDialog("SSO", "Authenticate")
+			d.link = url
+			cmd := copyLinkCmd(url, func(text string) error {
+				if text != url {
+					t.Fatalf("clipboard received %q, want full URL %q", text, url)
+				}
+				if fail {
+					return errors.New("clipboard unavailable")
+				}
+				return nil
+			})
+			d, _ = d.Update(cmd())
+			want := "Link copied"
+			if fail {
+				want = "Copy failed: clipboard unavailable"
+			}
+			if !strings.Contains(ansi.Strip(d.View()), want) {
+				t.Fatalf("dialog does not report %q", want)
+			}
+			d.copyStatus = ""
+			d, _ = d.Update(linkCopiedMsg{url: "https://other.example.com"})
+			if d.copyStatus != "" {
+				t.Fatal("copy result from an earlier dialog changed this dialog")
+			}
+		})
+	}
+}
+
+func TestDialogWithoutLinkDoesNotCopy(t *testing.T) {
+	d := NewDialog("Message", "No authentication link")
+	_, cmd := d.Update(tea.KeyPressMsg{Code: 'c', Text: "c"})
+	if cmd != nil {
+		t.Fatal("copy shortcut must only apply to dialogs with a link")
+	}
+	if strings.Contains(d.View(), "c: copy link") {
+		t.Fatal("ordinary dialog shows copy shortcut")
+	}
+}
