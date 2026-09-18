@@ -1,6 +1,11 @@
 package iface
 
 import (
+	"fmt"
+	"io"
+	"net/url"
+	"os/exec"
+	"runtime"
 	"strings"
 
 	"charm.land/bubbles/v2/key"
@@ -17,6 +22,8 @@ const (
 	DialogInfo      = 2
 	dialogInfoFrame = 12
 )
+
+const dialogRegionLink = -2
 
 var (
 	dialogBoxStyle = lipgloss.NewStyle().
@@ -144,10 +151,57 @@ type linkCopiedMsg struct {
 	err error
 }
 
+type linkOpenedMsg struct {
+	err error
+}
+
 func copyLinkCmd(url string, write func(string) error) tea.Cmd {
 	return func() tea.Msg {
 		return linkCopiedMsg{url: url, err: write(url)}
 	}
+}
+
+func openLinkCmd(url string) tea.Cmd {
+	return tea.Exec(&openURLCommand{url: url}, func(err error) tea.Msg {
+		return linkOpenedMsg{err: err}
+	})
+}
+
+type openURLCommand struct {
+	url string
+}
+
+func (c *openURLCommand) SetStdin(io.Reader)  {}
+func (c *openURLCommand) SetStdout(io.Writer) {}
+func (c *openURLCommand) SetStderr(io.Writer) {}
+
+func (c *openURLCommand) Run() error {
+	u, err := url.Parse(c.url)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" {
+		return fmt.Errorf("invalid web URL")
+	}
+
+	commands := [][]string{}
+	switch runtime.GOOS {
+	case "linux":
+		commands = [][]string{{"xdg-open", c.url}, {"gio", "open", c.url}}
+	case "darwin":
+		commands = [][]string{{"open", c.url}}
+	case "windows":
+		commands = [][]string{{"rundll32.exe", "url.dll,FileProtocolHandler", c.url}}
+	default:
+		return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
+	}
+
+	var lastErr error
+	for _, command := range commands {
+		if err := exec.Command(command[0], command[1:]...).Run(); err == nil {
+			return nil
+		} else {
+			lastErr = err
+		}
+	}
+	return lastErr
 }
 
 type Dialog struct {
@@ -436,9 +490,15 @@ func (d Dialog) render() (string, []dialogRegion) {
 	}
 
 	if d.link != "" {
-		// Keep the full target even when the visible URL cannot fit on one line.
-		link := ansi.SetHyperlink(d.link) +
-			ansi.Truncate(d.link, contentWidth, "…") + ansi.ResetHyperlink()
+		// Keep the full target while using a short label that cannot wrap.
+		link := ansi.SetHyperlink(d.link) + "Open SSO link" + ansi.ResetHyperlink()
+		regions = append(regions, dialogRegion{
+			index: dialogRegionLink,
+			x:     0,
+			y:     y,
+			w:     lipgloss.Width("Open SSO link"),
+			h:     1,
+		})
 		fields = append(fields, link, "")
 		y += 2
 	}
@@ -502,7 +562,7 @@ func (d Dialog) render() (string, []dialogRegion) {
 		helpText = "tab/↑↓: move  space: toggle  enter: select  esc: close"
 	}
 	if d.link != "" {
-		helpText = "c: copy link  " + helpText
+		helpText = "o: open link  c: copy link  " + helpText
 	}
 	if d.copyStatus != "" {
 		helpText = d.copyStatus + "\n" + helpText
@@ -538,6 +598,10 @@ func (d Dialog) Click(x, y int) (Dialog, tea.Cmd) {
 		if region.index == dialogRegionBack {
 			d.closeInfo()
 			return d, nil
+		}
+		if region.index == dialogRegionLink {
+			d.copyStatus = "Opening link…"
+			return d, openLinkCmd(d.link)
 		}
 
 		cmd := d.focusIndex(region.index)
@@ -590,6 +654,13 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 		}
 		return d, nil
 	}
+	if opened, ok := msg.(linkOpenedMsg); ok {
+		d.copyStatus = "Link opened"
+		if opened.err != nil {
+			d.copyStatus = "Open failed: " + errorMessage(opened.err)
+		}
+		return d, nil
+	}
 	if d.showInfo {
 		return d.updateInfo(msg)
 	}
@@ -611,6 +682,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 	case d.link != "" && keyMsg.String() == "c":
 		d.copyStatus = "Copying link…"
 		return d, copyLinkCmd(d.link, clipboard.WriteAll)
+	case d.link != "" && keyMsg.String() == "o":
+		d.copyStatus = "Opening link…"
+		return d, openLinkCmd(d.link)
 	case key.Matches(keyMsg, dialogKeys.Esc):
 		return d, closeDialog(DialogCancel)
 	case key.Matches(keyMsg, dialogKeys.Close):

@@ -25,7 +25,7 @@ func TestSsoDialogLinkRenderingAndCopy(t *testing.T) {
 			plain := ansi.Strip(view)
 			linkLines := 0
 			for _, line := range strings.Split(plain, "\n") {
-				if strings.Contains(line, "https://") || strings.Contains(line, "abc123") {
+				if strings.Contains(line, "Open SSO link") {
 					linkLines++
 				}
 				if ansi.StringWidth(line) > width {
@@ -38,8 +38,8 @@ func TestSsoDialogLinkRenderingAndCopy(t *testing.T) {
 			if !strings.Contains(plain, "c: copy link") {
 				t.Fatal("missing copy shortcut hint")
 			}
-			if width < len(url) && !strings.Contains(plain, "…") {
-				t.Fatal("abbreviated URL has no ellipsis")
+			if strings.Contains(plain, "abc123") {
+				t.Fatal("visible URL should use a short label")
 			}
 			d, cmd := d.Update(tea.KeyPressMsg{Code: 'c', Text: "c"})
 			if cmd == nil || d.copyStatus != "Copying link…" {
@@ -47,6 +47,36 @@ func TestSsoDialogLinkRenderingAndCopy(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestOpenLinkCommand(t *testing.T) {
+	cmd := openLinkCmd("https://vpn.example.com/key/request?state=test")
+	if cmd == nil {
+		t.Fatal("open link command is nil")
+	}
+}
+
+func TestOpenURLCommandRejectsUnsafeURLs(t *testing.T) {
+	for _, raw := range []string{"", "file:///tmp/test", "https://"} {
+		if err := (&openURLCommand{url: raw}).Run(); err == nil {
+			t.Fatalf("URL %q was accepted", raw)
+		}
+	}
+}
+
+func TestSsoLinkHasMouseRegion(t *testing.T) {
+	d := NewDialog("SSO", "Authenticate")
+	d.link = "https://vpn.example.com/key/request?state=test"
+	_, regions := d.render()
+	for _, region := range regions {
+		if region.index == dialogRegionLink {
+			if region.w != len("Open SSO link") || region.h != 1 {
+				t.Fatalf("unexpected SSO link mouse region: %+v", region)
+			}
+			return
+		}
+	}
+	t.Fatal("SSO link has no mouse region")
 }
 
 func TestCopyLinkResult(t *testing.T) {
