@@ -1089,6 +1089,12 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 		m.eventsUp = false
 		m.setStatus("Service connection lost, reconnecting", true)
 	case "update", "connected", "disconnected", "wakeup":
+		if evt.Type == "connected" && m.showDialog &&
+			m.dialog.title == "Single Sign-On Authentication" {
+
+			m.showDialog = false
+			m.dialogCallback = nil
+		}
 		if data != nil && (data.Status == "connected" ||
 			data.Status == "disconnecting" || data.Status == "disconnected") {
 

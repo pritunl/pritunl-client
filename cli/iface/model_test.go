@@ -159,3 +159,15 @@ func TestSsoAuthDiscardsPendingLinkAfterConnectionEnds(t *testing.T) {
 		})
 	}
 }
+
+func TestSsoAuthDialogClosesWhenConnected(t *testing.T) {
+	m := ssoTestModel()
+	m = ssoTestUpdate(m, ssoTestEvent(`{"id":"test-profile","url":"`+testSsoUrl+`"}`))
+	m = ssoTestUpdate(m, ssoTestSync(false, ""))
+	assertSsoDialog(t, m, testSsoUrl)
+
+	m = ssoTestUpdate(m, EventMsg{Event: &event.Event{Type: "connected"}})
+	if m.showDialog {
+		t.Fatal("SSO dialog remains open after the profile connects")
+	}
+}
