@@ -248,12 +248,31 @@ func (d *Dialog) SetSize(width, height int) {
 
 	contentWidth := d.contentWidth()
 	for _, opt := range d.options {
-		if txt, ok := opt.(*OptionText); ok {
-			txt.SetWidth(contentWidth)
+		switch o := opt.(type) {
+		case *OptionText:
+			o.SetWidth(contentWidth)
+		case *OptionLink:
+			o.SetWidth(contentWidth)
 		}
 	}
 
 	d.renderInfo()
+}
+
+// PreferredWidth returns the dialog width that shows every link on a
+// single line so terminals can detect the URL, the default width is
+// returned for dialogs without links.
+func (d *Dialog) PreferredWidth(defaultWidth int) int {
+	width := defaultWidth
+
+	frameX, _ := dialogBoxStyle.GetFrameSize()
+	for _, opt := range d.options {
+		if link, ok := opt.(*OptionLink); ok {
+			width = max(width, link.MinWidth()+frameX)
+		}
+	}
+
+	return width
 }
 
 func (d *Dialog) activeIndex() int {
@@ -514,7 +533,7 @@ func (d Dialog) Click(x, y int) (Dialog, tea.Cmd) {
 		opt := d.options[region.index]
 
 		switch opt.(type) {
-		case *OptionToggle, *OptionButton:
+		case *OptionToggle, *OptionButton, *OptionLink:
 			// Clicking runs the same action as pressing enter on the
 			// focused option
 			var enterCmd tea.Cmd
@@ -597,6 +616,9 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 		if active != nil {
 			ret, close, handled := active.OnEnter()
 			if handled {
+				if btn, ok := active.(*OptionButton); ok && btn.Copy != "" {
+					return d, btn.copyCmd()
+				}
 				if close {
 					if ret == DialogInfo && d.info != nil {
 						d.openInfo()

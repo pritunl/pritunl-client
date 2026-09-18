@@ -34,6 +34,13 @@ var (
 	optionErrorStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#EF4444"))
 
+	optionLinkStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#60A5FA")).
+			Underline(true)
+	optionLinkActiveStyle = optionLinkStyle.
+				Foreground(lipgloss.Color("#93C5FD")).
+				Bold(true)
+
 	toggleOffStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#6B7280")).
 			Background(lipgloss.Color("#E5E7EB")).
@@ -238,9 +245,15 @@ func (o *OptionToggle) View() string {
 }
 
 type OptionButton struct {
-	Label   string
-	Return  int
+	Label  string
+	Return int
+
+	// Copy is copied to the clipboard instead of closing the dialog when
+	// the button is activated.
+	Copy string
+
 	focused bool
+	copied  bool
 }
 
 func (o *OptionButton) Init(width int) {
@@ -265,10 +278,31 @@ func (o *OptionButton) Focus() (cmd tea.Cmd) {
 
 func (o *OptionButton) Unfocus() {
 	o.focused = false
+	o.copied = false
 }
 
 func (o *OptionButton) OnEnter() (int, bool, bool) {
+	if o.Copy != "" {
+		return 0, false, true
+	}
 	return o.Return, true, true
+}
+
+// copyCmd copies the button text to the clipboard and marks the button as
+// copied until it loses focus.
+func (o *OptionButton) copyCmd() tea.Cmd {
+	if o.Copy == "" {
+		return nil
+	}
+	o.copied = true
+	return copyText(o.Copy)
+}
+
+func (o *OptionButton) label() string {
+	if o.copied {
+		return "Copied"
+	}
+	return o.Label
 }
 
 func (o *OptionButton) OnSpace() bool {
@@ -284,15 +318,107 @@ func (o *OptionButton) Danger() bool {
 }
 
 func (o *OptionButton) View() string {
+	label := o.label()
+
 	if o.Danger() {
 		if o.focused {
-			return optionButtonDangerActiveStyle.Render(o.Label)
+			return optionButtonDangerActiveStyle.Render(label)
 		}
-		return optionButtonDangerStyle.Render(o.Label)
+		return optionButtonDangerStyle.Render(label)
 	}
 
 	if o.focused {
-		return optionButtonActiveStyle.Render(o.Label)
+		return optionButtonActiveStyle.Render(label)
 	}
-	return optionButtonStyle.Render(o.Label)
+	return optionButtonStyle.Render(label)
+}
+
+// OptionLink is a URL shown as a terminal hyperlink, activating or
+// clicking the link opens it in the default browser. The hyperlink is
+// declared with OSC 8 so terminals treat the full URL as one link even
+// when it wraps onto multiple lines.
+type OptionLink struct {
+	Url string
+
+	width   int
+	focused bool
+	err     error
+}
+
+func (o *OptionLink) Init(width int) {
+	o.SetWidth(width)
+}
+
+// SetWidth sets the wrap width for the dialog content width.
+func (o *OptionLink) SetWidth(width int) {
+	o.width = max(width, 10)
+}
+
+// MinWidth returns the content width needed to show the link on one line.
+func (o *OptionLink) MinWidth() int {
+	return lipgloss.Width(o.Url)
+}
+
+func (o *OptionLink) Footer() bool {
+	return false
+}
+
+func (o *OptionLink) Update(msg tea.Msg) (cmd tea.Cmd) {
+	return
+}
+
+func (o *OptionLink) Focused() bool {
+	return o.focused
+}
+
+func (o *OptionLink) Focus() (cmd tea.Cmd) {
+	o.focused = true
+	return
+}
+
+func (o *OptionLink) Unfocus() {
+	o.focused = false
+}
+
+func (o *OptionLink) OnEnter() (int, bool, bool) {
+	o.err = openUrl(o.Url)
+	return 0, false, true
+}
+
+func (o *OptionLink) OnSpace() bool {
+	return false
+}
+
+func (o *OptionLink) View() string {
+	style := optionLinkStyle
+	if o.focused {
+		style = optionLinkActiveStyle
+	}
+
+	// The id joins the wrapped segments into one hover target
+	style = style.Hyperlink(o.Url, "id=link")
+
+	// Wrap the URL by hand so the lines are not padded, padding would
+	// underline and link the blank space after short lines.
+	lines := []string{}
+	for _, chunk := range chunkRunes(o.Url, o.width) {
+		lines = append(lines, style.Render(chunk))
+	}
+	if o.err != nil {
+		lines = append(lines,
+			optionErrorStyle.Width(o.width).Render(errorMessage(o.err)))
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Left, lines...)
+}
+
+// chunkRunes splits the text into pieces of at most width runes.
+func chunkRunes(text string, width int) []string {
+	runes := []rune(text)
+	chunks := []string{}
+	for len(runes) > width {
+		chunks = append(chunks, string(runes[:width]))
+		runes = runes[width:]
+	}
+	return append(chunks, string(runes))
 }

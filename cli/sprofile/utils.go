@@ -497,7 +497,7 @@ func Start(sprflId, mode, username, password string,
 	}
 
 	if sprfl.SsoAuth {
-		for i := 0; i < 50; i++ {
+		for i := 0; i < 100; i++ {
 			prfl, e := profile.Get(sprfl.Id)
 			if e != nil {
 				break

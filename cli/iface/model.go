@@ -130,6 +130,10 @@ type Model struct {
 	watching map[string]bool
 	ssoShown map[string]string
 	regShown map[string]string
+
+	// Profile id of the open single sign-on dialog, the dialog closes on
+	// its own once the profile no longer reports the link.
+	ssoDialog string
 }
 
 func NewModel(listener *event.Listener) Model {
@@ -191,11 +195,24 @@ func (m *Model) selectedProfile() *sprofile.Sprofile {
 	return item.Sprofile()
 }
 
+// dialogWidth returns the dialog width for the window, dialogs with links
+// are widened to fit the link on one line when the window allows.
+func (m *Model) dialogWidth(d *Dialog) int {
+	return min(m.winWidth-4, d.PreferredWidth(70))
+}
+
 func (m *Model) openDialog(d Dialog, callback dialogCallback) {
-	d.SetSize(min(m.winWidth-4, 70), m.winHeight)
+	d.SetSize(m.dialogWidth(&d), m.winHeight)
 	m.dialog = d
 	m.dialogCallback = callback
 	m.showDialog = true
+	m.ssoDialog = ""
+}
+
+func (m *Model) closeDialog() {
+	m.showDialog = false
+	m.dialogCallback = nil
+	m.ssoDialog = ""
 }
 
 func (m *Model) openMessage(title, message string) {
@@ -849,9 +866,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, syncCmd()
 
 	case DialogCloseMsg:
-		m.showDialog = false
 		callback := m.dialogCallback
-		m.dialogCallback = nil
+		m.closeDialog()
 		if callback != nil {
 			return m, callback(&m, msg.Return)
 		}
@@ -1113,7 +1129,7 @@ func (m Model) updateEvent(evt *event.Event) (tea.Model, tea.Cmd) {
 				"This device must be approved by an administrator "+
 					"before connecting"+profileMsg("")+". Provide the "+
 					"registration key below to the administrator:\n\n"+
-					data.RegistrationKey,
+					yellowSytle.Bold(true).Render(data.RegistrationKey),
 			)
 		}
 		m.setStatus(profileMsg("Device registration required"), true)
@@ -1255,7 +1271,7 @@ func (m Model) updateSize(msg tea.WindowSizeMsg) Model {
 	m.profiles.SetSize(m.winWidth, max(m.winHeight-2, 1))
 
 	if m.showDialog {
-		m.dialog.SetSize(min(m.winWidth-4, 70), m.winHeight)
+		m.dialog.SetSize(m.dialogWidth(&m.dialog), m.winHeight)
 	}
 	if m.showLogs {
 		m.logs.SetSize(m.winWidth, m.winHeight)
@@ -1297,6 +1313,12 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 		m.logs.SetSources(LogsSources(msg.Profiles))
 	}
 
+	if m.showDialog && m.ssoDialog != "" &&
+		m.ssoDone(msg.Profiles, m.ssoDialog) {
+
+		m.closeDialog()
+	}
+
 	if m.showDialog {
 		return m, nil
 	}
@@ -1312,11 +1334,23 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 			m.ssoShown[sprfl.Id] != sprfl.Profile.SsoUrl {
 
 			m.ssoShown[sprfl.Id] = sprfl.Profile.SsoUrl
-			m.openMessage(
+			m.openDialog(NewDialog(
 				"Single Sign-On Authentication",
 				"Open the link below in a browser to complete "+
-					"authentication:\n\n"+sprfl.Profile.SsoUrl,
-			)
+					"authentication:",
+				&OptionLink{
+					Url: sprfl.Profile.SsoUrl,
+				},
+				&OptionButton{
+					Label: "Copy Link",
+					Copy:  sprfl.Profile.SsoUrl,
+				},
+				&OptionButton{
+					Label:  "Close",
+					Return: DialogOk,
+				},
+			), nil)
+			m.ssoDialog = sprfl.Id
 			return m, nil
 		}
 
@@ -1329,7 +1363,7 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 				"This device must be approved by an administrator "+
 					"before connecting. Provide the registration key "+
 					"below to the administrator:\n\n"+
-					sprfl.RegistrationKey,
+					yellowSytle.Bold(true).Render(sprfl.RegistrationKey),
 			)
 			return m, nil
 		}
@@ -1340,6 +1374,20 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// ssoDone returns true when the single sign-on link shown for the profile
+// is no longer pending, the service clears the link once the
+// authentication completes and the link is stale once the profile stops.
+func (m *Model) ssoDone(sprfls sprofile.Sprofiles, prflId string) bool {
+	for _, sprfl := range sprfls {
+		if sprfl.Id != prflId {
+			continue
+		}
+		return !sprfl.State || sprfl.Profile == nil ||
+			sprfl.Profile.SsoUrl != m.ssoShown[prflId]
+	}
+	return true
 }
 
 // profileActions returns the connect or disconnect actions available for
