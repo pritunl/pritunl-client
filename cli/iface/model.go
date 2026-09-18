@@ -24,6 +24,7 @@ import (
 const (
 	statusTimeout      = 6 * time.Second
 	statusErrorTimeout = 12 * time.Second
+	watchGrace         = 10 * time.Second
 	splitWidth         = 90
 )
 
@@ -126,8 +127,11 @@ type Model struct {
 	logs     LogsView
 
 	// Profiles connected from this session, used to surface single
-	// sign-on links and device registration keys once they appear.
-	watching map[string]bool
+	// sign-on links and device registration keys once they appear. The
+	// value is the connect time, the service starts the connection after
+	// the connect request returns so a sync can still report the profile
+	// as stopped until the grace period has passed.
+	watching map[string]time.Time
 	ssoShown map[string]string
 	regShown map[string]string
 
@@ -156,7 +160,7 @@ func NewModel(listener *event.Listener) Model {
 		listDelegate: delegate,
 		profiles:     lst,
 		bindings:     bindings,
-		watching:     map[string]bool{},
+		watching:     map[string]time.Time{},
 		ssoShown:     map[string]string{},
 		regShown:     map[string]string{},
 	}
@@ -374,7 +378,7 @@ func (m *Model) openConnect(sprfl *sprofile.Sprofile, mode string,
 func (m *Model) connectCmd(sprfl *sprofile.Sprofile, mode string,
 	auth *sprofile.ConnectAuth) tea.Cmd {
 
-	m.watching[sprfl.Id] = true
+	m.watching[sprfl.Id] = time.Now()
 	m.setStatus("Connecting "+sprfl.FormatedName(), false)
 
 	return actionCmd("Connect", "", func() error {
@@ -1326,7 +1330,8 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 	// Surface single sign-on links and device registration keys for
 	// profiles connected from this session.
 	for _, sprfl := range msg.Profiles {
-		if !m.watching[sprfl.Id] {
+		watchStart, ok := m.watching[sprfl.Id]
+		if !ok {
 			continue
 		}
 
@@ -1368,7 +1373,7 @@ func (m Model) updateSync(msg SyncMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		if !sprfl.State {
+		if !sprfl.State && time.Since(watchStart) > watchGrace {
 			delete(m.watching, sprfl.Id)
 		}
 	}
