@@ -672,10 +672,7 @@ func (c *Client) authorize(host string, ssoToken string,
 		}
 		evt2.Init()
 
-		if c.conn.Profile.SystemProfile {
-			c.conn.Data.SsoUrl = respBx.SsoUrl
-		}
-
+		c.conn.Data.SsoUrl = respBx.SsoUrl
 		c.conn.Data.Status = "authenticating"
 		c.conn.Data.UpdateEvent()
 
@@ -690,9 +687,7 @@ func (c *Client) authorize(host string, ssoToken string,
 			return
 		}
 
-		if c.conn.Profile.SystemProfile {
-			c.conn.Data.SsoUrl = ""
-		}
+		c.conn.Data.SsoUrl = ""
 
 		final = true
 		return
