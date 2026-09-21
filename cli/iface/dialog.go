@@ -71,6 +71,7 @@ type DialogKeyMap struct {
 	Quit     key.Binding
 	Close    key.Binding
 	Back     key.Binding
+	Copy     key.Binding
 	Top      key.Binding
 	End      key.Binding
 }
@@ -122,6 +123,10 @@ var dialogKeys = DialogKeyMap{
 	Back: key.NewBinding(
 		key.WithKeys("esc", "enter", "q", "backspace", "i"),
 		key.WithHelp("esc", "back"),
+	),
+	Copy: key.NewBinding(
+		key.WithKeys("ctrl+y"),
+		key.WithHelp("ctrl+y", "copy"),
 	),
 	Top: key.NewBinding(
 		key.WithKeys("home", "g"),
@@ -347,6 +352,17 @@ func (d *Dialog) defaultReturn() (int, bool) {
 	return 0, false
 }
 
+// copyIndex returns the index of the first copy button or -1 when the
+// dialog has nothing to copy.
+func (d *Dialog) copyIndex() int {
+	for i, opt := range d.options {
+		if btn, ok := opt.(*OptionButton); ok && btn.Copy != "" {
+			return i
+		}
+	}
+	return -1
+}
+
 // invalidIndex returns the index of the first text option with a
 // validation error or -1 when all values are valid.
 func (d *Dialog) invalidIndex() int {
@@ -495,6 +511,8 @@ func (d Dialog) render() (string, []dialogRegion) {
 	helpText := "tab/↑↓: move  enter: select  esc: close"
 	if hasToggle {
 		helpText = "tab/↑↓: move  space: toggle  enter: select  esc: close"
+	} else if d.copyIndex() != -1 {
+		helpText = "tab/↑↓: move  enter: select  ctrl+y: copy  esc: close"
 	}
 	fields = append(fields, dialogHelpStyle.Width(contentWidth).Render(
 		helpText))
@@ -593,6 +611,13 @@ func (d Dialog) Update(msg tea.Msg) (Dialog, tea.Cmd) {
 	case key.Matches(keyMsg, dialogKeys.Close):
 		if _, isText := active.(*OptionText); !isText {
 			return d, closeDialog(DialogCancel)
+		}
+	case key.Matches(keyMsg, dialogKeys.Copy):
+		// The copy button is focused to show the copied label
+		if i := d.copyIndex(); i != -1 {
+			cmd := d.focusIndex(i)
+			btn := d.options[i].(*OptionButton)
+			return d, tea.Batch(cmd, btn.copyCmd())
 		}
 	case key.Matches(keyMsg, dialogKeys.Tab),
 		key.Matches(keyMsg, dialogKeys.Down):
