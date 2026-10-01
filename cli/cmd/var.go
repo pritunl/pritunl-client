@@ -6,6 +6,7 @@ var (
 	password       string
 	passwordPrompt bool
 	userProfile    bool
+	enableProfile  bool
 	jsonFormat     bool
 	jsonFormated   bool
 )
@@ -46,6 +47,13 @@ func init() {
 		"u",
 		false,
 		"Add as user profile stored in the user data directory",
+	)
+	AddCmd.Flags().BoolVarP(
+		&enableProfile,
+		"enable",
+		"e",
+		false,
+		"Enable autostart for the added system profile",
 	)
 
 	ListCmd.Flags().BoolVarP(
