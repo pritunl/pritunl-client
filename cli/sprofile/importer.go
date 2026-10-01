@@ -249,8 +249,11 @@ func randId() (id string, err error) {
 
 // importData stores one parsed profile, an existing profile for the same
 // user and server is updated instead of adding a duplicate. Profiles the
-// server forces to autostart are converted to system profiles.
-func (i *importer) importData(pth, data string, system bool) (err error) {
+// server forces to autostart are converted to system profiles. Autostart
+// is enabled on system profiles when enable is set.
+func (i *importer) importData(pth, data string,
+	system, enable bool) (err error) {
+
 	prfl, ovpnData, err := i.parse(pth, data)
 	if err != nil {
 		return
@@ -288,9 +291,24 @@ func (i *importer) importData(pth, data string, system bool) (err error) {
 				continue
 			}
 
+			// Existing user profiles are updated in place, autostart
+			// requires the profile to be converted unless the server
+			// enforces the conversion
+			if enable && !curPrfl.System && !prfl.ForceConnect {
+				err = errortypes.ParseError{
+					errors.New("sprofile: Autostart requires a system " +
+						"profile, convert the existing user profile " +
+						"with the convert command"),
+				}
+				return
+			}
+
 			curPrfl.importConf(prfl)
 
 			if curPrfl.System {
+				if enable {
+					curPrfl.Disabled = false
+				}
 				curPrfl.OvpnData = ovpnData
 				err = curPrfl.Commit()
 				if err != nil {
@@ -316,8 +334,8 @@ func (i *importer) importData(pth, data string, system bool) (err error) {
 	if !exists {
 		if system {
 			// Autostart is disabled by default on new system profiles
-			// unless enforced by the server
-			prfl.Disabled = !prfl.ForceConnect
+			// unless enforced by the server or enabled on import
+			prfl.Disabled = !prfl.ForceConnect && !enable
 			prfl.OvpnData = ovpnData
 			err = prfl.Commit()
 			if err != nil {
@@ -345,8 +363,16 @@ func (i *importer) importData(pth, data string, system bool) (err error) {
 	return
 }
 
-// run imports every profile file that was collected.
-func (i *importer) run(system bool) (err error) {
+// run imports every profile file that was collected, enable sets
+// autostart on the imported profiles and requires system profiles.
+func (i *importer) run(system, enable bool) (err error) {
+	if enable && !system {
+		err = errortypes.ParseError{
+			errors.New("sprofile: Autostart requires a system profile"),
+		}
+		return
+	}
+
 	count := 0
 	for pth, data := range i.files {
 		ext := strings.ToLower(filepath.Ext(pth))
@@ -354,7 +380,7 @@ func (i *importer) run(system bool) (err error) {
 			continue
 		}
 
-		err = i.importData(pth, data, system)
+		err = i.importData(pth, data, system, enable)
 		if err != nil {
 			return
 		}
@@ -372,23 +398,25 @@ func (i *importer) run(system bool) (err error) {
 }
 
 // Import stores profile data as a system profile when system is true,
-// otherwise as a user profile in the user profiles directory.
-func Import(data string, system bool) (err error) {
+// otherwise as a user profile in the user profiles directory. Autostart
+// is enabled on the profile when enable is set, only system profiles
+// can autostart.
+func Import(data string, system, enable bool) (err error) {
 	imptr := newImporter()
 	imptr.addData("profile.ovpn", data)
-	return imptr.run(system)
+	return imptr.run(system, enable)
 }
 
 // ImportPath imports a profile from a URI, a .tar archive of profiles or
 // a single .ovpn profile file.
-func ImportPath(path string, system bool) (err error) {
+func ImportPath(path string, system, enable bool) (err error) {
 	if strings.HasPrefix(path, "http://") ||
 		strings.HasPrefix(path, "https://") ||
 		strings.HasPrefix(path, "pritunl://") ||
 		strings.HasPrefix(path, "pritunls://") ||
 		strings.HasPrefix(path, "pts://") {
 
-		return ImportUri(path, system)
+		return ImportUri(path, system, enable)
 	}
 
 	info, err := os.Stat(path)
@@ -406,7 +434,7 @@ func ImportPath(path string, system bool) (err error) {
 	}
 
 	if strings.HasSuffix(strings.ToLower(path), ".tar") {
-		return ImportTar(path, system)
+		return ImportTar(path, system, enable)
 	}
 
 	data, err := os.ReadFile(path)
@@ -419,16 +447,16 @@ func ImportPath(path string, system bool) (err error) {
 
 	// Detect tar archives without the extension
 	if len(data) > 262 && string(data[257:262]) == "ustar" {
-		return ImportTar(path, system)
+		return ImportTar(path, system, enable)
 	}
 
 	imptr := newImporter()
 	imptr.addData(path, string(data))
 
-	return imptr.run(system)
+	return imptr.run(system, enable)
 }
 
-func ImportTar(filename string, system bool) (err error) {
+func ImportTar(filename string, system, enable bool) (err error) {
 	imptr := newImporter()
 
 	err = imptr.addTar(filename)
@@ -436,10 +464,10 @@ func ImportTar(filename string, system bool) (err error) {
 		return
 	}
 
-	return imptr.run(system)
+	return imptr.run(system, enable)
 }
 
-func ImportUri(uri string, system bool) (err error) {
+func ImportUri(uri string, system, enable bool) (err error) {
 	switch {
 	case strings.HasPrefix(uri, "pritunl:"):
 		uri = strings.Replace(uri, "pritunl:", "https:", 1)
@@ -526,7 +554,7 @@ func ImportUri(uri string, system bool) (err error) {
 		imptr := newImporter()
 		imptr.addData(name, prflData)
 
-		err = imptr.run(system)
+		err = imptr.run(system, enable)
 		if err != nil {
 			return
 		}
