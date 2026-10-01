@@ -679,6 +679,7 @@ func (c *Client) authorize(host string, ssoToken string,
 		data, _, evt, err = c.authorize(
 			host, respBx.SsoToken, time.Now())
 		if err != nil {
+			c.conn.Data.SsoUrl = ""
 			return
 		}
 
