@@ -48,8 +48,8 @@
     <control>keyboard</control>
   </supports>
   <branding>
-    <color type="primary" scheme_preference="light">#4a90d9</color>
-    <color type="primary" scheme_preference="dark">#151719</color>
+    <color type="primary" scheme_preference="light">#dcdfe4</color>
+    <color type="primary" scheme_preference="dark">#1a1a1a</color>
   </branding>
   <releases>
     <release version="1.4.4752.50" date="2026-09-16">
