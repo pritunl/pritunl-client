@@ -454,7 +454,7 @@ func (m *Model) Import() {
 		m.setStatus("Importing profile", false)
 
 		return actionCmd("Import", "Profile imported", func() error {
-			return sprofile.ImportPath(path, system)
+			return sprofile.ImportPath(path, system, false)
 		})
 	})
 }
