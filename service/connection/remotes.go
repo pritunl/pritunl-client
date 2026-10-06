@@ -131,6 +131,10 @@ func (r *Remote) Lookup() {
 }
 
 func (r *Remote) Equal(addr string) bool {
+	if addr == "" {
+		return false
+	}
+
 	if strings.Contains(addr, ":") {
 		var hostIp6 net.IP
 		if strings.Contains(r.Host, ":") {
