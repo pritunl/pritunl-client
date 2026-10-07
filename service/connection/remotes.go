@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"sort"
 	"strings"
 
 	"github.com/dropbox/godropbox/errors"
@@ -18,10 +19,27 @@ type Remote struct {
 	Addr6     string
 	OvpnPort  int
 	OvpnProto string
+	Priority  int
 	Type      string
 }
 
 type Remotes []*Remote
+
+func (r Remotes) HasPriority() bool {
+	for _, remote := range r {
+		if remote.Priority != 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (r Remotes) SortPriority() {
+	sort.SliceStable(r, func(i, j int) bool {
+		return r[i].Priority > r[j].Priority
+	})
+}
 
 func (r Remotes) GetHosts() (hosts []string) {
 	hosts = []string{}
@@ -186,6 +204,9 @@ func (r *Remote) GetFormatted() (host string) {
 	}
 	if r.Addr6 != "" {
 		host += fmt.Sprintf("[%s]", r.Addr6)
+	}
+	if r.Priority != 0 {
+		host += fmt.Sprintf("#%d", r.Priority)
 	}
 
 	return
