@@ -497,7 +497,7 @@ EventDispatcher.register((action: ProfileTypes.ProfileDispatch) => {
 					type="button"
 					style={css.updateButton}
 					onClick={(evt): void => {
-						Electron.clipboard.writeText(action.data.url)
+						Electron.ipcRenderer.send("control", "copy", action.data.url)
 						evt.currentTarget.className = "bp5-button bp5-intent-success " +
 							"bp5-icon-link"
 						evt.currentTarget.innerText = "Link Copied"
