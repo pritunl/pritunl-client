@@ -71,6 +71,11 @@ func (o *Ovpn) Fields() logrus.Fields {
 		remotes = o.remotes.GetFormatted()
 	}
 
+	remapUsr1 := false
+	if o.parsedPrfl != nil {
+		remapUsr1 = o.parsedPrfl.RemapUsr1
+	}
+
 	return logrus.Fields{
 		"ovpn_dir":              o.ovpnDir,
 		"ovpn_path":             o.ovpnPath,
@@ -83,6 +88,7 @@ func (o *Ovpn) Fields() logrus.Fields {
 		"ovpn_last_auth_failed": utils.SinceFormatted(o.lastAuthFailed),
 		"ovpn_cmd":              o.cmd != nil,
 		"ovpn_remotes":          remotes,
+		"ovpn_remap_usr1":       remapUsr1,
 	}
 }
 
@@ -230,6 +236,18 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 		}
 	}
 
+	authUserPass := (o.conn.Profile.Username != "" &&
+		o.conn.Profile.Password != "") ||
+		o.parsedPrfl.AuthUserPass ||
+		o.conn.Data.HasAuthToken() || data.Token != ""
+
+	if authUserPass && (data.Token != "" ||
+		o.conn.Profile.ServerBoxPublicKey != "" ||
+		o.conn.Profile.ServerPublicKey != "") && o.remotes.Single() {
+
+		o.parsedPrfl.RemapUsr1 = true
+	}
+
 	confPath, err := o.write(data)
 	if err != nil {
 		return
@@ -242,12 +260,7 @@ func (o *Ovpn) Connect(data *ConnData) (err error) {
 	}
 
 	var authPath string
-	// TODO o.conn.Profile.ServerBoxPublicKey != "" ||
-	// TODO o.conn.Profile.ServerPublicKey != "" ||
-	if (o.conn.Profile.Username != "" && o.conn.Profile.Password != "") ||
-		o.parsedPrfl.AuthUserPass ||
-		o.conn.Data.HasAuthToken() || data.Token != "" {
-
+	if authUserPass {
 		authPath, err = o.writeAuth(data.Token)
 		if err != nil {
 			return
