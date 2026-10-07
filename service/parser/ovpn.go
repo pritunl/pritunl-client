@@ -33,6 +33,20 @@ func (r Remotes) GetFormatted() (remotes []string) {
 	return
 }
 
+func (r Remotes) Single() bool {
+	if len(r) == 0 {
+		return false
+	}
+
+	for _, remote := range r[1:] {
+		if remote != r[0] {
+			return false
+		}
+	}
+
+	return true
+}
+
 type Ovpn struct {
 	EnvId             string
 	EnvName           string
@@ -74,6 +88,7 @@ type Ovpn struct {
 	DisableDns     bool
 	DisableIpv6    bool
 	Dco            bool
+	RemapUsr1      bool
 }
 
 func (o *Ovpn) Export(chown string) string {
@@ -96,6 +111,9 @@ func (o *Ovpn) Export(chown string) string {
 	output += fmt.Sprintf("dev %s\n", o.Dev)
 	output += fmt.Sprintf("dev-type %s\n", o.DevType)
 	output += "connect-retry-max 1\n"
+	if o.RemapUsr1 {
+		output += "remap-usr1 SIGTERM\n"
+	}
 	for _, remote := range o.Remotes {
 		output += fmt.Sprintf(
 			"remote %s %d %s\n",
