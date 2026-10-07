@@ -69,6 +69,10 @@ func (p *Profile) IsGeoSort() bool {
 	return p.GeoSort != ""
 }
 
+func (p *Profile) GetRemotePriority(host string) int {
+	return p.RemotesData[host].Priority
+}
+
 func (p *Profile) Sync() {
 	if p.SystemProfile {
 		sprfl := sprofile.Get(p.Id)
