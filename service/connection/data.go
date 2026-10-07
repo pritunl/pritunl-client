@@ -251,6 +251,7 @@ func (d *Data) ParseProfile() (err error) {
 					Host:      lineSpl[1],
 					OvpnPort:  ovpnPort,
 					OvpnProto: ovpnProto,
+					Priority:  d.conn.Profile.GetRemotePriority(lineSpl[1]),
 					Type:      OvpnRemote,
 				}
 				if !remoteHosts.Contains(remote.Host) {
@@ -287,6 +288,7 @@ func (d *Data) ParseProfile() (err error) {
 			Host:      syncUrl.Host,
 			OvpnPort:  defaultOvpnPort,
 			OvpnProto: defaultOvpnProto,
+			Priority:  d.conn.Profile.GetRemotePriority(syncUrl.Hostname()),
 			Type:      SyncRemote,
 		}
 		if !remoteHosts.Contains(remote.Host) {
@@ -362,6 +364,11 @@ func (d *Data) ParseProfile() (err error) {
 		}
 
 		remotes = newRemotes
+	}
+
+	if remotes.HasPriority() {
+		sortMethod += "+priority"
+		remotes.SortPriority()
 	}
 
 	logrus.WithFields(logrus.Fields{
