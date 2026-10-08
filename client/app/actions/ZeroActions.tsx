@@ -191,7 +191,7 @@ function openLinkAlert(url: string, message: string): string {
 			type="button"
 			style={css.linkButton}
 			onClick={(evt): void => {
-				Electron.clipboard.writeText(url)
+				Electron.ipcRenderer.send("control", "copy", url)
 				evt.currentTarget.className = "bp5-button bp5-intent-success " +
 					"bp5-icon-link"
 				evt.currentTarget.innerText = "Link Copied"
