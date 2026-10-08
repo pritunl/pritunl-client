@@ -54189,6 +54189,17 @@ dispatcher_EventDispatcher.register((action) => {
             }
             error("Handshake timeout");
             break;
+        case "configuration_error":
+            if (action.data) {
+                let prfl = stores_ProfilesStore.profile(action.data.id);
+                if (prfl) {
+                    error("Configuration error on " +
+                        prfl.formattedName());
+                    return;
+                }
+            }
+            error("Handshake timeout");
+            break;
         case "sso_auth":
             let ssoAuthMsg = "Connection requires single sign-on authentication. " +
                 "Complete authentication in web browser. Copy the link below if " +

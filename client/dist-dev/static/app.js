@@ -4627,6 +4627,17 @@ _dispatcher_EventDispatcher__WEBPACK_IMPORTED_MODULE_4__["default"].register((ac
             }
             _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Handshake timeout");
             break;
+        case "configuration_error":
+            if (action.data) {
+                let prfl = _stores_ProfilesStore__WEBPACK_IMPORTED_MODULE_9__["default"].profile(action.data.id);
+                if (prfl) {
+                    _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Configuration error on " +
+                        prfl.formattedName());
+                    return;
+                }
+            }
+            _Alert__WEBPACK_IMPORTED_MODULE_5__.error("Handshake timeout");
+            break;
         case "sso_auth":
             let ssoAuthMsg = "Connection requires single sign-on authentication. " +
                 "Complete authentication in web browser. Copy the link below if " +
