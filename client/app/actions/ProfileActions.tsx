@@ -475,6 +475,17 @@ EventDispatcher.register((action: ProfileTypes.ProfileDispatch) => {
 			}
 			Alert.error("Handshake timeout")
 			break
+		case "configuration_error":
+			if (action.data) {
+				let prfl = ProfilesStore.profile(action.data.id)
+				if (prfl) {
+					Alert.error("Configuration error on " +
+						prfl.formattedName())
+					return
+				}
+			}
+			Alert.error("Handshake timeout")
+			break
 		case "sso_auth":
 			let ssoAuthMsg = "Connection requires single sign-on authentication. " +
 				"Complete authentication in web browser. Copy the link below if " +
