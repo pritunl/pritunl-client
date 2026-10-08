@@ -2,10 +2,13 @@ package connection
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"net"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -72,6 +75,199 @@ type WgConf struct {
 	Routes6       []*Route `json:"routes6"`
 	DnsServers    []string `json:"dns_servers"`
 	SearchDomains []string `json:"search_domains"`
+}
+
+func parseWgIp(addr string) (netip.Addr, bool) {
+	ip, err := netip.ParseAddr(addr)
+	if err != nil || ip.Zone() != "" || ip.Is4In6() {
+		return netip.Addr{}, false
+	}
+
+	return ip, true
+}
+
+func parseWgNetwork(network string) (netip.Prefix, bool) {
+	prefix, err := netip.ParsePrefix(network)
+	if err != nil {
+		ip, ok := parseWgIp(network)
+		if !ok {
+			return netip.Prefix{}, false
+		}
+		prefix = netip.PrefixFrom(ip, ip.BitLen())
+	}
+
+	if prefix.Addr().Is4In6() {
+		return netip.Prefix{}, false
+	}
+
+	return prefix, true
+}
+
+func validWgKey(key string) bool {
+	data, err := base64.StdEncoding.DecodeString(key)
+	return err == nil && len(data) == 32
+}
+
+func filterSearchDomain(domain string) string {
+	domain = utils.FilterDomain(domain)
+	if strings.Contains(domain, ":") {
+		return ""
+	}
+	if _, err := netip.ParseAddr(domain); err == nil {
+		return ""
+	}
+
+	return domain
+}
+
+func (w *WgConf) Validate() (err error) {
+	addr, ok := parseWgNetwork(w.Address)
+	if !ok || !addr.Addr().Is4() {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg address"),
+		}
+		return
+	}
+	w.Address = addr.String()
+
+	if w.Address6 != "" {
+		addr6, ok := parseWgNetwork(w.Address6)
+		if !ok || !addr6.Addr().Is6() {
+			err = &errortypes.ParseError{
+				errors.New("connection: Invalid wg address6"),
+			}
+			return
+		}
+		w.Address6 = addr6.String()
+	}
+
+	w.Hostname = utils.FilterDomain(w.Hostname)
+	if w.Hostname == "" {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg hostname"),
+		}
+		return
+	}
+	w.Hostname6 = utils.FilterDomain(w.Hostname6)
+
+	gateway, ok := parseWgIp(w.Gateway)
+	if !ok || !gateway.Is4() {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg gateway"),
+		}
+		return
+	}
+	w.Gateway = gateway.String()
+
+	if w.Gateway6 != "" {
+		gateway6, ok := parseWgIp(w.Gateway6)
+		if !ok || !gateway6.Is6() {
+			err = &errortypes.ParseError{
+				errors.New("connection: Invalid wg gateway6"),
+			}
+			return
+		}
+		w.Gateway6 = gateway6.String()
+	}
+
+	if w.PingInterval < 0 {
+		w.PingInterval = 0
+	}
+	if w.PingTimeout < 0 {
+		w.PingTimeout = 0
+	}
+
+	if w.Port < 1 || w.Port > 65535 {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg port"),
+		}
+		return
+	}
+
+	if w.Mtu < 0 || w.Mtu > 65535 {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg mtu"),
+		}
+		return
+	}
+
+	if w.WebPort < 1 || w.WebPort > 65535 {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg web port"),
+		}
+		return
+	}
+
+	w.PublicKey = utils.FilterBase64(w.PublicKey)
+	if !validWgKey(w.PublicKey) {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid wg public key"),
+		}
+		return
+	}
+
+	if w.Routes != nil {
+		routes := []*Route{}
+		for _, route := range w.Routes {
+			if route == nil {
+				continue
+			}
+
+			err = route.Validate(false)
+			if err != nil {
+				return
+			}
+
+			routes = append(routes, route)
+		}
+		w.Routes = routes
+	}
+
+	if w.Routes6 != nil {
+		routes6 := []*Route{}
+		for _, route := range w.Routes6 {
+			if route == nil {
+				continue
+			}
+
+			err = route.Validate(true)
+			if err != nil {
+				return
+			}
+
+			routes6 = append(routes6, route)
+		}
+		w.Routes6 = routes6
+	}
+
+	if w.DnsServers != nil {
+		dnsServers := []string{}
+		for _, server := range w.DnsServers {
+			ip, ok := parseWgIp(server)
+			if !ok {
+				err = &errortypes.ParseError{
+					errors.New("connection: Invalid wg dns server"),
+				}
+				return
+			}
+			dnsServers = append(dnsServers, ip.String())
+		}
+		w.DnsServers = dnsServers
+	}
+
+	if w.SearchDomains != nil {
+		searchDomains := []string{}
+		for _, domain := range w.SearchDomains {
+			domain = filterSearchDomain(domain)
+			if domain == "" {
+				continue
+			}
+			searchDomains = append(searchDomains, domain)
+		}
+		w.SearchDomains = searchDomains
+	}
+
+	return
 }
 
 func (w *Wg) Fields() logrus.Fields {
