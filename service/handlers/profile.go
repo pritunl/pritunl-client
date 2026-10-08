@@ -54,7 +54,7 @@ func profilesGet(c *gin.Context) {
 }
 
 func profileGet(c *gin.Context) {
-	prflId := utils.FilterStr(c.Param("profile_id"))
+	prflId := utils.FilterId(c.Param("profile_id"))
 	if prflId == "" {
 		err := &errortypes.ParseError{
 			errors.New("handler: Invalid profile ID"),
@@ -84,7 +84,7 @@ func profilePost(c *gin.Context) {
 		return
 	}
 
-	data.Id = utils.FilterStr(data.Id)
+	data.Id = utils.FilterId(data.Id)
 	if data.Id == "" {
 		err = &errortypes.ParseError{
 			errors.New("handler: Invalid profile ID"),
@@ -183,7 +183,7 @@ func profileDel(c *gin.Context) {
 		return
 	}
 
-	prflId := utils.FilterStr(data.Id)
+	prflId := utils.FilterId(data.Id)
 	if prflId == "" {
 		err = &errortypes.ParseError{
 			errors.New("handler: Invalid profile ID"),
@@ -210,7 +210,7 @@ func profileDel(c *gin.Context) {
 }
 
 func profileDel2(c *gin.Context) {
-	prflId := utils.FilterStr(c.Param("profile_id"))
+	prflId := utils.FilterId(c.Param("profile_id"))
 	if prflId == "" {
 		err := &errortypes.ParseError{
 			errors.New("handler: Invalid profile ID"),

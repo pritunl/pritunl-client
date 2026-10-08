@@ -92,7 +92,7 @@ func (s *Store) IsConnected() bool {
 }
 
 func (s *Store) SetStop(prflId string) {
-	prflId = utils.FilterStrN(prflId, 128)
+	prflId = utils.FilterId(prflId)
 
 	s.stopsLock.Lock()
 	defer s.stopsLock.Unlock()
@@ -101,7 +101,7 @@ func (s *Store) SetStop(prflId string) {
 }
 
 func (s *Store) IsStop(prflId string) bool {
-	prflId = utils.FilterStrN(prflId, 128)
+	prflId = utils.FilterId(prflId)
 
 	s.stopsLock.Lock()
 	defer s.stopsLock.Unlock()
@@ -117,7 +117,7 @@ func (s *Store) IsStop(prflId string) bool {
 }
 
 func (s *Store) Add(prflId string, conn *Connection) {
-	prflId = utils.FilterStrN(prflId, 128)
+	prflId = utils.FilterId(prflId)
 
 	s.lock.Lock()
 	c := s.conns[prflId]
@@ -147,7 +147,7 @@ func (s *Store) Add(prflId string, conn *Connection) {
 }
 
 func (s *Store) Remove(prflId string, conn *Connection) {
-	prflId = utils.FilterStrN(prflId, 128)
+	prflId = utils.FilterId(prflId)
 
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -185,7 +185,7 @@ func (s *Store) GetIds() (ids []string) {
 }
 
 func (s *Store) Get(prflId string) (conn *Connection) {
-	prflId = utils.FilterStrN(prflId, 128)
+	prflId = utils.FilterId(prflId)
 
 	s.lock.RLock()
 	defer s.lock.RUnlock()
@@ -197,7 +197,7 @@ func (s *Store) Get(prflId string) (conn *Connection) {
 }
 
 func (s *Store) GetData(prflId string) (prfl *Data) {
-	prflId = utils.FilterStrN(prflId, 128)
+	prflId = utils.FilterId(prflId)
 
 	s.lock.RLock()
 	defer s.lock.RUnlock()

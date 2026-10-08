@@ -227,7 +227,7 @@ func (c *Connection) Ready() bool {
 }
 
 func NewConnection(prfl *Profile) (conn *Connection, err error) {
-	prfl.Id = utils.FilterStrN(prfl.Id, 128)
+	prfl.Id = utils.FilterId(prfl.Id)
 
 	conn = &Connection{
 		Id:      prfl.Id,

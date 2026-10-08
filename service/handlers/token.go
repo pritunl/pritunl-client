@@ -59,7 +59,7 @@ func tokenDelete(c *gin.Context) {
 }
 
 func tokenDelete2(c *gin.Context) {
-	prflId := utils.FilterStr(c.Param("profile_id"))
+	prflId := utils.FilterId(c.Param("profile_id"))
 	if prflId == "" {
 		err := &errortypes.ParseError{
 			errors.New("handler: Invalid profile ID"),

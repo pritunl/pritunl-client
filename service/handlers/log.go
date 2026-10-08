@@ -9,7 +9,7 @@ import (
 )
 
 func logGet(c *gin.Context) {
-	logId := utils.FilterStr(c.Param("log_id"))
+	logId := utils.FilterId(c.Param("log_id"))
 	if logId == "" {
 		err := &errortypes.ParseError{
 			errors.New("handler: Invalid log ID"),
@@ -39,7 +39,7 @@ func logGet(c *gin.Context) {
 }
 
 func logDel(c *gin.Context) {
-	logId := utils.FilterStr(c.Param("log_id"))
+	logId := utils.FilterId(c.Param("log_id"))
 	if logId == "" {
 		err := &errortypes.ParseError{
 			errors.New("handler: Invalid log ID"),
