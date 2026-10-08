@@ -14,6 +14,11 @@
   dest: cli/vendor/charm.land/lipgloss/v2
   sha256: 26b77e3a8159d4d084d04a32c63db22cf9a48553d3eee1b488e478b1bb592c23
 - type: archive
+  url: https://proxy.golang.org/github.com/atotto/clipboard/@v/v0.1.4.zip
+  strip-components: 3
+  dest: cli/vendor/github.com/atotto/clipboard
+  sha256: d67b2c36c662751309fd2ec351df3651584bea840bd27be9a90702c3a238b43f
+- type: archive
   url: https://proxy.golang.org/github.com/dropbox/godropbox/@v/v0.0.0-20230623171840-436d2007a9fd.zip
   strip-components: 3
   dest: cli/vendor/github.com/dropbox/godropbox
@@ -43,11 +48,6 @@
   strip-components: 3
   dest: cli/vendor/golang.org/x/term
   sha256: 80b2b247641ca1b8f54769de20d4d6a0c6861de57a3bc1b31e8432a2a7483ab3
-- type: archive
-  url: https://proxy.golang.org/github.com/atotto/clipboard/@v/v0.1.4.zip
-  strip-components: 3
-  dest: cli/vendor/github.com/atotto/clipboard
-  sha256: d67b2c36c662751309fd2ec351df3651584bea840bd27be9a90702c3a238b43f
 - type: archive
   url: https://proxy.golang.org/github.com/charmbracelet/colorprofile/@v/v0.4.3.zip
   strip-components: 3
