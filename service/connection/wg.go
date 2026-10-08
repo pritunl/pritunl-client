@@ -373,6 +373,18 @@ func (w *Wg) Connect(data *ConnData) (err error) {
 		return
 	}
 
+	err = data.Configuration.Validate()
+	if err != nil {
+		w.conn.Data.SendProfileEvent("configuration_error")
+
+		logrus.WithFields(w.conn.Fields(logrus.Fields{
+			"error": err,
+		})).Error("profile: Invalid wg configuration")
+
+		w.conn.State.Close()
+		return
+	}
+
 	iface := network.InterfaceAcquire()
 	if iface == "" {
 		err = &errortypes.ReadError{
@@ -755,7 +767,8 @@ func (w *Wg) writeWgConf(data *WgConf) (err error) {
 		PrivateKey: w.privateKey,
 		PublicKey:  data.PublicKey,
 		AllowedIps: strings.Join(allowedIps, ","),
-		Endpoint:   fmt.Sprintf("%s:%d", data.Hostname, data.Port),
+		Endpoint: net.JoinHostPort(
+			data.Hostname, strconv.Itoa(data.Port)),
 	}
 
 	if data.Mtu != 0 {
@@ -778,6 +791,11 @@ func (w *Wg) writeWgConf(data *WgConf) (err error) {
 			templData.DnsServers += ","
 		}
 		templData.DnsServers += strings.Join(data.SearchDomains, ",")
+	}
+
+	err = templData.Validate()
+	if err != nil {
+		return
 	}
 
 	w.wgTemplData = templData
