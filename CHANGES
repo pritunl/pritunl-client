@@ -3,6 +3,7 @@ Pritunl Client Changelog
 
 <%= version %>
 
+Fix WireGuard privilege escalation
 Fix sso url display in TUI
 
 Version 1.4.4752.50 2026-09-16
