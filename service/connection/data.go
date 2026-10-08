@@ -83,6 +83,34 @@ type Route struct {
 	NetGateway bool   `json:"net_gateway"`
 }
 
+func (r *Route) Validate(ipv6 bool) (err error) {
+	network, ok := parseWgNetwork(r.Network)
+	if !ok || network.Addr().Is6() != ipv6 {
+		err = &errortypes.ParseError{
+			errors.New("connection: Invalid route network"),
+		}
+		return
+	}
+	r.Network = network.Masked().String()
+
+	if r.NextHop != "" {
+		nextHop, ok := parseWgIp(r.NextHop)
+		if !ok || nextHop.Is6() != ipv6 {
+			err = &errortypes.ParseError{
+				errors.New("connection: Invalid route next hop"),
+			}
+			return
+		}
+		r.NextHop = nextHop.String()
+	}
+
+	if r.Metric < 0 {
+		r.Metric = 0
+	}
+
+	return
+}
+
 func (d *Data) Fields() logrus.Fields {
 	remotes := []string{}
 	if d.Remotes != nil {
