@@ -8,7 +8,7 @@ import fs from "fs"
 class ConfigData {
 	window_width = 0
 	window_height = 0
-	disable_tray_icon = false
+	disable_tray_icon = Constants.flatpak
 	classic_interface = false
 	safe_storage = false
 	transparent_window = false
