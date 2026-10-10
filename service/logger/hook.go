@@ -14,7 +14,7 @@ func (h *logHook) Fire(entry *logrus.Entry) (err error) {
 	}
 
 	if len(buffer) <= 64 {
-		buffer <- entry
+		buffer <- cloneEntry(entry)
 	}
 
 	return
@@ -28,4 +28,13 @@ func (h *logHook) Levels() []logrus.Level {
 		logrus.FatalLevel,
 		logrus.PanicLevel,
 	}
+}
+
+func cloneEntry(entry *logrus.Entry) (clone *logrus.Entry) {
+	clone = entry.Dup()
+	clone.Level = entry.Level
+	clone.Message = entry.Message
+	clone.Caller = entry.Caller
+
+	return
 }
