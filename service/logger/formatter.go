@@ -17,6 +17,41 @@ var (
 	whiteDiamond = colorize.ColorString("◆", colorize.WhiteBold, colorize.None)
 )
 
+func entryFields(entry *logrus.Entry) (keys []string,
+	fields map[string]interface{}, errStr string) {
+
+	fields = make(map[string]interface{}, len(entry.Data)+2)
+
+	var errData *errortypes.ErrorData
+	for key, val := range entry.Data {
+		switch key {
+		case "error":
+			if !isNil(val) {
+				errStr = fmt.Sprintf("%s", val)
+			}
+		case "error_data":
+			if data, ok := val.(*errortypes.ErrorData); ok && data != nil {
+				errData = data
+			}
+		default:
+			fields[key] = val
+		}
+	}
+
+	if errData != nil {
+		fields["error_key"] = errData.Error
+		fields["error_msg"] = errData.Message
+	}
+
+	keys = make([]string, 0, len(fields))
+	for key := range fields {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	return
+}
+
 func format(entry *logrus.Entry) (output []byte) {
 	msg := fmt.Sprintf("%s%s %s %s",
 		formatTime(entry.Time),
@@ -25,34 +60,12 @@ func format(entry *logrus.Entry) (output []byte) {
 		entry.Message,
 	)
 
-	keys := []string{}
-
-	var errStr string
-	for key, val := range entry.Data {
-		if key == "error" || key == "trace" {
-			if !isNil(val) {
-				errStr = fmt.Sprintf("%s", val)
-			}
-			continue
-		} else if key == "error_data" {
-			if val != nil && !reflect.ValueOf(val).IsNil() {
-				if errData, ok := val.(*errortypes.ErrorData); ok {
-					entry.Data["error_key"] = errData.Error
-					entry.Data["error_msg"] = errData.Message
-					keys = append(keys, "error_key", "error_msg")
-				}
-			}
-			continue
-		}
-		keys = append(keys, key)
-	}
-
-	sort.Strings(keys)
+	keys, fields, errStr := entryFields(entry)
 
 	for _, key := range keys {
 		msg += fmt.Sprintf(" %s %s=%v", whiteDiamond,
 			colorize.ColorString(key, colorize.CyanBold, colorize.None),
-			colorize.ColorString(fmt.Sprintf("%#v", entry.Data[key]),
+			colorize.ColorString(fmt.Sprintf("%#v", fields[key]),
 				colorize.GreenBold, colorize.None))
 	}
 
@@ -76,34 +89,11 @@ func formatPlain(entry *logrus.Entry) (output []byte) {
 		entry.Message,
 	)
 
-	keys := []string{}
-
-	var errStr string
-	for key, val := range entry.Data {
-		if key == "error" || key == "trace" {
-			if !isNil(val) {
-				errStr = fmt.Sprintf("%s", val)
-			}
-			continue
-		} else if key == "error_data" {
-			if val != nil && !reflect.ValueOf(val).IsNil() {
-				if errData, ok := val.(*errortypes.ErrorData); ok {
-					entry.Data["error_key"] = errData.Error
-					entry.Data["error_msg"] = errData.Message
-					keys = append(keys, "error_key", "error_msg")
-				}
-			}
-			continue
-		}
-
-		keys = append(keys, key)
-	}
-
-	sort.Strings(keys)
+	keys, fields, errStr := entryFields(entry)
 
 	for _, key := range keys {
 		msg += fmt.Sprintf(" ◆ %s=%v", key,
-			fmt.Sprintf("%#v", entry.Data[key]))
+			fmt.Sprintf("%#v", fields[key]))
 	}
 
 	if errStr != "" {
