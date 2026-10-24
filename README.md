@@ -35,9 +35,9 @@ bash <(curl -s https://raw.githubusercontent.com/pritunl/pritunl-client/master/t
 sudo dnf -y install git-core wireguard-tools openvpn
 
 sudo rm -rf /usr/local/go
-wget https://go.dev/dl/go1.27.1.linux-amd64.tar.gz
-echo "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445 go1.27.1.linux-amd64.tar.gz" | sha256sum -c - && sudo tar -C /usr/local -xf go1.27.1.linux-amd64.tar.gz
-rm -f go1.27.1.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.27.3.linux-amd64.tar.gz
+echo "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40 go1.27.3.linux-amd64.tar.gz" | sha256sum -c - && sudo tar -C /usr/local -xf go1.27.3.linux-amd64.tar.gz
+rm -f go1.27.3.linux-amd64.tar.gz
 
 tee -a ~/.bashrc << EOF
 export GOPATH=\$HOME/go
