@@ -9,6 +9,7 @@ cd /Users/apple/build
 tar xf m4-1.4.21.tar.xz
 cd ./m4-1.4.21
 sh ../build_m4.sh
+cd ../
 
 tar xf autoconf-2.72.tar.gz
 cd ./autoconf-2.72
@@ -35,9 +36,9 @@ cd ./lzo-2.10
 sh ../build_lzo.sh
 cd ../
 
-curl -LO https://github.com/openssl/openssl/releases/download/openssl-3.5.7/openssl-3.5.7.tar.gz
-echo "a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8  openssl-3.5.7.tar.gz" | shasum -a 256 -c - && tar xf openssl-3.5.7.tar.gz
-cd ./openssl-3.5.7
+curl -LO https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz
+echo "603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a  openssl-3.5.9.tar.gz" | shasum -a 256 -c - && tar xf openssl-3.5.9.tar.gz
+cd ./openssl-3.5.9
 sh ../build_openssl.sh
 cd ../
 
@@ -46,12 +47,11 @@ cd ./pkcs11-helper-1.31.0
 sh ../build_pkcs11h.sh
 cd ../
 
-curl -LO https://swupdate.openvpn.org/community/releases/openvpn-2.7.5.tar.gz
-echo "c6864b3c7d4e059c7d6ce22d1b5fa646c8b379a06af872eeb9792b6083a44ac4  openvpn-2.7.5.tar.gz" | shasum -a 256 -c - && tar xf openvpn-2.7.5.tar.gz
-cd ./openvpn-2.7.5
+curl -LO https://swupdate.openvpn.org/community/releases/openvpn-2.7.8.tar.gz
+echo "c070d1d2440b5a6fca6c2c68645c98cd492116ac36ef4f0946177115532c8e36  openvpn-2.7.8.tar.gz" | shasum -a 256 -c - && tar xf openvpn-2.7.8.tar.gz
+cd ./openvpn-2.7.8
 sh ../build_openvpn.sh
 cd ../
-
 
 codesign --force --timestamp --options=runtime -s "Developer ID Application: Pritunl, Inc. (U22BLATN63)" ./openvpn/sbin/openvpn
 
@@ -62,11 +62,13 @@ mkdir -p /Users/apple/build
 cp ../../wireguard_macos/* /Users/apple/build/
 cd /Users/apple/build
 
-export MACOSX_DEPLOYMENT_TARGET=11.0
-export CFLAGS="-mmacosx-version-min=11.0"
-export CXXFLAGS="-mmacosx-version-min=11.0"
-export CPPFLAGS="-mmacosx-version-min=11.0"
-export LINKFLAGS="-mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET=13.0
+export CFLAGS="-O2 -arch arm64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export GOOS=darwin
+export GOARCH=arm64
 
 rm -rf ./bash-5.2
 tar xf bash-5.2.tar.gz
@@ -76,11 +78,13 @@ make
 cp ./bash ../bash-arm64
 cd ../
 
-export MACOSX_DEPLOYMENT_TARGET=11.0
-export CFLAGS="-mmacosx-version-min=11.0"
-export CXXFLAGS="-mmacosx-version-min=11.0"
-export CPPFLAGS="-mmacosx-version-min=11.0"
-export LINKFLAGS="-mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET=13.0
+export CFLAGS="-O2 -arch arm64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export GOOS=darwin
+export GOARCH=arm64
 
 rm -rf ./wireguard-go-0.0.20250522
 tar xf wireguard-go-0.0.20250522.tar.gz
@@ -89,11 +93,13 @@ make
 cp ./wireguard-go ../wireguard-go-arm64
 cd ../
 
-export MACOSX_DEPLOYMENT_TARGET=11.0
-export CFLAGS="-mmacosx-version-min=11.0"
-export CXXFLAGS="-mmacosx-version-min=11.0"
-export CPPFLAGS="-mmacosx-version-min=11.0"
-export LINKFLAGS="-mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET=13.0
+export CFLAGS="-O2 -arch arm64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export GOOS=darwin
+export GOARCH=arm64
 
 rm -rf ./wireguard-tools-1.0.20260223
 tar xf wireguard-tools-1.0.20260223.tar.gz
@@ -103,12 +109,12 @@ cp ./src/wg ../wg-arm64
 cp ./src/wg-quick/darwin.bash ../wg-quick
 cd ../
 
-export MACOSX_DEPLOYMENT_TARGET=11.0
-export CFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export CXXFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export CPPFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export LDFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export LINKFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET=13.0
+export CFLAGS="-O2 -arch x86_64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
+export LINKFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
 export GOOS=darwin
 export GOARCH=amd64
 
@@ -120,12 +126,12 @@ make
 cp ./bash ../bash-amd64
 cd ../
 
-export MACOSX_DEPLOYMENT_TARGET=11.0
-export CFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export CXXFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export CPPFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export LDFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export LINKFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET=13.0
+export CFLAGS="-O2 -arch x86_64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
+export LINKFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
 export GOOS=darwin
 export GOARCH=amd64
 
@@ -136,12 +142,12 @@ make
 cp ./wireguard-go ../wireguard-go-amd64
 cd ../
 
-export MACOSX_DEPLOYMENT_TARGET=11.0
-export CFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export CXXFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export CPPFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export LDFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
-export LINKFLAGS="-arch x86_64 -mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET=13.0
+export CFLAGS="-O2 -arch x86_64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
+export LINKFLAGS="-arch x86_64 -mmacosx-version-min=13.0"
 export GOOS=darwin
 export GOARCH=amd64
 
