@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-export CFLAGS="-mmacosx-version-min=11.0"
-export CXXFLAGS="-mmacosx-version-min=11.0"
-export CPPFLAGS="-mmacosx-version-min=11.0"
-export LINKFLAGS="-mmacosx-version-min=11.0"
+export MACOSX_DEPLOYMENT_TARGET="13.0"
+export CFLAGS="-O2 -arch arm64 -mmacosx-version-min=13.0"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="-arch arm64 -mmacosx-version-min=13.0"
+export LDFLAGS="-arch arm64 -mmacosx-version-min=13.0"
 
 ./bootstrap.sh
 ./configure \
