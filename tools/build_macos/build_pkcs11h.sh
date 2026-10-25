@@ -7,7 +7,7 @@ export CXXFLAGS="$CFLAGS"
 export CPPFLAGS="-arch arm64 -mmacosx-version-min=13.0"
 export LDFLAGS="-arch arm64 -mmacosx-version-min=13.0"
 export OPENSSL_CFLAGS="-I/Users/apple/build/openssl/include"
-export OPENSSL_LIBS="/Users/apple/build/openssl/lib/libssl.a /Users/apple/build/openssl/lib/libcrypto.a"
+export OPENSSL_LIBS="-L/Users/apple/build/openssl/lib -lssl -lcrypto"
 
 #autoreconf --verbose --install --force
 ./configure \

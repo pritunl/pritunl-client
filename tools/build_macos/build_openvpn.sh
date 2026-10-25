@@ -10,9 +10,9 @@ export LDFLAGS="-arch arm64 -mmacosx-version-min=13.0"
 OPENSSL_CFLAGS="-I/Users/apple/build/openssl/include" \
   OPENSSL_SSL_CFLAGS="-I/Users/apple/build/openssl/include" \
   OPENSSL_CRYPTO_CFLAGS="-I/Users/apple/build/openssl/include" \
-  OPENSSL_LIBS="/Users/apple/build/openssl/lib/libssl.a -lz /Users/apple/build/openssl/lib/libcrypto.a -lz" \
+  OPENSSL_LIBS="/Users/apple/build/openssl/lib/libssl.a /Users/apple/build/openssl/lib/libcrypto.a" \
   OPENSSL_SSL_LIBS="/Users/apple/build/openssl/lib/libssl.a" \
-  OPENSSL_CRYPTO_LIBS="/Users/apple/build/openssl/lib/libcrypto.a -lz" \
+  OPENSSL_CRYPTO_LIBS="/Users/apple/build/openssl/lib/libcrypto.a" \
   PKCS11_HELPER_CFLAGS="-I/Users/apple/build/pkcs11-helper/include" \
   PKCS11_HELPER_LIBS="-L/Users/apple/build/pkcs11-helper/lib -lpkcs11-helper" \
   LZO_CFLAGS="-I/Users/apple/build/lzo/include" \
@@ -24,14 +24,12 @@ OPENSSL_CFLAGS="-I/Users/apple/build/openssl/include" \
     --disable-debug \
     --disable-dependency-tracking \
     --disable-silent-rules \
-    --disable-server \
     --disable-management \
     --disable-plugins \
     --disable-plugin-auth-pam \
     --disable-plugin-down-root \
     --disable-lz4 \
     --with-crypto-library=openssl \
-    --build=arm-apple-darwin \
     --enable-pkcs11 \
     --enable-static \
     --disable-shared \
