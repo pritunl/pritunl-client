@@ -3,7 +3,7 @@ targets=(
     "oraclelinux-10"
 )
 pkgname="pritunl-client-electron"
-pkgver="1.3.4554.60"
+pkgver="1.4.4791.77"
 pkgrel="2"
 pkgdesc="Pritunl OpenVPN Electron Client"
 pkgdesclong=(
