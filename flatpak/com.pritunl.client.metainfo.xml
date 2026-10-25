@@ -52,6 +52,14 @@
     <color type="primary" scheme_preference="dark">#1a1a1a</color>
   </branding>
   <releases>
+    <release version="1.4.4791.77" date="2026-10-25">
+      <url type="details">https://github.com/pritunl/pritunl-client/blob/1.4.4791.77/CHANGES</url>
+      <description>
+        <ul>
+          <li>Library updates</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.4777.90" date="2026-10-11">
       <url type="details">https://github.com/pritunl/pritunl-client/blob/1.4.4777.90/CHANGES</url>
       <description>
