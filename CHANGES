@@ -1,6 +1,10 @@
 Pritunl Client Changelog
 ========================
 
+<%= version %>
+
+Library updates
+
 Version 1.4.4777.90 2026-10-11
 ------------------------------
 
