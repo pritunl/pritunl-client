@@ -71,6 +71,7 @@ flatpak enter <instance> sh
 ## Prerequisites
 
 ```bash
+sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --user flathub \
     org.flatpak.Builder \
