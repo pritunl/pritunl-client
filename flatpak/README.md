@@ -75,11 +75,11 @@ sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flat
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --user flathub \
     org.flatpak.Builder \
-    org.freedesktop.Platform//25.08 \
-    org.freedesktop.Sdk//25.08 \
-    org.electronjs.Electron2.BaseApp//25.08 \
-    org.freedesktop.Sdk.Extension.node24//25.08 \
-    org.freedesktop.Sdk.Extension.golang//25.08
+    org.freedesktop.Platform//26.08 \
+    org.freedesktop.Sdk//26.08 \
+    org.electronjs.Electron2.BaseApp//26.08 \
+    org.freedesktop.Sdk.Extension.node24//26.08 \
+    org.freedesktop.Sdk.Extension.golang//26.08
 ```
 
 ## Local Build

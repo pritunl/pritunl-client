@@ -12,11 +12,11 @@ RUN dnf -y install \
 RUN flatpak remote-add --if-not-exists flathub \
         https://dl.flathub.org/repo/flathub.flatpakrepo \
     && flatpak install -y --noninteractive flathub \
-        org.freedesktop.Platform//25.08 \
-        org.freedesktop.Sdk//25.08 \
-        org.electronjs.Electron2.BaseApp//25.08 \
-        org.freedesktop.Sdk.Extension.node24//25.08 \
-        org.freedesktop.Sdk.Extension.golang//25.08
+        org.freedesktop.Platform//26.08 \
+        org.freedesktop.Sdk//26.08 \
+        org.electronjs.Electron2.BaseApp//26.08 \
+        org.freedesktop.Sdk.Extension.node24//26.08 \
+        org.freedesktop.Sdk.Extension.golang//26.08
 
 COPY build.sh /usr/local/bin/pritunl-flatpak-build
 RUN chmod 755 /usr/local/bin/pritunl-flatpak-build
