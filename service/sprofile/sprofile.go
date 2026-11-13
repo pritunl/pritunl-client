@@ -660,7 +660,7 @@ func (s *Sprofile) Commit() (err error) {
 		return
 	}
 
-	err = utils.CreateWrite(pth, string(data), 0600)
+	err = utils.CreateWriteAtomic(pth, string(data), 0600)
 	if err != nil {
 		return
 	}
