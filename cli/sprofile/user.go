@@ -298,6 +298,10 @@ func loadUser(prflId string) (sprfl *Sprofile, err error) {
 	conf := &userConf{}
 	err = json.Unmarshal(confData, conf)
 	if err != nil {
+		// The corrupt profile is unrecoverable, remove it,
+		// the profile must be re-imported
+		_ = os.Remove(confPath)
+
 		err = errortypes.ParseError{
 			errors.Wrapf(err, "sprofile: Failed to parse profile '%s'",
 				confPath),
@@ -362,6 +366,56 @@ func getAllUser() (sprfls []*Sprofile, err error) {
 	return
 }
 
+// writeFileAtomic writes data to a temporary file in the same
+// directory, syncs it to non-volatile storage and then atomically
+// renames it over pth. pth always contains either the complete
+// old or the complete new content, even across a power loss. The
+// temporary file is removed on failure.
+func writeFileAtomic(pth string, data []byte, perm os.FileMode) (err error) {
+	tmpPath := pth + ".tmp"
+
+	file, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+	if err != nil {
+		return errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to create '%s'", tmpPath),
+		}
+	}
+
+	_, err = file.Write(data)
+	if err != nil {
+		file.Close()
+		os.Remove(tmpPath)
+		return errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to write '%s'", tmpPath),
+		}
+	}
+
+	if err = file.Sync(); err != nil {
+		file.Close()
+		os.Remove(tmpPath)
+		return errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to sync '%s'", tmpPath),
+		}
+	}
+
+	if err = file.Close(); err != nil {
+		os.Remove(tmpPath)
+		return errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to close '%s'", tmpPath),
+		}
+	}
+
+	if err = os.Rename(tmpPath, pth); err != nil {
+		os.Remove(tmpPath)
+		return errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to rename '%s' to '%s'",
+				tmpPath, pth),
+		}
+	}
+
+	return
+}
+
 func (s *Sprofile) writeConf() (err error) {
 	err = os.MkdirAll(GetUserPath(), 0700)
 	if err != nil {
@@ -379,7 +433,7 @@ func (s *Sprofile) writeConf() (err error) {
 		return
 	}
 
-	err = os.WriteFile(s.ConfPath(), data, 0600)
+	err = writeFileAtomic(s.ConfPath(), data, 0600)
 	if err != nil {
 		err = errortypes.WriteError{
 			errors.Wrap(err, "sprofile: Failed to write profile"),
@@ -399,7 +453,7 @@ func (s *Sprofile) writeData(data string) (err error) {
 		return
 	}
 
-	err = os.WriteFile(s.DataPath(), []byte(data), 0600)
+	err = writeFileAtomic(s.DataPath(), []byte(data), 0600)
 	if err != nil {
 		err = errortypes.WriteError{
 			errors.Wrap(err, "sprofile: Failed to write profile data"),

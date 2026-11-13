@@ -233,6 +233,64 @@ func CreateWriteLock(path string, data string, perm os.FileMode) (err error) {
 	return
 }
 
+// CreateWriteAtomic writes data to a temporary file in the same
+// directory, syncs it to non-volatile storage and then atomically
+// renames it over path. path always contains either the complete
+// old or the complete new content, even across a power loss. The
+// temporary file is removed on failure.
+func CreateWriteAtomic(path string, data string, perm os.FileMode) (err error) {
+	tmpPath := path + ".tmp"
+
+	file, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+	if err != nil {
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "utils: Failed to create '%s'", tmpPath),
+		}
+		return
+	}
+
+	_, err = file.WriteString(data)
+	if err != nil {
+		file.Close()
+		os.Remove(tmpPath)
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "utils: Failed to write to file '%s'", tmpPath),
+		}
+		return
+	}
+
+	err = file.Sync()
+	if err != nil {
+		file.Close()
+		os.Remove(tmpPath)
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "utils: Failed to sync file '%s'", tmpPath),
+		}
+		return
+	}
+
+	err = file.Close()
+	if err != nil {
+		os.Remove(tmpPath)
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "utils: Failed to close file '%s'", tmpPath),
+		}
+		return
+	}
+
+	err = os.Rename(tmpPath, path)
+	if err != nil {
+		os.Remove(tmpPath)
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "utils: Failed to rename file '%s' to '%s'",
+				tmpPath, path),
+		}
+		return
+	}
+
+	return
+}
+
 func Copy(src, dst string) (err error) {
 	in, err := os.Open(src)
 	if err != nil {

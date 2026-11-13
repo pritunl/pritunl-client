@@ -201,6 +201,15 @@ func Reload() (err error) {
 		name := file.Name()
 		pth := filepath.Join(prflsPath, name)
 
+		if strings.HasSuffix(name, ".tmp") ||
+			strings.HasSuffix(name, ".corrupt") {
+
+			// Leftover from an interrupted atomic write or a
+			// previously quarantined corrupt profile
+			_ = os.Remove(pth)
+			continue
+		}
+
 		if !strings.HasSuffix(name, ".conf") {
 			continue
 		}
@@ -220,13 +229,16 @@ func Reload() (err error) {
 
 		e = json.Unmarshal(data, prfl)
 		if e != nil {
-			err = &errortypes.ParseError{
-				errors.Wrap(e, "sprofile: Failed to parse conf"),
-			}
 			logrus.WithFields(logrus.Fields{
 				"path":  pth,
-				"error": err,
-			}).Error("sprofile: Failed to parse profile configuration")
+				"error": e,
+			}).Error("sprofile: Failed to parse profile " +
+				"configuration, removing profile")
+
+			// The corrupt profile is unrecoverable, remove it,
+			// the profile must be re-imported
+			_ = os.Remove(pth)
+
 			continue
 		}
 
