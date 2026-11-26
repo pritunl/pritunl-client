@@ -426,6 +426,15 @@ func (t *AuthToken) Reset() {
 	}
 }
 
+func (t *AuthToken) RefreshNonce() (err error) {
+	nonce, err := utils.RandStr(16)
+	if err != nil {
+		return
+	}
+	t.Nonce = nonce
+	return
+}
+
 func (t *AuthToken) Sign(timestamp int64) (publicKey, signature string) {
 	if t.signKey == nil {
 		return
@@ -473,6 +482,12 @@ func (d *Data) HasAuthToken() bool {
 func (d *Data) GetAuthToken() (authToken *AuthToken, err error) {
 	if d.authToken != nil {
 		authToken = d.authToken
+
+		err = authToken.RefreshNonce()
+		if err != nil {
+			return
+		}
+
 		return
 	}
 
