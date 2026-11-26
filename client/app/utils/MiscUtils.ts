@@ -511,6 +511,71 @@ export function fileWrite(path: string, data: string): Promise<void> {
 	})
 }
 
+function fileRename(src: string, dst: string): Promise<void> {
+	return new Promise<void>((resolve, reject): void => {
+		let attempt = 0
+
+		let rename = (): void => {
+			fs.rename(src, dst, (err: NodeJS.ErrnoException): void => {
+				if (!err) {
+					resolve()
+					return
+				}
+
+				if (os.platform() === "win32" && attempt < 20 && (
+						err.code === "EPERM" || err.code === "EACCES" ||
+						err.code === "EBUSY")) {
+
+					attempt += 1
+					setTimeout(rename, attempt * 5)
+					return
+				}
+
+				reject(err)
+			})
+		}
+
+		rename()
+	})
+}
+
+export async function fileWriteAtomic(pth: string,
+		data: string): Promise<void> {
+
+	let tmpPth = pth + "." + nonce() + ".tmp"
+
+	try {
+		let file = await fs.promises.open(tmpPth, "wx", 0o600)
+		try {
+			await file.writeFile(data)
+			await file.sync()
+		} finally {
+			await file.close()
+		}
+
+		await fileRename(tmpPth, pth)
+	} catch (err) {
+		try {
+			await fs.promises.unlink(tmpPth)
+		} catch {}
+
+		throw new Errors.WriteError(err, "Utils: Failed to write file",
+			{path: pth})
+	}
+}
+
+export function fileDeleteStale(pth: string, ttl: number): void {
+	fs.stat(pth, (err: NodeJS.ErrnoException, stats: fs.Stats): void => {
+		if (err || !stats) {
+			return
+		}
+
+		if (Date.now() - stats.mtimeMs > ttl) {
+			fs.unlink(pth, (): void => {})
+		}
+	})
+}
+
 export function expandPath(pth: string): string {
 	if (!pth) {
 		return pth
