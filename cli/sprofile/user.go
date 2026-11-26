@@ -8,11 +8,18 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/cli/errortypes"
 	"github.com/pritunl/pritunl-client/cli/utils"
 	"github.com/pritunl/tools/logger"
+)
+
+const (
+	// tmpTtl is the age after which a temporary file left in the user
+	// profiles directory by an interrupted write is removed.
+	tmpTtl = 10 * time.Minute
 )
 
 // userConf mirrors the desktop client profile configuration file stored
@@ -298,10 +305,6 @@ func loadUser(prflId string) (sprfl *Sprofile, err error) {
 	conf := &userConf{}
 	err = json.Unmarshal(confData, conf)
 	if err != nil {
-		// The corrupt profile is unrecoverable, remove it,
-		// the profile must be re-imported
-		_ = os.Remove(confPath)
-
 		err = errortypes.ParseError{
 			errors.Wrapf(err, "sprofile: Failed to parse profile '%s'",
 				confPath),
@@ -342,7 +345,21 @@ func getAllUser() (sprfls []*Sprofile, err error) {
 
 	for _, entry := range entries {
 		name := entry.Name()
-		if entry.IsDir() || !strings.HasSuffix(name, ".conf") {
+		if entry.IsDir() {
+			continue
+		}
+
+		// A recent temporary file can belong to a write in progress by
+		// this or the desktop client, only stale files are removed
+		if strings.HasSuffix(name, ".tmp") {
+			info, e := entry.Info()
+			if e == nil && time.Since(info.ModTime()) > tmpTtl {
+				_ = os.Remove(filepath.Join(GetUserPath(), name))
+			}
+			continue
+		}
+
+		if !strings.HasSuffix(name, ".conf") {
 			continue
 		}
 
@@ -366,52 +383,104 @@ func getAllUser() (sprfls []*Sprofile, err error) {
 	return
 }
 
-// writeFileAtomic writes data to a temporary file in the same
-// directory, syncs it to non-volatile storage and then atomically
-// renames it over pth. pth always contains either the complete
-// old or the complete new content, even across a power loss. The
-// temporary file is removed on failure.
-func writeFileAtomic(pth string, data []byte, perm os.FileMode) (err error) {
-	tmpPath := pth + ".tmp"
-
-	file, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
-	if err != nil {
-		return errortypes.WriteError{
-			errors.Wrapf(err, "sprofile: Failed to create '%s'", tmpPath),
+// renameRetry renames src over dst. On Windows the rename fails while
+// another process has dst open, such as a client reading the profile or a
+// virus scanner, the rename is retried to wait for the file to be closed.
+func renameRetry(src, dst string) (err error) {
+	for i := 0; ; i++ {
+		err = os.Rename(src, dst)
+		if err == nil || runtime.GOOS != "windows" || i >= 20 {
+			return
 		}
+
+		time.Sleep(time.Duration(i+1) * 5 * time.Millisecond)
+	}
+}
+
+// syncDir syncs a directory to storage so that a completed rename survives
+// a power loss, errors are ignored as not all file systems support this.
+func syncDir(pth string) {
+	if runtime.GOOS == "windows" {
+		return
+	}
+
+	dir, err := os.Open(pth)
+	if err != nil {
+		return
+	}
+	defer dir.Close()
+
+	_ = dir.Sync()
+}
+
+// writeFileAtomic writes data to a uniquely named temporary file in the
+// same directory, syncs it to storage and renames it over pth. Readers and
+// concurrent writers see either the complete old or the complete new
+// content, even across a power loss. The temporary file is removed on
+// failure.
+func writeFileAtomic(pth string, data []byte, perm os.FileMode) (err error) {
+	dirPath := filepath.Dir(pth)
+
+	file, err := os.CreateTemp(dirPath, filepath.Base(pth)+".*.tmp")
+	if err != nil {
+		err = errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to create temp file for '%s'",
+				pth),
+		}
+		return
+	}
+	tmpPath := file.Name()
+
+	err = file.Chmod(perm)
+	if err != nil {
+		file.Close()
+		os.Remove(tmpPath)
+		err = errortypes.WriteError{
+			errors.Wrapf(err, "sprofile: Failed to chmod '%s'", tmpPath),
+		}
+		return
 	}
 
 	_, err = file.Write(data)
 	if err != nil {
 		file.Close()
 		os.Remove(tmpPath)
-		return errortypes.WriteError{
+		err = errortypes.WriteError{
 			errors.Wrapf(err, "sprofile: Failed to write '%s'", tmpPath),
 		}
+		return
 	}
 
-	if err = file.Sync(); err != nil {
+	err = file.Sync()
+	if err != nil {
 		file.Close()
 		os.Remove(tmpPath)
-		return errortypes.WriteError{
+		err = errortypes.WriteError{
 			errors.Wrapf(err, "sprofile: Failed to sync '%s'", tmpPath),
 		}
+		return
 	}
 
-	if err = file.Close(); err != nil {
+	err = file.Close()
+	if err != nil {
 		os.Remove(tmpPath)
-		return errortypes.WriteError{
+		err = errortypes.WriteError{
 			errors.Wrapf(err, "sprofile: Failed to close '%s'", tmpPath),
 		}
+		return
 	}
 
-	if err = os.Rename(tmpPath, pth); err != nil {
+	err = renameRetry(tmpPath, pth)
+	if err != nil {
 		os.Remove(tmpPath)
-		return errortypes.WriteError{
+		err = errortypes.WriteError{
 			errors.Wrapf(err, "sprofile: Failed to rename '%s' to '%s'",
 				tmpPath, pth),
 		}
+		return
 	}
+
+	syncDir(dirPath)
 
 	return
 }
@@ -435,9 +504,6 @@ func (s *Sprofile) writeConf() (err error) {
 
 	err = writeFileAtomic(s.ConfPath(), data, 0600)
 	if err != nil {
-		err = errortypes.WriteError{
-			errors.Wrap(err, "sprofile: Failed to write profile"),
-		}
 		return
 	}
 
@@ -455,9 +521,6 @@ func (s *Sprofile) writeData(data string) (err error) {
 
 	err = writeFileAtomic(s.DataPath(), []byte(data), 0600)
 	if err != nil {
-		err = errortypes.WriteError{
-			errors.Wrap(err, "sprofile: Failed to write profile data"),
-		}
 		return
 	}
 
@@ -545,7 +608,31 @@ func (s *Sprofile) removeUser() (err error) {
 		}
 	}
 
+	s.removeTemp()
+
 	return
+}
+
+// removeTemp deletes temporary files left by interrupted writes of the
+// profile, these can hold a copy of the profile keys.
+func (s *Sprofile) removeTemp() {
+	entries, err := os.ReadDir(GetUserPath())
+	if err != nil {
+		return
+	}
+
+	for _, entry := range entries {
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".tmp") {
+			continue
+		}
+
+		if strings.HasPrefix(name, s.Id+".conf.") ||
+			strings.HasPrefix(name, s.Id+".ovpn.") {
+
+			_ = os.Remove(filepath.Join(GetUserPath(), name))
+		}
+	}
 }
 
 // keychainKey reads profile keys stored in the macOS keychain by older
