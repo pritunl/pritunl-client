@@ -4,7 +4,10 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"runtime"
 	"sync"
+	"time"
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/service/errortypes"
@@ -233,18 +236,50 @@ func CreateWriteLock(path string, data string, perm os.FileMode) (err error) {
 	return
 }
 
-// CreateWriteAtomic writes data to a temporary file in the same
-// directory, syncs it to non-volatile storage and then atomically
-// renames it over path. path always contains either the complete
-// old or the complete new content, even across a power loss. The
-// temporary file is removed on failure.
-func CreateWriteAtomic(path string, data string, perm os.FileMode) (err error) {
-	tmpPath := path + ".tmp"
+func renameRetry(src, dst string) (err error) {
+	for i := 0; ; i++ {
+		err = os.Rename(src, dst)
+		if err == nil || runtime.GOOS != "windows" || i >= 20 {
+			return
+		}
 
-	file, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+		time.Sleep(time.Duration(i+1) * 5 * time.Millisecond)
+	}
+}
+
+func syncDir(pth string) {
+	if runtime.GOOS == "windows" {
+		return
+	}
+
+	dir, err := os.Open(pth)
+	if err != nil {
+		return
+	}
+	defer dir.Close()
+
+	_ = dir.Sync()
+}
+
+func CreateWriteAtomic(path string, data string, perm os.FileMode) (err error) {
+	dirPath := filepath.Dir(path)
+
+	file, err := os.CreateTemp(dirPath, filepath.Base(path)+".*.tmp")
 	if err != nil {
 		err = &errortypes.WriteError{
-			errors.Wrapf(err, "utils: Failed to create '%s'", tmpPath),
+			errors.Wrapf(err, "utils: Failed to create temp file for '%s'",
+				path),
+		}
+		return
+	}
+	tmpPath := file.Name()
+
+	err = file.Chmod(perm)
+	if err != nil {
+		file.Close()
+		os.Remove(tmpPath)
+		err = &errortypes.WriteError{
+			errors.Wrapf(err, "utils: Failed to chmod file '%s'", tmpPath),
 		}
 		return
 	}
@@ -278,7 +313,7 @@ func CreateWriteAtomic(path string, data string, perm os.FileMode) (err error) {
 		return
 	}
 
-	err = os.Rename(tmpPath, path)
+	err = renameRetry(tmpPath, path)
 	if err != nil {
 		os.Remove(tmpPath)
 		err = &errortypes.WriteError{
@@ -287,6 +322,8 @@ func CreateWriteAtomic(path string, data string, perm os.FileMode) (err error) {
 		}
 		return
 	}
+
+	syncDir(dirPath)
 
 	return
 }
