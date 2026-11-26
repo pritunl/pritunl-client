@@ -9,11 +9,16 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/dropbox/godropbox/errors"
 	"github.com/pritunl/pritunl-client/service/errortypes"
 	"github.com/pritunl/pritunl-client/service/utils"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	tmpTtl = 10 * time.Minute
 )
 
 var (
@@ -201,12 +206,10 @@ func Reload() (err error) {
 		name := file.Name()
 		pth := filepath.Join(prflsPath, name)
 
-		if strings.HasSuffix(name, ".tmp") ||
-			strings.HasSuffix(name, ".corrupt") {
-
-			// Leftover from an interrupted atomic write or a
-			// previously quarantined corrupt profile
-			_ = os.Remove(pth)
+		if strings.HasSuffix(name, ".tmp") {
+			if time.Since(file.ModTime()) > tmpTtl {
+				_ = os.Remove(pth)
+			}
 			continue
 		}
 
@@ -229,16 +232,23 @@ func Reload() (err error) {
 
 		e = json.Unmarshal(data, prfl)
 		if e != nil {
-			logrus.WithFields(logrus.Fields{
-				"path":  pth,
-				"error": e,
-			}).Error("sprofile: Failed to parse profile " +
-				"configuration, removing profile")
+			if _, ok := e.(*json.SyntaxError); ok {
+				corruptPth := pth + ".corrupt"
 
-			// The corrupt profile is unrecoverable, remove it,
-			// the profile must be re-imported
-			_ = os.Remove(pth)
+				logrus.WithFields(logrus.Fields{
+					"path":         pth,
+					"corrupt_path": corruptPth,
+					"error":        e,
+				}).Error("sprofile: Corrupt profile configuration, " +
+					"moving profile")
 
+				_ = os.Rename(pth, corruptPth)
+			} else {
+				logrus.WithFields(logrus.Fields{
+					"path":  pth,
+					"error": e,
+				}).Error("sprofile: Failed to parse profile configuration")
+			}
 			continue
 		}
 
