@@ -12,7 +12,6 @@ import Config from "../Config"
 import path from "path"
 import util from "util"
 import crypto from "crypto"
-import fs from "fs"
 import os from "os";
 import childProcess from "child_process";
 
@@ -691,18 +690,15 @@ export function New(self: Profile): Profile {
 		return new Promise<void>((resolve): void => {
 			let profilePath = this.confPath()
 
-			fs.writeFile(
-				profilePath, this.exportConf(),
-				(err: NodeJS.ErrnoException): void => {
-					if (err) {
-						err = new Errors.ReadError(
-							err, "Profiles: Profile write error",
-							{profile_path: profilePath})
-						Logger.errorAlert(err, 10)
-
-						resolve()
-						return
-					}
+			MiscUtils.fileWriteAtomic(profilePath, this.exportConf()).then(
+				(): void => {
+					resolve()
+				},
+				(err): void => {
+					err = new Errors.ReadError(
+						err, "Profiles: Profile write error",
+						{profile_path: profilePath})
+					Logger.errorAlert(err, 10)
 
 					resolve()
 				},
@@ -769,18 +765,15 @@ export function New(self: Profile): Profile {
 
 			if (!Config.safe_storage) {
 				this.extractKey(data).then((newData: string): void => {
-					fs.writeFile(
-						profilePath, newData,
-						(err: NodeJS.ErrnoException): void => {
-							if (err) {
-								err = new Errors.WriteError(
-									err, "Profiles: Profile write error",
-									{profile_path: profilePath})
-								Logger.errorAlert(err, 10)
-
-								resolve()
-								return
-							}
+					MiscUtils.fileWriteAtomic(profilePath, newData).then(
+						(): void => {
+							resolve()
+						},
+						(err): void => {
+							err = new Errors.WriteError(
+								err, "Profiles: Profile write error",
+								{profile_path: profilePath})
+							Logger.errorAlert(err, 10)
 
 							resolve()
 						},
@@ -788,18 +781,15 @@ export function New(self: Profile): Profile {
 				})
 			} else {
 				this.encryptKey(data).then((newData: string): void => {
-					fs.writeFile(
-						profilePath, newData,
-						(err: NodeJS.ErrnoException): void => {
-							if (err) {
-								err = new Errors.WriteError(
-									err, "Profiles: Profile write error",
-									{profile_path: profilePath})
-								Logger.errorAlert(err, 10)
-
-								resolve()
-								return
-							}
+					MiscUtils.fileWriteAtomic(profilePath, newData).then(
+						(): void => {
+							resolve()
+						},
+						(err): void => {
+							err = new Errors.WriteError(
+								err, "Profiles: Profile write error",
+								{profile_path: profilePath})
+							Logger.errorAlert(err, 10)
 
 							resolve()
 						},
