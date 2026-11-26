@@ -227,6 +227,12 @@ function loadProfiles(): Promise<ProfileTypes.Profiles> {
 
 						let prfls: ProfileTypes.Profiles = [];
 						for (let filename of filenames) {
+							if (filename.endsWith('.tmp')) {
+								MiscUtils.fileDeleteStale(
+									path.join(profilesPath, filename), 10 * 60 * 1000);
+								continue;
+							}
+
 							if (!filename.endsWith('.conf')) {
 								continue;
 							}
