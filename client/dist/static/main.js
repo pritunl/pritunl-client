@@ -5367,15 +5367,57 @@ function fileRead(path) {
 }
 function fileWrite(path, data) {
     return new Promise((resolve, reject) => {
-        external_fs_default().writeFile(path, data, (err) => {
+        fs.writeFile(path, data, (err) => {
             if (err) {
-                err = new WriteError(err, "Utils: Failed to write file", { path: path });
+                err = new Errors.WriteError(err, "Utils: Failed to write file", { path: path });
                 reject(err);
                 return;
             }
             resolve();
         });
     });
+}
+function fileRename(src, dst) {
+    return new Promise((resolve, reject) => {
+        let attempt = 0;
+        let rename = () => {
+            external_fs_default().rename(src, dst, (err) => {
+                if (!err) {
+                    resolve();
+                    return;
+                }
+                if ((external_process_default()).platform === "win32" && attempt < 20 && (err.code === "EPERM" || err.code === "EACCES" ||
+                    err.code === "EBUSY")) {
+                    attempt += 1;
+                    setTimeout(rename, attempt * 5);
+                    return;
+                }
+                reject(err);
+            });
+        };
+        rename();
+    });
+}
+async function fileWriteAtomic(pth, data) {
+    let tmpPth = pth + "." + uuidRand() + uuidRand() + ".tmp";
+    try {
+        let file = await external_fs_default().promises.open(tmpPth, "wx", 0o600);
+        try {
+            await file.writeFile(data);
+            await file.sync();
+        }
+        finally {
+            await file.close();
+        }
+        await fileRename(tmpPth, pth);
+    }
+    catch (err) {
+        try {
+            await external_fs_default().promises.unlink(tmpPth);
+        }
+        catch { }
+        throw new WriteError(err, "Utils: Failed to write file", { path: pth });
+    }
 }
 function encryptAvailable() {
     try {
@@ -6389,6 +6431,58 @@ function MiscUtils_fileWrite(path, data) {
             }
             resolve();
         });
+    });
+}
+function MiscUtils_fileRename(src, dst) {
+    return new Promise((resolve, reject) => {
+        let attempt = 0;
+        let rename = () => {
+            MiscUtils_fs.rename(src, dst, (err) => {
+                if (!err) {
+                    resolve();
+                    return;
+                }
+                if (MiscUtils_os.platform() === "win32" && attempt < 20 && (err.code === "EPERM" || err.code === "EACCES" ||
+                    err.code === "EBUSY")) {
+                    attempt += 1;
+                    setTimeout(rename, attempt * 5);
+                    return;
+                }
+                reject(err);
+            });
+        };
+        rename();
+    });
+}
+async function MiscUtils_fileWriteAtomic(pth, data) {
+    let tmpPth = pth + "." + nonce() + ".tmp";
+    try {
+        let file = await MiscUtils_fs.promises.open(tmpPth, "wx", 0o600);
+        try {
+            await file.writeFile(data);
+            await file.sync();
+        }
+        finally {
+            await file.close();
+        }
+        await MiscUtils_fileRename(tmpPth, pth);
+    }
+    catch (err) {
+        try {
+            await MiscUtils_fs.promises.unlink(tmpPth);
+        }
+        catch { }
+        throw new MiscUtils_Errors.WriteError(err, "Utils: Failed to write file", { path: pth });
+    }
+}
+function fileDeleteStale(pth, ttl) {
+    MiscUtils_fs.stat(pth, (err, stats) => {
+        if (err || !stats) {
+            return;
+        }
+        if (Date.now() - stats.mtimeMs > ttl) {
+            MiscUtils_fs.unlink(pth, () => { });
+        }
     });
 }
 function expandPath(pth) {
@@ -7628,7 +7722,7 @@ function New(self) {
         return data;
     };
     self.writeConf = function () {
-        return fileWrite(this.confPath(), this.exportConf());
+        return fileWriteAtomic(this.confPath(), this.exportConf());
     };
     self.writeData = async function (data) {
         let newData;
@@ -7638,7 +7732,7 @@ function New(self) {
         else {
             newData = await this.encryptKey(data);
         }
-        await fileWrite(this.dataPath(), newData);
+        await fileWriteAtomic(this.dataPath(), newData);
     };
     self._importSync = async function (data) {
         let sIndex;
