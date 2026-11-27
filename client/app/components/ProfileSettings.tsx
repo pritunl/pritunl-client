@@ -442,7 +442,7 @@ export default class ProfileSettings extends React.Component<Props, State> {
 									changed: true,
 									profile: profile,
 									setSystem: !system,
-									setAutoStart: true,
+									setAutoStart: !!profile.force_connect,
 								})
 							} else {
 								this.setState({
