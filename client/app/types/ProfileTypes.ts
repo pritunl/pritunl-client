@@ -602,6 +602,12 @@ export function New(self: Profile): Profile {
 			return
 		}
 
+		if (this.force_connect) {
+			this.disabled = false
+		} else if (this.disabled === undefined || this.disabled === null) {
+			this.disabled = true
+		}
+
 		try {
 			await ServiceActions.disconnect(this)
 		} catch {}
